@@ -4,6 +4,7 @@ import 'core/theme/app_theme.dart';
 import 'data/local/database_helper.dart';
 import 'providers/auth_provider.dart';
 import 'providers/category_provider.dart';
+import 'providers/class_provider.dart';
 import 'providers/locale_provider.dart';
 import 'providers/payment_provider.dart';
 import 'providers/student_provider.dart';
@@ -26,6 +27,7 @@ class AbsHisabManagerApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => StudentProvider()),
+        ChangeNotifierProvider(create: (_) => ClassProvider()),
         ChangeNotifierProvider(create: (_) => TransactionProvider()),
         ChangeNotifierProvider(create: (_) => CategoryProvider()),
         ChangeNotifierProvider(create: (_) => PaymentProvider()),

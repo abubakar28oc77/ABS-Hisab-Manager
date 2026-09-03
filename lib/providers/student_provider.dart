@@ -26,11 +26,15 @@ class StudentProvider extends ChangeNotifier {
     required double monthlyFee,
     required String section,
     required DateTime admissionDate,
-    String? notes,
     String fatherName = '',
     String fatherPhone = '',
+    String guardianName = '',
+    String guardianPhone = '',
     String address = '',
+    String studentPhone = '',
   }) async {
+    final finalFatherName = guardianName.isNotEmpty ? guardianName : fatherName;
+    final finalFatherPhone = guardianPhone.isNotEmpty ? guardianPhone : fatherPhone;
     final student = Student(
       id: _uuid.v4(),
       name: name,
@@ -40,9 +44,10 @@ class StudentProvider extends ChangeNotifier {
       section: section,
       admissionDate: admissionDate,
       notes: notes,
-      fatherName: fatherName,
-      fatherPhone: fatherPhone,
+      fatherName: finalFatherName,
+      fatherPhone: finalFatherPhone,
       address: address,
+      studentPhone: studentPhone,
     );
     await _db.saveStudent(student);
     loadStudents();

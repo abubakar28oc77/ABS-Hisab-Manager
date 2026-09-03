@@ -42,6 +42,9 @@ class Student extends HiveObject {
   @HiveField(11)
   String address;
 
+  @HiveField(12)
+  String studentPhone;
+
   Student({
     required this.id,
     required this.name,
@@ -55,7 +58,15 @@ class Student extends HiveObject {
     this.fatherName = '',
     this.fatherPhone = '',
     this.address = '',
+    this.studentPhone = '',
   }) : attendance = attendance ?? <String, int>{};
+
+  // Guardian aliases
+  String get guardianName => fatherName;
+  set guardianName(String v) => fatherName = v;
+
+  String get guardianPhone => fatherPhone;
+  set guardianPhone(String v) => fatherPhone = v;
 
   int attendanceFor(String monthKey) => attendance[monthKey] ?? 0;
 
@@ -72,6 +83,7 @@ class Student extends HiveObject {
     'fatherName': fatherName,
     'fatherPhone': fatherPhone,
     'address': address,
+    'studentPhone': studentPhone,
   };
 
   factory Student.fromJson(Map<String, dynamic> json) => Student(
@@ -90,8 +102,9 @@ class Student extends HiveObject {
           (k, v) => MapEntry(k.toString(), (v as num).toInt()),
         ) ??
         <String, int>{},
-    fatherName: json['fatherName'] as String? ?? '',
-    fatherPhone: json['fatherPhone'] as String? ?? '',
+    fatherName: json['fatherName'] as String? ?? (json['guardianName'] as String? ?? ''),
+    fatherPhone: json['fatherPhone'] as String? ?? (json['guardianPhone'] as String? ?? ''),
     address: json['address'] as String? ?? '',
+    studentPhone: json['studentPhone'] as String? ?? '',
   );
 }

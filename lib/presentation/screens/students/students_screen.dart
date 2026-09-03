@@ -5,6 +5,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_strings.dart';
 import '../../../core/utils/fee_calculator.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../providers/class_provider.dart';
 import '../../../providers/payment_provider.dart';
 import '../../../providers/student_provider.dart';
 import 'add_student_screen.dart';
@@ -28,7 +29,8 @@ class _StudentsScreenState extends State<StudentsScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<StudentProvider>();
     final paymentProvider = context.watch<PaymentProvider>();
-    final classOptions = ['All', ...AppConstants.classGrades];
+    final classProvider = context.watch<ClassProvider>();
+    final classOptions = ['All', ...classProvider.classNames];
 
     final students = provider.students.where((s) {
       // 1. Text Query (Name, Roll, Father Name, Phone)

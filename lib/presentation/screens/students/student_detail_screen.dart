@@ -3,6 +3,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_strings.dart';
@@ -36,7 +37,24 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
     _attYear = now.year;
   }
 
-  Future<void> _callNumber(BuildContext context, String phone) async {
+  String _cleanPhoneNumber(String phone) {
+    String clean = phone.replaceAll(RegExp(r'[^\d+]'), '');
+    if (clean.startsWith('01')) {
+      clean = '88$clean';
+    } else if (clean.startsWith('+8801')) {
+      clean = clean.substring(1);
+    }
+    return clean;
+  }
+
+  String _getEffectivePhone(Student s) {
+    if (s.fatherPhone.trim().isNotEmpty) return s.fatherPhone.trim();
+    if (s.studentPhone.trim().isNotEmpty) return s.studentPhone.trim();
+    return '';
+  }
+
+  Future<void> _callDirect(BuildContext context, Student s) async {
+    final phone = _getEffectivePhone(s);
     if (phone.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppStrings.t(context, 'no_phone_msg'))),
@@ -44,7 +62,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
       return;
     }
     final uri = Uri(scheme: 'tel', path: phone);
-    if (!await launchUrl(uri)) {
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       if (context.mounted) {
         ScaffoldMessenger.of(
           context,
@@ -53,59 +71,92 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
     }
   }
 
-  Future<void> _messageNumber(BuildContext context, String phone) async {
+  Future<void> _smsDirect(BuildContext context, Student s, double due) async {
+    final phone = _getEffectivePhone(s);
     if (phone.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppStrings.t(context, 'no_phone_msg'))),
       );
       return;
     }
-    final uri = Uri(scheme: 'sms', path: phone);
-    if (!await launchUrl(uri)) {
+    final isBn = context.read<LocaleProvider>().isBangla;
+    final body = due > 0
+        ? (isBn
+            ? 'সম্মানিত অভিভাবক, আপনার সন্তান ${s.name} (শ্রেণি: ${s.className}, রোল: ${s.rollNumber})-এর টিউশন ফি বাবদ ৳${due.toStringAsFixed(0)} বকেয়া রয়েছে। বিনীত - ABS Hisab Manager'
+            : 'Dear Guardian, Tuition fee of Tk ${due.toStringAsFixed(0)} is due for ${s.name} (Class: ${s.className}, Roll: ${s.rollNumber}). Thank you - ABS Hisab Manager')
+        : (isBn
+            ? 'সম্মানিত অভিভাবক, ${s.name} (শ্রেণি: ${s.className})-এর বর্তমান অ্যাকাউন্টে কোনো বকেয়া নেই। ধন্যবাদ - ABS Hisab Manager'
+            : 'Dear Guardian, ${s.name} (Class: ${s.className}) has no pending due. Thank you - ABS Hisab Manager');
+
+    final uri = Uri(
+      scheme: 'sms',
+      path: phone,
+      queryParameters: {'body': body},
+    );
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Unable to open messages')),
+          const SnackBar(content: Text('Unable to open SMS app')),
         );
       }
     }
   }
 
-  Future<void> _sendDueReminderSms(
-    BuildContext context,
-    Student student,
-    double due,
-  ) async {
-    if (student.fatherPhone.trim().isEmpty) {
+  Future<void> _whatsappDirect(BuildContext context, Student s, double due) async {
+    final rawPhone = _getEffectivePhone(s);
+    if (rawPhone.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppStrings.t(context, 'no_phone_msg'))),
       );
       return;
     }
-    if (due <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppStrings.t(context, 'no_due_msg'))),
-      );
-      return;
-    }
-
+    final cleanPhone = _cleanPhoneNumber(rawPhone);
     final isBn = context.read<LocaleProvider>().isBangla;
-    final body = isBn
-        ? 'সম্মানিত অভিভাবক, আপনার সন্তান ${student.name} (শ্রেণি: ${student.className}, রোল: ${student.rollNumber})-এর টিউশন ফি বাবদ ৳${due.toStringAsFixed(0)} বকেয়া রয়েছে। অনুগ্রহ করে দ্রুত পরিশোধ করুন। ধন্যবাদ - ABS Hisab Manager'
-        : 'Dear Parent, Tuition fee of Tk ${due.toStringAsFixed(0)} is due for your child ${student.name} (Class: ${student.className}, Roll: ${student.rollNumber}). Kindly arrange the payment. Thank you - ABS Hisab Manager';
+    final message = due > 0
+        ? (isBn
+            ? 'আসসালামু আলাইকুম। আপনার সন্তান ${s.name} (শ্রেণি: ${s.className}, রোল: ${s.rollNumber})-এর টিউশন ফি বাবদ ৳${due.toStringAsFixed(0)} বকেয়া রয়েছে। - ABS Hisab Manager'
+            : 'Hello. Tuition fee of Tk ${due.toStringAsFixed(0)} is due for ${s.name} (Class: ${s.className}, Roll: ${s.rollNumber}). - ABS Hisab Manager')
+        : (isBn
+            ? 'আসসালামু আলাইকুম। ${s.name} (শ্রেণি: ${s.className}) সংক্রান্ত তথ্য। - ABS Hisab Manager'
+            : 'Hello. Regarding student ${s.name} (Class: ${s.className}). - ABS Hisab Manager');
 
-    final uri = Uri(
-      scheme: 'sms',
-      path: student.fatherPhone.trim(),
-      queryParameters: {'body': body},
+    final uri = Uri.parse(
+      'https://wa.me/$cleanPhone?text=${Uri.encodeComponent(message)}',
     );
-
-    if (!await launchUrl(uri)) {
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not launch SMS app')),
+          const SnackBar(content: Text('Could not open WhatsApp')),
         );
       }
     }
+  }
+
+  Future<void> _telegramDirect(BuildContext context, Student s) async {
+    final rawPhone = _getEffectivePhone(s);
+    if (rawPhone.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppStrings.t(context, 'no_phone_msg'))),
+      );
+      return;
+    }
+    final cleanPhone = _cleanPhoneNumber(rawPhone);
+    final uri = Uri.parse('https://t.me/+${cleanPhone.replaceAll('+', '')}');
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      final fallbackUri = Uri.parse('https://telegram.me');
+      await launchUrl(fallbackUri, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  Future<void> _saveContactDirect(BuildContext context, Student s) async {
+    final phone = _getEffectivePhone(s);
+    final contactText =
+        'Student: ${s.name}\nClass: ${s.className} (Roll: ${s.rollNumber}, Sec: ${s.section})\nGuardian: ${s.fatherName}\nPhone: $phone\n${s.studentPhone.isNotEmpty ? 'Student Phone: ${s.studentPhone}\n' : ''}${s.address.isNotEmpty ? 'Address: ${s.address}\n' : ''}Fee: ৳${s.monthlyFee.toStringAsFixed(0)}';
+
+    await SharePlus.share(
+      contactText,
+      subject: '${s.name} - Student Contact Info',
+    );
   }
 
   Future<void> _printReceipt(Student s, Payment payment) async {
@@ -445,15 +496,21 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                   ),
                   if (student.fatherName.isNotEmpty)
                     _infoRow(
-                      Icons.man_rounded,
-                      AppStrings.t(context, 'fathers_name'),
+                      Icons.people_alt_outlined,
+                      AppStrings.t(context, 'guardian_name'),
                       student.fatherName,
                     ),
                   if (student.fatherPhone.isNotEmpty)
                     _infoRow(
-                      Icons.contact_phone_rounded,
-                      AppStrings.t(context, 'fathers_mobile'),
+                      Icons.phone_outlined,
+                      AppStrings.t(context, 'guardian_phone'),
                       student.fatherPhone,
+                    ),
+                  if (student.studentPhone.isNotEmpty)
+                    _infoRow(
+                      Icons.phone_android_rounded,
+                      AppStrings.t(context, 'student_phone'),
+                      student.studentPhone,
                     ),
                   if (student.notes != null && student.notes!.isNotEmpty)
                     _infoRow(
@@ -461,51 +518,15 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                       AppStrings.t(context, 'notes_optional'),
                       student.notes!,
                     ),
-                  if (student.fatherPhone.isNotEmpty) ...[
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: () =>
-                                _callNumber(context, student.fatherPhone),
-                            icon: const Icon(Icons.call_rounded, size: 18),
-                            label: Text(AppStrings.t(context, 'call_father')),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: () =>
-                                _messageNumber(context, student.fatherPhone),
-                            icon: const Icon(Icons.sms_rounded, size: 18),
-                            label: Text(AppStrings.t(context, 'message')),
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (due > 0) ...[
-                      const SizedBox(height: 8),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed: () =>
-                              _sendDueReminderSms(context, student, due),
-                          icon: const Icon(Icons.send_rounded, size: 18),
-                          label: Text(
-                            '${AppStrings.t(context, 'send_due_sms')} (৳${due.toStringAsFixed(0)})',
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.expense,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
                 ],
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
+
+            // DIRECT COMMUNICATION CARD (Matching 2nd Image)
+            _buildDirectCommunicationCard(context, student, due),
+
+            const SizedBox(height: 16),
             GridView.count(
               crossAxisCount: 2,
               shrinkWrap: true,
@@ -736,6 +757,138 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
       ],
     ),
   );
+
+  Widget _buildDirectCommunicationCard(
+    BuildContext context,
+    Student student,
+    double due,
+  ) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(
+                Icons.chat_bubble_outline_rounded,
+                color: Color(0xFF2563EB),
+                size: 22,
+              ),
+              SizedBox(width: 10),
+              Text(
+                'Direct Communication',
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF1E293B),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _directCommBtn(
+                label: 'Call',
+                icon: Icons.phone_rounded,
+                circleBg: const Color(0xFFE8F5E9),
+                iconColor: const Color(0xFF10B981),
+                textColor: const Color(0xFF059669),
+                onTap: () => _callDirect(context, student),
+              ),
+              _directCommBtn(
+                label: 'SMS',
+                icon: Icons.chat_bubble_rounded,
+                circleBg: const Color(0xFFE3F2FD),
+                iconColor: const Color(0xFF2563EB),
+                textColor: const Color(0xFF1D4ED8),
+                onTap: () => _smsDirect(context, student, due),
+              ),
+              _directCommBtn(
+                label: 'WhatsApp',
+                icon: Icons.forum_rounded,
+                circleBg: const Color(0xFFE8F8F0),
+                iconColor: const Color(0xFF25D366),
+                textColor: const Color(0xFF16A34A),
+                onTap: () => _whatsappDirect(context, student, due),
+              ),
+              _directCommBtn(
+                label: 'Telegram',
+                icon: Icons.near_me_rounded,
+                circleBg: const Color(0xFFE0F2FE),
+                iconColor: const Color(0xFF0284C7),
+                textColor: const Color(0xFF0284C7),
+                onTap: () => _telegramDirect(context, student),
+              ),
+              _directCommBtn(
+                label: 'Save',
+                icon: Icons.contact_page_rounded,
+                circleBg: const Color(0xFFF3E8FF),
+                iconColor: const Color(0xFF9333EA),
+                textColor: const Color(0xFF7C3AED),
+                onTap: () => _saveContactDirect(context, student),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _directCommBtn({
+    required String label,
+    required IconData icon,
+    required Color circleBg,
+    required Color iconColor,
+    required Color textColor,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: circleBg,
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: Icon(icon, color: iconColor, size: 24),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: textColor,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   Widget _infoRow(IconData icon, String label, String value) => Padding(
     padding: dynamicPad,

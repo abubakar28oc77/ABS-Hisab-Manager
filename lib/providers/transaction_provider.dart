@@ -86,4 +86,24 @@ class TransactionProvider extends ChangeNotifier {
     }
     return map;
   }
+
+  /// category -> total amount for specific month, for pie chart breakdown.
+  Map<String, double> categoryBreakdownForMonth(
+    int month,
+    int year, {
+    TxnType type = TxnType.expense,
+  }) {
+    final Map<String, double> map = {};
+    for (final t in forMonth(month, year).where((t) => t.type == type)) {
+      map[t.category] = (map[t.category] ?? 0) + t.amount;
+    }
+    return map;
+  }
+
+  /// Returns recent transactions strictly for the given month.
+  List<Transaction> recentForMonth(int month, int year, {int limit = 6}) {
+    final list = forMonth(month, year);
+    list.sort((a, b) => b.date.compareTo(a.date));
+    return list.take(limit).toList();
+  }
 }

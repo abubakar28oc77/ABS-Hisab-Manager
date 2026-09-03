@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/utils/app_strings.dart';
 import '../screens/dashboard/dashboard_screen.dart';
 import '../screens/students/students_screen.dart';
+import '../screens/classes/classes_screen.dart';
 import '../screens/transactions/transactions_screen.dart';
 import '../screens/settings/settings_screen.dart';
 
@@ -25,6 +26,7 @@ class MainNavState extends State<MainNav> {
   final _screens = const [
     DashboardScreen(),
     StudentsScreen(),
+    ClassesScreen(),
     TransactionsScreen(),
     SettingsScreen(),
   ];
@@ -38,6 +40,7 @@ class MainNavState extends State<MainNav> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _index,
         onTap: setTab,
+        type: BottomNavigationBarType.fixed,
         items: [
           BottomNavigationBarItem(
             icon: const Icon(Icons.dashboard_rounded),
@@ -46,6 +49,10 @@ class MainNavState extends State<MainNav> {
           BottomNavigationBarItem(
             icon: const Icon(Icons.people_alt_rounded),
             label: AppStrings.t(context, 'students'),
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.school_rounded),
+            label: AppStrings.t(context, 'classes_nav'),
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.swap_vert_rounded),

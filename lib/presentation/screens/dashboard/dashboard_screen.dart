@@ -166,20 +166,9 @@ class DashboardScreen extends StatelessWidget {
     final thisMonthExpense = txnProvider.expenseForMonth(now.month, now.year);
     final thisMonthNet = thisMonthIncome - thisMonthExpense;
 
-    final lastMonthDate = DateTime(now.year, now.month - 1, 1);
-    final lastMonthIncome = txnProvider.incomeForMonth(
-      lastMonthDate.month,
-      lastMonthDate.year,
-    );
-    final lastMonthExpense = txnProvider.expenseForMonth(
-      lastMonthDate.month,
-      lastMonthDate.year,
-    );
-    final lastMonthNet = lastMonthIncome - lastMonthExpense;
-    final netDelta = thisMonthNet - lastMonthNet;
-
-    final breakdown = txnProvider.categoryBreakdown();
+    final breakdown = txnProvider.categoryBreakdownForMonth(now.month, now.year);
     final total = breakdown.values.fold(0.0, (a, b) => a + b);
+    final recentMonthlyTxns = txnProvider.recentForMonth(now.month, now.year);
 
     return Scaffold(
       body: SafeArea(
@@ -194,7 +183,7 @@ class DashboardScreen extends StatelessWidget {
             children: [
               _buildHeader(context),
               const SizedBox(height: 18),
-              _buildBalanceCard(context, thisMonthNet, netDelta),
+              _buildBalanceCard(context, thisMonthNet),
               const SizedBox(height: 16),
               _buildQuickActions(context),
               const SizedBox(height: 16),
@@ -257,16 +246,16 @@ class DashboardScreen extends StatelessWidget {
                     ),
                   ),
                   TextButton(
-                    onPressed: () => MainNav.switchTab(context, 2),
+                    onPressed: () => MainNav.switchTab(context, 3),
                     child: Text(AppStrings.t(context, 'see_all')),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
-              if (txnProvider.recent.isEmpty)
+              if (recentMonthlyTxns.isEmpty)
                 _emptyState(AppStrings.t(context, 'no_transactions_yet'))
               else
-                ...txnProvider.recent.map(
+                ...recentMonthlyTxns.map(
                   (t) => Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: TransactionTile(
@@ -419,12 +408,10 @@ class DashboardScreen extends StatelessWidget {
   Widget _buildBalanceCard(
     BuildContext context,
     double thisMonthNet,
-    double netDelta,
   ) {
-    final isUp = netDelta >= 0;
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [AppColors.primary, AppColors.primaryDark],
@@ -455,25 +442,6 @@ class DashboardScreen extends StatelessWidget {
               fontSize: 32,
               fontWeight: FontWeight.w800,
             ),
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              Icon(
-                isUp ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded,
-                color: isUp ? Colors.greenAccent : Colors.redAccent,
-                size: 16,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                '${isUp ? '+' : ''}${Formatters.currency(netDelta)} ${AppStrings.t(context, 'vs_last_month')}',
-                style: TextStyle(
-                  color: isUp ? Colors.greenAccent : Colors.redAccent,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
           ),
         ],
       ),
