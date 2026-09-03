@@ -47,10 +47,16 @@ jobs:
         run: flutter analyze --no-fatal-infos
         continue-on-error: true
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.4'
+
       - name: Initialize Gradle Wrapper
         run: |
           cd android
-          gradle wrapper --gradle-version 8.4 --distribution-type all || true
+          gradle wrapper --gradle-version 8.4 --distribution-type all
+          chmod +x gradlew
 
       - name: Build APK (Release)
         run: flutter build apk --release --no-tree-shake-icons
