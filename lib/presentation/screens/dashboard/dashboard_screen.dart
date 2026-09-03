@@ -72,7 +72,7 @@ class DashboardScreen extends StatelessWidget {
                     child: ListView.separated(
                       controller: scrollCtrl,
                       itemCount: students.length,
-                      separatorBuilder: (_, _) => const Divider(height: 1),
+                      separatorBuilder: (_, __) => const Divider(height: 1),
                       itemBuilder: (c, i) {
                         final s = students[i];
                         final totalPaid = paymentProvider.totalPaid(s.id);

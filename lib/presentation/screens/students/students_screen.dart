@@ -156,7 +156,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 itemCount: classOptions.length,
-                separatorBuilder: (_, _) => const SizedBox(width: 8),
+                separatorBuilder: (_, __) => const SizedBox(width: 8),
                 itemBuilder: (context, i) {
                   final c = classOptions[i];
                   final selected = _classFilter == c;

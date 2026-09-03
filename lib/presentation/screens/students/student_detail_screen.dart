@@ -738,7 +738,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
   );
 
   Widget _infoRow(IconData icon, String label, String value) => Padding(
-    padding: const dynamicPad,
+    padding: dynamicPad,
     child: Row(
       children: [
         Icon(icon, size: 18, color: AppColors.textSecondary),
