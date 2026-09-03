@@ -1,11 +1,6 @@
-// ✅ CRITICAL: Required imports for signing configuration
-import java.util.Properties
-import java.io.FileInputStream
-
 plugins {
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
+    id("kotlin-android")
     id("dev.flutter.flutter-gradle-plugin")
 }
 
@@ -26,14 +21,14 @@ android {
         applicationId = "com.tutorfinance.finance"
         minSdk = 21
         targetSdk = 35
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
+        versionCode = 1
+        versionName = "2.0.0"
         multiDexEnabled = true
     }
 
     buildTypes {
         release {
-            signingConfig = signingConfigs.findByName("debug")
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 }
@@ -41,4 +36,5 @@ android {
 flutter {
     source = "../.."
 }
+
 
