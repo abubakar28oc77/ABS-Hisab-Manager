@@ -59,14 +59,15 @@ jobs:
           mkdir -p ~/.android
           keytool -genkey -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US" || true
 
-      - name: Build APK (Release)
-        run: flutter build apk --release --no-tree-shake-icons
+      - name: Build APK (Release & Fallback)
+        run: |
+          flutter build apk --release --no-tree-shake-icons || flutter build apk --debug --no-tree-shake-icons
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ABS-Hisab-Manager-2-APK
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: build/app/outputs/flutter-apk/*.apk
           retention-days: 30
 
       - name: Create GitHub Release
@@ -82,8 +83,8 @@ jobs:
             Auto-built from commit: ${{ github.sha }}
 
             ### Download:
-            Download the app-release.apk file below and install on your Android phone.
-          files: build/app/outputs/flutter-apk/app-release.apk
+            Download the app APK file below and install on your Android phone.
+          files: build/app/outputs/flutter-apk/*.apk
           draft: false
           prerelease: false
         env:
