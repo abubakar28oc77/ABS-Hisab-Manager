@@ -50,11 +50,11 @@ jobs:
       - name: Initialize Gradle Wrapper
         run: |
           cd android
-          gradle wrapper --gradle-version 8.7 --distribution-type all
-          chmod +x gradlew
+          gradle wrapper --gradle-version 8.4 --distribution-type all || true
 
       - name: Build APK (Release)
-        run: flutter build apk --release --no-tree-shake-icons
+        run: |
+          flutter build apk --release --no-tree-shake-icons --verbose > build.log 2>&1 || (tail -n 200 build.log && exit 1)
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
