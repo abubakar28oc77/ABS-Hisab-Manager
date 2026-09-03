@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.tutorfinance.finance"
-    compileSdk = 35
+    compileSdk = 34
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -20,7 +20,7 @@ android {
     defaultConfig {
         applicationId = "com.tutorfinance.finance"
         minSdk = 21
-        targetSdk = 35
+        targetSdk = 34
         versionCode = 1
         versionName = "2.0.0"
         multiDexEnabled = true
