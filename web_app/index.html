@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ABS Hisab Manager - ABS হিসাব ম্যানেজার</title>
+  <meta name="description" content="Tuition & Personal Finance Management Web Application for Tutors and Teachers.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <div id="app-container">
+    <!-- Mobile App Container Wrapper -->
+    <main class="app-frame" id="appFrame">
+      
+      <!-- Top Status Bar & Header -->
+      <header class="app-header" id="appHeader">
+        <div class="header-left">
+          <span class="greeting-text" id="greetingText">শুভ সকাল</span>
+          <h1 class="app-title" id="appTitle">ABS হিসাব ম্যানেজার</h1>
+        </div>
+        <div class="header-right">
+          <button class="lang-toggle-btn" id="langToggleBtn" title="ভাষা পরিবর্তন / Switch Language">
+            <i class="fa-solid fa-language"></i>
+            <span id="currentLangLabel">EN</span>
+          </button>
+          <div class="avatar-badge" title="Tutor Profile">
+            <i class="fa-solid fa-user-tie"></i>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Content Views (Tab Content) -->
+      <section class="tab-content" id="tabContent">
+        
+        <!-- 1. DASHBOARD VIEW -->
+        <div class="view active" id="dashboardView">
+          <!-- Balance Card -->
+          <div class="balance-card">
+            <div class="balance-sub" id="netBalanceLabel">নিট ব্যালেন্স</div>
+            <div class="balance-amount" id="netBalanceAmount">৳ 0.00</div>
+            <div class="balance-delta" id="balanceDelta">
+              <i class="fa-solid fa-arrow-trend-up"></i>
+              <span id="deltaText">+৳ 0.00 গত মাসের তুলনায়</span>
+            </div>
+          </div>
+
+          <!-- Quick Actions Bar -->
+          <div class="section-heading">
+            <span id="quickActionsTitle">কুইক অ্যাকশন</span>
+          </div>
+          <div class="quick-actions-bar">
+            <button class="quick-action-btn btn-collect" id="qaCollectBtn" onclick="openStudentPickerModal()">
+              <div class="qa-icon-wrap"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+              <span id="qaCollectLabel">ফি গ্রহণ</span>
+            </button>
+            <button class="quick-action-btn btn-student" id="qaStudentBtn" onclick="openAddStudentModal()">
+              <div class="qa-icon-wrap"><i class="fa-solid fa-user-plus"></i></div>
+              <span id="qaStudentLabel">শিক্ষার্থী যোগ</span>
+            </button>
+            <button class="quick-action-btn btn-expense" id="qaExpenseBtn" onclick="openAddTransactionModal('expense')">
+              <div class="qa-icon-wrap"><i class="fa-solid fa-circle-minus"></i></div>
+              <span id="qaExpenseLabel">ব্যয় যোগ</span>
+            </button>
+            <button class="quick-action-btn btn-report" id="qaReportBtn" onclick="openReportModal()">
+              <div class="qa-icon-wrap"><i class="fa-solid fa-chart-pie"></i></div>
+              <span id="qaReportLabel">রিপোর্টস</span>
+            </button>
+          </div>
+
+          <!-- 4 Summary Stats Grid -->
+          <div class="stats-grid">
+            <div class="stat-card income-card">
+              <div class="stat-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
+              <div class="stat-info">
+                <div class="stat-label" id="lblIncomeMonth">মোট আয় (এই মাসে)</div>
+                <div class="stat-value" id="valIncomeMonth">৳ 0.00</div>
+              </div>
+            </div>
+            <div class="stat-card expense-card">
+              <div class="stat-icon"><i class="fa-solid fa-arrow-trend-down"></i></div>
+              <div class="stat-info">
+                <div class="stat-label" id="lblExpenseMonth">মোট ব্যয় (এই মাসে)</div>
+                <div class="stat-value" id="valExpenseMonth">৳ 0.00</div>
+              </div>
+            </div>
+            <div class="stat-card pending-card">
+              <div class="stat-icon"><i class="fa-solid fa-hourglass-half"></i></div>
+              <div class="stat-info">
+                <div class="stat-label" id="lblPendingFees">বাকি ফি</div>
+                <div class="stat-value" id="valPendingFees">৳ 0.00</div>
+              </div>
+            </div>
+            <div class="stat-card students-card">
+              <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+              <div class="stat-info">
+                <div class="stat-label" id="lblTotalStudents">শিক্ষার্থী</div>
+                <div class="stat-value" id="valTotalStudents">0</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Expense Breakdown Chart -->
+          <div class="card-box mt-4">
+            <div class="box-title" id="lblExpenseBreakdown">ব্যয়ের বিবরণী</div>
+            <div class="chart-container" id="expenseChartContainer">
+              <canvas id="expensePieChart" width="120" height="120"></canvas>
+              <div class="chart-legend" id="expenseChartLegend"></div>
+            </div>
+          </div>
+
+          <!-- Recent Transactions -->
+          <div class="card-box mt-4">
+            <div class="box-header-row">
+              <div class="box-title" id="lblRecentTransactions">সাম্প্রতিক লেনদেন</div>
+              <button class="link-btn" onclick="switchNavTab('transactions')" id="btnSeeAllTxn">সব দেখুন</button>
+            </div>
+            <div class="transactions-list" id="recentTxnList"></div>
+          </div>
+        </div>
+
+        <!-- 2. STUDENTS VIEW -->
+        <div class="view" id="studentsView">
+          <div class="search-bar-wrap">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="text" id="studentSearchInput" placeholder="নাম, রোল, পিতার মোবাইল দিয়ে খুঁজুন..." oninput="renderStudentsList()">
+            <button class="clear-search-btn" id="clearStudentSearchBtn" onclick="clearStudentSearch()">&times;</button>
+          </div>
+
+          <!-- Status Filters -->
+          <div class="filter-chips-row" id="studentStatusChips">
+            <button class="chip active" data-status="all" onclick="setStudentStatusFilter('all')">সব</button>
+            <button class="chip chip-due" data-status="due" onclick="setStudentStatusFilter('due')">বকেয়া আছে</button>
+            <button class="chip chip-paid" data-status="paid" onclick="setStudentStatusFilter('paid')">পরিশোধিত</button>
+            <button class="chip chip-advance" data-status="advance" onclick="setStudentStatusFilter('advance')">অগ্রিম</button>
+          </div>
+
+          <!-- Class Grade Filters -->
+          <div class="filter-chips-row mt-2" id="studentClassChips">
+            <button class="chip active" data-class="All" onclick="setStudentClassFilter('All')">সকল শ্রেণি</button>
+            <button class="chip" data-class="Six" onclick="setStudentClassFilter('Six')">Six</button>
+            <button class="chip" data-class="Seven" onclick="setStudentClassFilter('Seven')">Seven</button>
+            <button class="chip" data-class="Eight" onclick="setStudentClassFilter('Eight')">Eight</button>
+            <button class="chip" data-class="Nine" onclick="setStudentClassFilter('Nine')">Nine</button>
+            <button class="chip" data-class="Ten" onclick="setStudentClassFilter('Ten')">Ten</button>
+          </div>
+
+          <div class="students-list mt-3" id="studentsList"></div>
+        </div>
+
+        <!-- 3. TRANSACTIONS VIEW -->
+        <div class="view" id="transactionsView">
+          <div class="filter-chips-row" id="txnFilterChips">
+            <button class="chip active" data-type="all" onclick="setTxnTypeFilter('all')">সব</button>
+            <button class="chip chip-income" data-type="income" onclick="setTxnTypeFilter('income')">আয়</button>
+            <button class="chip chip-expense" data-type="expense" onclick="setTxnTypeFilter('expense')">ব্যয়</button>
+          </div>
+          <div class="transactions-list mt-3" id="fullTxnList"></div>
+        </div>
+
+        <!-- 4. SETTINGS VIEW -->
+        <div class="view" id="settingsView">
+          
+          <!-- Language Section -->
+          <div class="settings-section">
+            <div class="section-title" id="secTitleLang">ভাষা (Language)</div>
+            <div class="settings-card lang-switcher-card">
+              <div class="sc-left">
+                <i class="fa-solid fa-globe sc-icon"></i>
+                <span class="sc-title" id="lblCurrentLang">অ্যাপের ভাষা</span>
+              </div>
+              <div class="lang-pill-toggle">
+                <button class="pill-btn" id="langBtnEn" onclick="setLanguage('en')">English</button>
+                <button class="pill-btn active" id="langBtnBn" onclick="setLanguage('bn')">বাংলা</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Security Section -->
+          <div class="settings-section mt-3">
+            <div class="section-title" id="secTitleSecurity">নিরাপত্তা (Security)</div>
+            <div class="settings-card" onclick="openPinModal()">
+              <div class="sc-left">
+                <i class="fa-solid fa-lock sc-icon"></i>
+                <div>
+                  <div class="sc-title" id="lblPinTitle">অ্যাপ লক (PIN)</div>
+                  <div class="sc-desc" id="lblPinDesc">৪-ডিজিটের পিন কোড সেট করুন</div>
+                </div>
+              </div>
+              <i class="fa-solid fa-chevron-right sc-arrow"></i>
+            </div>
+          </div>
+
+          <!-- Finance Section -->
+          <div class="settings-section mt-3">
+            <div class="section-title" id="secTitleFinance">আর্থিক হিসাব (Finance)</div>
+            <div class="settings-card" onclick="openCategoriesModal()">
+              <div class="sc-left">
+                <i class="fa-solid fa-layer-group sc-icon"></i>
+                <div>
+                  <div class="sc-title" id="lblManageCat">ক্যাটাগরি ম্যানেজমেন্ট</div>
+                  <div class="sc-desc" id="lblManageCatDesc">আয় ও ব্যয়ের ক্যাটাগরি তৈরি/সম্পাদনা</div>
+                </div>
+              </div>
+              <i class="fa-solid fa-chevron-right sc-arrow"></i>
+            </div>
+            <div class="settings-card mt-2" onclick="openReportModal()">
+              <div class="sc-left">
+                <i class="fa-solid fa-chart-line sc-icon"></i>
+                <div>
+                  <div class="sc-title" id="lblFullReports">আর্থিক রিপোর্ট</div>
+                  <div class="sc-desc" id="lblFullReportsDesc">দৈনিক, সাপ্তাহিক, মাসিক ও বার্ষিক রিপোর্ট PDF</div>
+                </div>
+              </div>
+              <i class="fa-solid fa-chevron-right sc-arrow"></i>
+            </div>
+          </div>
+
+          <!-- Data & Backup Section -->
+          <div class="settings-section mt-3">
+            <div class="section-title" id="secTitleBackup">ডাটা ও ব্যাকআপ</div>
+            <div class="settings-card" onclick="exportDataBackup()">
+              <div class="sc-left">
+                <i class="fa-solid fa-file-export sc-icon text-primary"></i>
+                <div>
+                  <div class="sc-title" id="lblExportBackup">ব্যাকআপ এক্সপোর্ট (JSON)</div>
+                  <div class="sc-desc" id="lblExportDesc">সকল ডাটা ফাইল আকারে ডাউনলোড করুন</div>
+                </div>
+              </div>
+              <i class="fa-solid fa-download sc-arrow"></i>
+            </div>
+            <div class="settings-card mt-2" onclick="triggerImportBackup()">
+              <div class="sc-left">
+                <i class="fa-solid fa-file-import sc-icon text-success"></i>
+                <div>
+                  <div class="sc-title" id="lblImportBackup">ব্যাকআপ রিস্টোর (JSON)</div>
+                  <div class="sc-desc" id="lblImportDesc">JSON ফাইল থেকে ডাটা রিস্টোর করুন</div>
+                </div>
+              </div>
+              <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="handleImportFile(event)">
+              <i class="fa-solid fa-upload sc-arrow"></i>
+            </div>
+            <div class="settings-card mt-2 danger-card" onclick="confirmClearAllData()">
+              <div class="sc-left">
+                <i class="fa-solid fa-trash-can sc-icon text-danger"></i>
+                <div>
+                  <div class="sc-title text-danger" id="lblClearAll">সকল ডাটা মুছুন</div>
+                  <div class="sc-desc" id="lblClearDesc">স্থায়ীভাবে সব শিক্ষার্থী ও লেনদেন ডিলিট</div>
+                </div>
+              </div>
+              <i class="fa-solid fa-chevron-right sc-arrow text-danger"></i>
+            </div>
+          </div>
+
+          <!-- About Section -->
+          <div class="settings-section mt-3 mb-5">
+            <div class="section-title" id="secTitleAbout">সম্পর্কে</div>
+            <div class="settings-card">
+              <div class="sc-left">
+                <i class="fa-solid fa-circle-info sc-icon"></i>
+                <div>
+                  <div class="sc-title">ABS Hisab Manager v1.0.0</div>
+                  <div class="sc-desc">লোকাল-ফার্স্ট প্রাইভেট টিউটর ও ফিন্যান্স ম্যানেজার</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Bottom Floating Action Button -->
+      <button class="fab-btn" id="fabBtn" onclick="onFabClicked()" title="নতুন যুক্ত করুন">
+        <i class="fa-solid fa-plus"></i>
+      </button>
+
+      <!-- Bottom Navigation Bar -->
+      <nav class="bottom-nav" id="bottomNav">
+        <button class="nav-item active" data-tab="dashboard" onclick="switchNavTab('dashboard')">
+          <i class="fa-solid fa-chart-simple"></i>
+          <span id="navLblDashboard">ড্যাশবোর্ড</span>
+        </button>
+        <button class="nav-item" data-tab="students" onclick="switchNavTab('students')">
+          <i class="fa-solid fa-user-graduate"></i>
+          <span id="navLblStudents">শিক্ষার্থী</span>
+        </button>
+        <button class="nav-item" data-tab="transactions" onclick="switchNavTab('transactions')">
+          <i class="fa-solid fa-money-bill-transfer"></i>
+          <span id="navLblTransactions">লেনদেন</span>
+        </button>
+        <button class="nav-item" data-tab="settings" onclick="switchNavTab('settings')">
+          <i class="fa-solid fa-gear"></i>
+          <span id="navLblSettings">সেটিংস</span>
+        </button>
+      </nav>
+
+    </main>
+  </div>
+
+  <!-- ==================== MODALS CONTAINER ==================== -->
+  
+  <!-- PIN LOCK SCREEN OVERLAY -->
+  <div class="pin-lock-overlay" id="pinLockOverlay">
+    <div class="pin-lock-box">
+      <div class="lock-icon-circle"><i class="fa-solid fa-shield-halved"></i></div>
+      <h2 id="pinLockTitle">ABS Hisab Manager</h2>
+      <p id="pinLockSub">পিন কোড দিয়ে আনলক করুন</p>
+      
+      <div class="pin-dots-row" id="pinDotsRow">
+        <div class="pin-dot"></div>
+        <div class="pin-dot"></div>
+        <div class="pin-dot"></div>
+        <div class="pin-dot"></div>
+      </div>
+      <div class="pin-error-text" id="pinErrorText"></div>
+
+      <div class="keypad-grid">
+        <button class="key-btn" onclick="enterPinDigit('1')">1</button>
+        <button class="key-btn" onclick="enterPinDigit('2')">2</button>
+        <button class="key-btn" onclick="enterPinDigit('3')">3</button>
+        <button class="key-btn" onclick="enterPinDigit('4')">4</button>
+        <button class="key-btn" onclick="enterPinDigit('5')">5</button>
+        <button class="key-btn" onclick="enterPinDigit('6')">6</button>
+        <button class="key-btn" onclick="enterPinDigit('7')">7</button>
+        <button class="key-btn" onclick="enterPinDigit('8')">8</button>
+        <button class="key-btn" onclick="enterPinDigit('9')">9</button>
+        <button class="key-btn key-action" onclick="simulateBiometric()"><i class="fa-solid fa-fingerprint"></i></button>
+        <button class="key-btn" onclick="enterPinDigit('0')">0</button>
+        <button class="key-btn key-action" onclick="deletePinDigit()"><i class="fa-solid fa-delete-left"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD / EDIT STUDENT MODAL -->
+  <div class="modal-backdrop" id="studentModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="studentModalTitle">শিক্ষার্থী যুক্ত করুন</h3>
+        <button class="modal-close-btn" onclick="closeModal('studentModal')">&times;</button>
+      </div>
+      <form class="modal-body" id="studentForm" onsubmit="handleSaveStudent(event)">
+        <input type="hidden" id="studentFormId">
+        <div class="form-group">
+          <label id="lblFmName">শিক্ষার্থীর নাম *</label>
+          <input type="text" id="fmStudentName" required placeholder="নাম লিখুন">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label id="lblFmClass">শ্রেণি *</label>
+            <select id="fmStudentClass" required>
+              <option value="Six">Six</option>
+              <option value="Seven">Seven</option>
+              <option value="Eight">Eight</option>
+              <option value="Nine">Nine</option>
+              <option value="Ten">Ten</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label id="lblFmRoll">রোল নম্বর *</label>
+            <input type="text" id="fmStudentRoll" required placeholder="e.g. 01">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label id="lblFmSection">শাখা</label>
+            <input type="text" id="fmStudentSection" placeholder="e.g. A">
+          </div>
+          <div class="form-group">
+            <label id="lblFmFee">মাসিক ফি (৳) *</label>
+            <input type="number" id="fmStudentFee" required min="0" step="50" placeholder="e.g. 2000">
+          </div>
+        </div>
+        <div class="form-group">
+          <label id="lblFmFather">পিতার নাম</label>
+          <input type="text" id="fmFatherName" placeholder="পিতার নাম">
+        </div>
+        <div class="form-group">
+          <label id="lblFmPhone">পিতার মোবাইল নম্বর</label>
+          <input type="tel" id="fmFatherPhone" placeholder="01XXXXXXXXX">
+        </div>
+        <div class="form-group">
+          <label id="lblFmAddress">ঠিকানা</label>
+          <input type="text" id="fmStudentAddress" placeholder="ঠিকানা">
+        </div>
+        <div class="form-group">
+          <label id="lblFmAdmDate">ভর্তির তারিখ</label>
+          <input type="date" id="fmAdmissionDate">
+        </div>
+        <div class="form-group">
+          <label id="lblFmNotes">নোট (ঐচ্ছিক)</label>
+          <textarea id="fmStudentNotes" rows="2" placeholder="অতিরিক্ত কোনো তথ্য..."></textarea>
+        </div>
+        <button type="submit" class="submit-btn" id="btnSaveStudentSubmit">সংরক্ষণ করুন</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- STUDENT DETAIL & PROFILE MODAL -->
+  <div class="modal-backdrop" id="studentDetailModal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <h3 id="studentDetailName">শিক্ষার্থীর প্রোফাইল</h3>
+        <div class="modal-header-actions">
+          <button class="icon-action-btn" title="Statement PDF" onclick="printStudentFullStatement()"><i class="fa-solid fa-file-pdf"></i></button>
+          <button class="icon-action-btn" title="Edit" onclick="editCurrentStudent()"><i class="fa-solid fa-pen"></i></button>
+          <button class="icon-action-btn text-danger" title="Delete" onclick="deleteCurrentStudent()"><i class="fa-solid fa-trash"></i></button>
+          <button class="modal-close-btn" onclick="closeModal('studentDetailModal')">&times;</button>
+        </div>
+      </div>
+      <div class="modal-body" id="studentDetailBody">
+        <!-- Injected dynamically by app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- COLLECT PAYMENT MODAL -->
+  <div class="modal-backdrop" id="collectPaymentModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="paymentModalTitle">পেমেন্ট সংগ্রহ</h3>
+        <button class="modal-close-btn" onclick="closeModal('collectPaymentModal')">&times;</button>
+      </div>
+      <form class="modal-body" id="paymentForm" onsubmit="handleSavePayment(event)">
+        <input type="hidden" id="pmStudentId">
+        <div class="target-student-badge" id="pmStudentBadge"></div>
+        <div class="form-group mt-2">
+          <label id="lblPmAmount">টাকার পরিমাণ (৳) *</label>
+          <input type="number" id="pmAmount" required min="1" step="10" placeholder="টাকার অংক">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label id="lblPmMethod">পেমেন্ট মাধ্যম</label>
+            <select id="pmMethod">
+              <option value="Cash">Cash (ক্যাশ)</option>
+              <option value="bKash">bKash (বিকাশ)</option>
+              <option value="Nagad">Nagad (নগদ)</option>
+              <option value="Rocket">Rocket (রকেট)</option>
+              <option value="Bank">Bank (ব্যাংক)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label id="lblPmMonth">প্রযোজ্য মাস (YYYY-MM)</label>
+            <input type="month" id="pmMonth">
+          </div>
+        </div>
+        <div class="form-group">
+          <label id="lblPmDate">পেমেন্টের তারিখ</label>
+          <input type="date" id="pmDate">
+        </div>
+        <div class="form-group">
+          <label id="lblPmNote">নোট (ঐচ্ছিক)</label>
+          <input type="text" id="pmNote" placeholder="পেমেন্ট সংক্রান্ত কোনো নোট...">
+        </div>
+        <div class="checkbox-row">
+          <input type="checkbox" id="pmGiveReceipt" checked>
+          <label for="pmGiveReceipt" id="lblPmReceiptCheck">এখনই মানি রিসিট (Receipt) তৈরি করবেন?</label>
+        </div>
+        <button type="submit" class="submit-btn btn-income mt-3" id="btnSavePaymentSubmit">পেমেন্ট সেভ করুন ও রশিদ তৈরি করুন</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- STUDENT PICKER MODAL (For Quick Fee Collection) -->
+  <div class="modal-backdrop" id="studentPickerModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="pickerModalTitle">শিক্ষার্থী নির্বাচন করুন</h3>
+        <button class="modal-close-btn" onclick="closeModal('studentPickerModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="text" id="pickerSearchInput" placeholder="শিক্ষার্থী খুঁজুন..." oninput="renderStudentPickerList()">
+        <div class="picker-list mt-3" id="pickerStudentList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD TRANSACTION MODAL -->
+  <div class="modal-backdrop" id="transactionModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="txnModalTitle">নতুন লেনদেন</h3>
+        <button class="modal-close-btn" onclick="closeModal('transactionModal')">&times;</button>
+      </div>
+      <form class="modal-body" id="txnForm" onsubmit="handleSaveTransaction(event)">
+        <input type="hidden" id="txnFormId">
+        <div class="type-segmented-control">
+          <button type="button" class="seg-btn" id="txnTypeIncomeBtn" onclick="setFormTxnType('income')">আয় (Income)</button>
+          <button type="button" class="seg-btn active" id="txnTypeExpenseBtn" onclick="setFormTxnType('expense')">ব্যয় (Expense)</button>
+        </div>
+        <input type="hidden" id="txnFormType" value="expense">
+        <div class="form-group mt-3">
+          <label id="lblTxnAmount">পরিমাণ (৳) *</label>
+          <input type="number" id="txnAmount" required min="1" step="1" placeholder="৳ 0.00">
+        </div>
+        <div class="form-group">
+          <label id="lblTxnCategory">ক্যাটাগরি *</label>
+          <select id="txnCategory" required></select>
+        </div>
+        <div class="form-group">
+          <label id="lblTxnDate">তারিখ</label>
+          <input type="date" id="txnDate">
+        </div>
+        <div class="form-group">
+          <label id="lblTxnNote">নোট (ঐচ্ছিক)</label>
+          <input type="text" id="txnNote" placeholder="লেনদেনের বিবরণ...">
+        </div>
+        <button type="submit" class="submit-btn" id="btnSaveTxnSubmit">সংরক্ষণ করুন</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- FINANCIAL REPORT MODAL -->
+  <div class="modal-backdrop" id="reportModal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <h3 id="reportModalTitle">আর্থিক রিপোর্ট (Financial Report)</h3>
+        <div class="modal-header-actions">
+          <button class="icon-action-btn" title="Print/Share PDF" onclick="printFinancialReportPdf()"><i class="fa-solid fa-print"></i></button>
+          <button class="modal-close-btn" onclick="closeModal('reportModal')">&times;</button>
+        </div>
+      </div>
+      <div class="modal-body" id="reportBody">
+        <!-- Injected dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- CATEGORIES MANAGEMENT MODAL -->
+  <div class="modal-backdrop" id="categoriesModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="catModalTitle">ক্যাটাগরি ম্যানেজমেন্ট</h3>
+        <button class="modal-close-btn" onclick="closeModal('categoriesModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="type-segmented-control">
+          <button type="button" class="seg-btn active" id="catTabExpenseBtn" onclick="switchCategoryTab('expense')">ব্যয় (Expense)</button>
+          <button type="button" class="seg-btn" id="catTabIncomeBtn" onclick="switchCategoryTab('income')">আয় (Income)</button>
+        </div>
+        <div class="add-cat-row mt-3">
+          <input type="text" id="newCategoryInput" placeholder="নতুন ক্যাটাগরি নাম...">
+          <button type="button" class="btn-primary-sm" onclick="addNewCategory()"><i class="fa-solid fa-plus"></i> যোগ</button>
+        </div>
+        <div class="categories-list mt-3" id="categoriesListContainer"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PIN SET/CHANGE MODAL -->
+  <div class="modal-backdrop" id="pinSettingModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="pinSettingModalTitle">পিন কোড সেট করুন</h3>
+        <button class="modal-close-btn" onclick="closeModal('pinSettingModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label id="lblEnterPin">৪-ডিজিটের পিন কোড</label>
+          <input type="password" id="newPinInput" maxlength="4" placeholder="••••">
+        </div>
+        <div class="form-group">
+          <label id="lblConfirmPin">পুনরায় পিন কোড লিখুন</label>
+          <input type="password" id="confirmPinInput" maxlength="4" placeholder="••••">
+        </div>
+        <div class="modal-btn-row mt-3">
+          <button type="button" class="submit-btn" onclick="saveNewPin()">পিন সেভ করুন</button>
+          <button type="button" class="btn-danger-outline" id="btnRemovePin" onclick="removePinSecurity()" style="display:none">পিন বাতিল করুন</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRINTABLE RECEIPT / STATEMENT HIDDEN CONTAINER -->
+  <div id="printArea" class="print-only"></div>
+
+  <!-- Core App Scripts -->
+  <script src="app.js"></script>
+</body>
+</html>
