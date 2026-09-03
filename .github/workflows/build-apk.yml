@@ -47,16 +47,12 @@ jobs:
         run: flutter analyze --no-fatal-infos
         continue-on-error: true
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.4'
-
-      - name: Initialize Gradle Wrapper
+      - name: Ensure Android Wrapper and local.properties
         run: |
-          cd android
-          gradle wrapper --gradle-version 8.4 --distribution-type all
-          chmod +x gradlew
+          echo "flutter.sdk=$FLUTTER_ROOT" > android/local.properties
+          echo "sdk.dir=$ANDROID_HOME" >> android/local.properties
+          flutter create . --platforms=android --org com.tutorfinance
+          chmod +x android/gradlew || true
 
       - name: Build APK (Release)
         run: flutter build apk --release --no-tree-shake-icons
