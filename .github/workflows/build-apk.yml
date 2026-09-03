@@ -47,15 +47,9 @@ jobs:
         run: flutter analyze --no-fatal-infos
         continue-on-error: true
 
-      - name: Ensure Android Wrapper and local.properties
+      - name: Ensure Android Permissions and Keystore
         run: |
-          echo "flutter.sdk=$FLUTTER_ROOT" > android/local.properties
-          echo "sdk.dir=$ANDROID_HOME" >> android/local.properties
-          flutter create . --platforms=android --org com.tutorfinance
-          chmod +x android/gradlew || true
-
-      - name: Ensure Android Keystore & Licenses
-        run: |
+          chmod +x android/gradlew
           mkdir -p ~/.android
           keytool -genkey -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US" || true
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
