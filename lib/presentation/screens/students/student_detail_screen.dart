@@ -153,7 +153,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
     final contactText =
         'Student: ${s.name}\nClass: ${s.className} (Roll: ${s.rollNumber}, Sec: ${s.section})\nGuardian: ${s.fatherName}\nPhone: $phone\n${s.studentPhone.isNotEmpty ? 'Student Phone: ${s.studentPhone}\n' : ''}${s.address.isNotEmpty ? 'Address: ${s.address}\n' : ''}Fee: ৳${s.monthlyFee.toStringAsFixed(0)}';
 
-    await SharePlus.share(
+    await Share.share(
       contactText,
       subject: '${s.name} - Student Contact Info',
     );

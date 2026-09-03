@@ -20,18 +20,16 @@ class SettingsScreen extends StatelessWidget {
   Future<void> _exportBackup(BuildContext context) async {
     final json = DatabaseHelper.instance.exportAllToJsonString();
     final bytes = utf8.encode(json);
-    await SharePlus.instance.share(
-      ShareParams(
-        files: [
-          XFile.fromData(
-            bytes,
-            name:
-                'abs_hisab_manager_backup_${DateTime.now().millisecondsSinceEpoch}.json',
-            mimeType: 'application/json',
-          ),
-        ],
-        text: 'ABS Hisab Manager backup',
-      ),
+    await Share.shareXFiles(
+      [
+        XFile.fromData(
+          bytes,
+          name:
+              'abs_hisab_manager_backup_${DateTime.now().millisecondsSinceEpoch}.json',
+          mimeType: 'application/json',
+        ),
+      ],
+      text: 'ABS Hisab Manager backup',
     );
   }
 
