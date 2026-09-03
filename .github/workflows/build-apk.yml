@@ -53,7 +53,9 @@ jobs:
           gradle wrapper --gradle-version 8.4 --distribution-type all || true
 
       - name: Build APK (Release)
-        run: flutter build apk --release --no-tree-shake-icons
+        run: |
+          cd android
+          ./gradlew assembleRelease --stacktrace
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
