@@ -45,7 +45,7 @@ jobs:
         continue-on-error: true
 
       - name: Build APK (Release)
-        run: flutter build apk --release --no-tree-shake-icons
+        run: flutter build apk --release --no-tree-shake-icons --android-skip-build-dependency-validation
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
@@ -67,8 +67,6 @@ jobs:
 
             ### Download:
             Download the app-release.apk file below and install on your Android phone.
-
-            > Install ???? ??? Settings > Security > Unknown Sources ???? ?????
           files: build/app/outputs/flutter-apk/app-release.apk
           draft: false
           prerelease: false
