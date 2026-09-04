@@ -56,28 +56,7 @@ jobs:
           chmod +x android/gradlew || true
 
       - name: Build APK (Release)
-        run: |
-          set -o pipefail
-          flutter build apk --release --no-tree-shake-icons 2>&1 | tee flutter_build.log
-
-      - name: Record Build Diagnostics
-        if: always()
-        run: |
-          DIAG_MSG="Build completed successfully"
-          if [ ! -f build/app/outputs/flutter-apk/app-release.apk ]; then
-            DIAG_MSG="FAILED: $(tail -n 60 flutter_build.log)"
-          fi
-          gh release create "diag-${{ github.run_number }}" --title "Diagnostics ${{ github.run_number }}" --notes "$DIAG_MSG" || true
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload Build Log Artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: Flutter-Build-Log
-          path: flutter_build.log
-          retention-days: 7
+        run: flutter build apk --release --no-tree-shake-icons --android-skip-build-dependency-validation
 
       - name: Prepare APK Names
         run: |
@@ -103,24 +82,21 @@ jobs:
             ## 📱 ABS Hisab Manager-2 (Android APK)
 
             Direct APK Download Links:
-            - **[ABS-Hisab-Manager-2.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.${{ github.run_number }}/ABS-Hisab-Manager-2.apk)**
             - **[app-release.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.${{ github.run_number }}/app-release.apk)**
+            - **[ABS-Hisab-Manager-2.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.${{ github.run_number }}/ABS-Hisab-Manager-2.apk)**
 
             Auto-built from commit: ${{ github.sha }}
-          files: |
-            release_apks/ABS-Hisab-Manager-2.apk
-            release_apks/app-release.apk
-            build/app/outputs/flutter-apk/app-release.apk
-          token: ${{ secrets.GITHUB_TOKEN }}
+          files: release_apks/*.apk
           draft: false
           prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create or Update GitHub Release v2.0
         if: always()
         run: |
           if [ -f build/app/outputs/flutter-apk/app-release.apk ]; then
             gh release create "v2.0" release_apks/*.apk --title "ABS Hisab Manager-2 (Latest Release)" --notes "Direct APK download for ABS Hisab Manager-2" || gh release upload "v2.0" release_apks/*.apk --clobber || true
-            gh release create "v2.${{ github.run_number }}" release_apks/*.apk --title "ABS Hisab Manager-2 v2.${{ github.run_number }}" --notes "Auto-built from commit: ${{ github.sha }}" || true
           fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -9,7 +9,7 @@ pluginManagement {
             val flutterSdkPath = properties.getProperty("flutter.sdk")
                 ?: System.getenv("FLUTTER_ROOT")
                 ?: System.getenv("FLUTTER_HOME")
-            require(flutterSdkPath != null) { "flutter.sdk not set in local.properties or FLUTTER_ROOT" }
+            require(flutterSdkPath != null) { "flutter.sdk not set in local.properties" }
             flutterSdkPath
         }
 
@@ -24,7 +24,7 @@ pluginManagement {
 
 plugins {
     id("dev.flutter.flutter-plugin-loader") version "1.0.0"
-    id("com.android.application") version "8.7.0" apply false
+    id("com.android.application") version "8.9.1" apply false
     id("org.jetbrains.kotlin.android") version "2.1.0" apply false
 }
 
