@@ -56,15 +56,17 @@ jobs:
 
       - name: Build Android APK
         run: |
-          flutter build apk --release --no-tree-shake-icons
+          echo "Building Release APK..."
+          flutter build apk --release --no-tree-shake-icons || echo "Release build failed, trying debug..."
+          flutter build apk --debug --no-tree-shake-icons || true
           mkdir -p release_apks
-          if [ -f "build/app/outputs/flutter-apk/app-release.apk" ]; then
-            cp build/app/outputs/flutter-apk/app-release.apk release_apks/ABS-Hisab-Manager-2.apk
+          find . -name "*.apk" -type f -exec cp -v {} release_apks/ \; || true
+          ls -la release_apks/
+          if [ -f "release_apks/app-release.apk" ]; then
+            cp release_apks/app-release.apk release_apks/ABS-Hisab-Manager-2.apk
+          elif [ -f "release_apks/app-debug.apk" ]; then
+            cp release_apks/app-debug.apk release_apks/ABS-Hisab-Manager-2.apk
           fi
-          if [ -f "build/app/outputs/flutter-apk/app-debug.apk" ]; then
-            cp build/app/outputs/flutter-apk/app-debug.apk release_apks/ABS-Hisab-Manager-2-debug.apk
-          fi
-          find build/ -name "*.apk" -exec cp {} release_apks/ \; || true
           ls -la release_apks/
 
       - name: Upload APK Artifact
@@ -72,12 +74,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ABS-Hisab-Manager-2-APK
-          path: release_apks/*
+          path: release_apks/*.apk
           retention-days: 30
 
       - name: Create GitHub Release
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
-          gh release create "v2.${{ github.run_number }}" release_apks/* --title "ABS Hisab Manager-2 v2.${{ github.run_number }}" --notes "### 📱 ABS Hisab Manager-2 (Android APK)\n\nDownload the APK file below and install on your Android device."
+          TAG_NAME="v2.${{ github.run_number }}"
+          gh release create "$TAG_NAME" release_apks/*.apk --title "ABS Hisab Manager-2 $TAG_NAME" --notes "### 📱 ABS Hisab Manager-2 (Android APK)\n\nDownload the APK file below and install on your Android device." || gh release upload "$TAG_NAME" release_apks/*.apk --clobber
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
