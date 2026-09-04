@@ -56,13 +56,16 @@ jobs:
           chmod +x android/gradlew || true
 
       - name: Build APK (Release)
-        run: flutter build apk --release --no-tree-shake-icons --android-skip-build-dependency-validation
+        run: |
+          flutter build apk --release --no-tree-shake-icons --android-skip-build-dependency-validation || (cd android && ./gradlew assembleRelease --stacktrace)
 
       - name: Prepare APK Names
         run: |
           mkdir -p release_apks
-          cp build/app/outputs/flutter-apk/app-release.apk release_apks/ABS-Hisab-Manager-2.apk
-          cp build/app/outputs/flutter-apk/app-release.apk release_apks/app-release.apk
+          find build/ -name "*release*.apk" -type f -exec cp {} release_apks/ \; || true
+          if [ -f release_apks/app-release.apk ]; then
+            cp release_apks/app-release.apk release_apks/ABS-Hisab-Manager-2.apk
+          fi
           ls -la release_apks/
 
       - name: Upload APK Artifact
