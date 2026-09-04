@@ -47,17 +47,16 @@ jobs:
         run: flutter analyze --no-fatal-infos
         continue-on-error: true
 
-      - name: Configure local.properties
+      - name: Configure local.properties & permissions
         run: |
           mkdir -p android
           echo "flutter.sdk=$FLUTTER_ROOT" > android/local.properties
           echo "sdk.dir=$ANDROID_HOME" >> android/local.properties
           cat android/local.properties
+          chmod +x android/gradlew || true
 
       - name: Build APK (Release)
-        run: |
-          set -o pipefail
-          flutter build apk --release --no-tree-shake-icons 2>&1 | tee flutter_build.log || (echo "=== LOG ON ERROR ===" && tail -n 120 flutter_build.log && exit 1)
+        run: flutter build apk --release --no-tree-shake-icons
 
       - name: Upload Build Log Artifact
         if: always()
