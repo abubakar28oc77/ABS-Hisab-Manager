@@ -47,30 +47,19 @@ jobs:
           echo "sdk.dir=$ANDROID_HOME" >> android/local.properties
           chmod +x android/gradlew || true
 
-      - name: Build APK (Release)
+      - name: Build APK (Gradle AssembleRelease)
         run: |
-          set -o pipefail
-          flutter build apk --release --no-tree-shake-icons --android-skip-build-dependency-validation 2>&1 | tee flutter_build.log
-
-      - name: Record Build Diagnostics
-        if: always()
-        run: |
-          DIAG_MSG="Build status:
-          $(tail -n 80 flutter_build.log)"
-          gh release create "diag-${{ github.run_number }}" flutter_build.log --title "Diagnostics ${{ github.run_number }}" --notes "$DIAG_MSG" || true
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Prepare APK Files
-        if: success()
-        run: |
+          cd android
+          ./gradlew assembleRelease --no-daemon
+          cd ..
           mkdir -p release_apks
-          cp build/app/outputs/flutter-apk/app-release.apk release_apks/ABS-Hisab-Manager-2.apk
-          cp build/app/outputs/flutter-apk/app-release.apk release_apks/app-release.apk
+          echo "Listing all generated APKs:"
+          find . -name "*.apk" -ls
+          find . -name "*release*.apk" -exec cp {} release_apks/ABS-Hisab-Manager-2.apk \;
+          cp release_apks/ABS-Hisab-Manager-2.apk release_apks/app-release.apk
           ls -lh release_apks/
 
       - name: Upload Artifact
-        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: ABS-Hisab-Manager-2-APK
@@ -78,7 +67,6 @@ jobs:
           retention-days: 30
 
       - name: Publish GitHub Release v2.0
-        if: success()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -89,7 +77,6 @@ jobs:
           - **[app-release.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.0/app-release.apk)**" --clobber || true
 
       - name: Publish GitHub Release v2.${{ github.run_number }}
-        if: success()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
