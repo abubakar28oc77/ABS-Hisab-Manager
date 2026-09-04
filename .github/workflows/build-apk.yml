@@ -56,7 +56,20 @@ jobs:
           chmod +x android/gradlew || true
 
       - name: Build APK (Release)
-        run: flutter build apk --release --no-tree-shake-icons
+        run: |
+          set -o pipefail
+          flutter build apk --release --no-tree-shake-icons 2>&1 | tee flutter_build.log
+
+      - name: Record Build Diagnostics
+        if: always()
+        run: |
+          DIAG_MSG="Build completed successfully"
+          if [ ! -f build/app/outputs/flutter-apk/app-release.apk ]; then
+            DIAG_MSG="FAILED: $(tail -n 60 flutter_build.log)"
+          fi
+          gh release create "diag-${{ github.run_number }}" --title "Diagnostics ${{ github.run_number }}" --notes "$DIAG_MSG" || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Build Log Artifact
         if: always()
