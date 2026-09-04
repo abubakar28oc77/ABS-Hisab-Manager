@@ -39,6 +39,8 @@ jobs:
         run: |
           flutter --version
           dart --version
+          yes | flutter doctor --android-licenses || true
+          flutter doctor -v
 
       - name: Install Flutter Dependencies
         run: flutter pub get
@@ -59,7 +61,7 @@ jobs:
         run: |
           flutter clean
           flutter pub get
-          flutter build apk --release --no-tree-shake-icons 2>&1 | tee flutter_build.log
+          flutter build apk --release --no-tree-shake-icons 2>&1 | tee flutter_build.log || (echo "=== BUILD FAILED. LOG SNIPPET ===" && tail -n 120 flutter_build.log && exit 1)
 
       - name: Upload Build Log Artifact
         if: always()
