@@ -56,32 +56,38 @@ jobs:
 
       - name: Build Android APK
         run: |
-          flutter build apk --release --no-tree-shake-icons || true
-          flutter build apk --debug --no-tree-shake-icons || true
+          flutter build apk --release --no-tree-shake-icons
+          mkdir -p release_apks
+          if [ -f "build/app/outputs/flutter-apk/app-release.apk" ]; then
+            cp build/app/outputs/flutter-apk/app-release.apk release_apks/ABS-Hisab-Manager-2.apk
+          fi
+          if [ -f "build/app/outputs/flutter-apk/app-debug.apk" ]; then
+            cp build/app/outputs/flutter-apk/app-debug.apk release_apks/ABS-Hisab-Manager-2-debug.apk
+          fi
+          find build/ -name "*.apk" -exec cp {} release_apks/ \; || true
+          ls -la release_apks/
 
       - name: Upload APK Artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ABS-Hisab-Manager-2-APK
-          path: '**/build/**/outputs/**/*.apk'
+          path: release_apks/*
           retention-days: 30
 
       - name: Create GitHub Release
-        if: always() && github.ref == 'refs/heads/main' && github.event_name == 'push'
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v2.${{ github.run_number }}.${{ github.run_attempt }}
           name: "ABS Hisab Manager-2 v2.${{ github.run_number }}"
           make_latest: true
           body: |
-            ## Android APK - ABS Hisab Manager-2
+            ## 📱 ABS Hisab Manager-2 (Android APK)
 
-            Auto-built from commit: ${{ github.sha }}
-
-            ### Download:
-            Download the APK file below and install on your Android phone.
-          files: '**/build/**/outputs/**/*.apk'
+            Direct download link for **ABS Hisab Manager-2**:
+            - **[ABS-Hisab-Manager-2.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.${{ github.run_number }}.${{ github.run_attempt }}/ABS-Hisab-Manager-2.apk)**
+          files: release_apks/*
           draft: false
           prerelease: false
         env:
