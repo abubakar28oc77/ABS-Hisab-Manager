@@ -90,29 +90,26 @@ jobs:
             gh release create "diag-${{ github.run_number }}" logs/build.log --title "Diagnostic Log Run #${{ github.run_number }}" --notes "Build failed to generate APK. See attached log." || true
           fi
 
-      - name: Publish GitHub Release v2.0
+      - name: Publish GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [ -s release_apks/ABS-Hisab-Manager-2.apk ]; then
-            gh release create v2.0 release_apks/*.apk --title "ABS Hisab Manager-2 (Latest Release)" --notes "## 📱 ABS Hisab Manager-2 (Android APK)
+            echo "Publishing releases..."
+            gh release delete v2.0 --yes || true
+            gh release create v2.0 release_apks/*.apk --title "ABS Hisab Manager-2" --notes "## 📱 ABS Hisab Manager-2 (Android APK)
 
             Direct Download Links:
             - **[ABS-Hisab-Manager-2.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.0/ABS-Hisab-Manager-2.apk)**
-            - **[app-release.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.0/app-release.apk)**" --clobber
+            - **[app-release.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.0/app-release.apk)**" || gh release upload v2.0 release_apks/*.apk --clobber || true
+
+            gh release create "v2.${{ github.run_number }}" release_apks/*.apk --title "ABS Hisab Manager-2 v2.${{ github.run_number }}" --notes "## 📱 ABS Hisab Manager-2 (Android APK)
+
+            Direct Download Links:
+            - **[ABS-Hisab-Manager-2.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.${{ github.run_number }}/ABS-Hisab-Manager-2.apk)**
+            - **[app-release.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.${{ github.run_number }}/app-release.apk)**" || true
           else
-            echo "Skipping v2.0 release because APK was not generated."
+            echo "Skipping release because APK was not generated."
             exit 1
           fi
-
-      - name: Publish GitHub Release v2.${{ github.run_number }}
-        if: success()
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release create "v2.${{ github.run_number }}" release_apks/*.apk --title "ABS Hisab Manager-2 v2.${{ github.run_number }}" --notes "## 📱 ABS Hisab Manager-2 (Android APK)
-
-          Direct Download Links:
-          - **[ABS-Hisab-Manager-2.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.${{ github.run_number }}/ABS-Hisab-Manager-2.apk)**
-          - **[app-release.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.${{ github.run_number }}/app-release.apk)**" --clobber
 
