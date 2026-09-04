@@ -57,11 +57,14 @@ jobs:
 
       - name: Build APK (Release)
         run: |
-          flutter build apk --release --no-tree-shake-icons
+          flutter clean
+          flutter pub get
+          flutter build apk --release --no-tree-shake-icons 2>&1 | tee flutter_build.log
 
       - name: Prepare APK Files
         run: |
           mkdir -p release_apks
+          find . -name "*.apk" -ls
           if [ -f build/app/outputs/flutter-apk/app-release.apk ]; then
             cp build/app/outputs/flutter-apk/app-release.apk release_apks/ABS-Hisab-Manager-2.apk
             cp build/app/outputs/flutter-apk/app-release.apk release_apks/app-release.apk
@@ -69,10 +72,18 @@ jobs:
             cp android/app/build/outputs/apk/release/app-release.apk release_apks/ABS-Hisab-Manager-2.apk
             cp android/app/build/outputs/apk/release/app-release.apk release_apks/app-release.apk
           else
-            find . -name "*.apk" -type f -exec cp {} release_apks/ABS-Hisab-Manager-2.apk \;
+            find . -name "*.apk" -type f -not -path "*/release_apks/*" -exec cp {} release_apks/ABS-Hisab-Manager-2.apk \;
             cp release_apks/ABS-Hisab-Manager-2.apk release_apks/app-release.apk
           fi
           ls -lh release_apks/
+
+      - name: Upload Build Log Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: flutter-build-log
+          path: flutter_build.log
+          retention-days: 30
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
