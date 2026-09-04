@@ -91,8 +91,15 @@ jobs:
             Direct APK Download Links:
             - **[app-release.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.${{ github.run_number }}/app-release.apk)**
             - **[ABS-Hisab-Manager-2.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.${{ github.run_number }}/ABS-Hisab-Manager-2.apk)**
-          files: release_apks/*.apk
+          files: release_apks/*
           draft: false
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload to latest release v2.0
+        if: always()
+        run: |
+          gh release create "v2.0" release_apks/* --title "ABS Hisab Manager-2 (Latest Release)" --notes "Direct APK download for ABS Hisab Manager-2" || gh release upload "v2.0" release_apks/* --clobber || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
