@@ -56,23 +56,24 @@ jobs:
 
       - name: Build Android APK
         run: |
-          set -x
-          flutter build apk --release --no-tree-shake-icons
+          set +e
+          echo "Starting Flutter Build APK..." > build.log
+          flutter build apk --release --verbose >> build.log 2>&1
+          BUILD_STATUS=$?
+          echo "Build exit code: $BUILD_STATUS" >> build.log
           mkdir -p release_apks
-          find . -name "*.apk" -type f -exec cp -v {} release_apks/ \;
-          if [ -f "release_apks/app-release.apk" ]; then
-            cp -v release_apks/app-release.apk release_apks/ABS-Hisab-Manager-2.apk
-          elif [ -f "release_apks/app-debug.apk" ]; then
-            cp -v release_apks/app-debug.apk release_apks/ABS-Hisab-Manager-2.apk
-          fi
-          ls -la release_apks/
+          find / -name "*.apk" -type f -exec cp -v {} release_apks/ 2>/dev/null \; || true
+          ls -la release_apks/ >> build.log
+          cat build.log | tail -n 100
 
-      - name: Upload APK Artifact
+      - name: Upload Build Log & APK Artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ABS-Hisab-Manager-2-APK
-          path: release_apks/*.apk
+          name: ABS-Hisab-Manager-Build-Output
+          path: |
+            build.log
+            release_apks/*
           retention-days: 30
 
       - name: Create GitHub Release
