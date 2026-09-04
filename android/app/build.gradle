@@ -24,7 +24,7 @@ if (flutterVersionName == null) {
 
 android {
     namespace "com.tutorfinance.finance"
-    compileSdk 34
+    compileSdk flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -42,8 +42,8 @@ android {
 
     defaultConfig {
         applicationId "com.tutorfinance.finance"
-        minSdk 21
-        targetSdk 34
+        minSdk 23
+        targetSdk flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }

@@ -59,7 +59,15 @@ jobs:
         run: |
           flutter clean
           flutter pub get
-          flutter build apk --release --no-tree-shake-icons
+          flutter build apk --release --no-tree-shake-icons 2>&1 | tee flutter_build.log
+
+      - name: Upload Build Log Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: flutter-build-log
+          path: flutter_build.log
+          retention-days: 30
 
       - name: Prepare APK Files
         run: |
