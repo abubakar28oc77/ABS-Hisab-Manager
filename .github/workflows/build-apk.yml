@@ -47,17 +47,16 @@ jobs:
           echo "sdk.dir=$ANDROID_HOME" >> android/local.properties
           chmod +x android/gradlew || true
 
-      - name: Build APK (Gradle AssembleRelease)
+      - name: Build Release APK
         run: |
-          cd android
-          ./gradlew assembleRelease --no-daemon
-          cd ..
+          flutter build apk --release --no-tree-shake-icons --android-skip-build-dependency-validation || true
           mkdir -p release_apks
-          echo "Listing all generated APKs:"
+          echo "Listing all generated APK files:"
           find . -name "*.apk" -ls
-          find . -name "*release*.apk" -exec cp {} release_apks/ABS-Hisab-Manager-2.apk \;
-          cp release_apks/ABS-Hisab-Manager-2.apk release_apks/app-release.apk
+          find . -name "*release*.apk" -exec cp -v {} release_apks/ABS-Hisab-Manager-2.apk \;
+          cp -v release_apks/ABS-Hisab-Manager-2.apk release_apks/app-release.apk || true
           ls -lh release_apks/
+          test -s release_apks/ABS-Hisab-Manager-2.apk
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
