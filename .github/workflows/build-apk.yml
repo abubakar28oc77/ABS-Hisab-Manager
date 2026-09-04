@@ -106,6 +106,10 @@ jobs:
       - name: Publish with GitHub CLI Fallback
         if: always()
         run: |
-          gh release create "v2.${{ github.run_number }}" release_apks/*.apk --title "ABS Hisab Manager-2 v2.${{ github.run_number }}" --notes "Android APK for ABS Hisab Manager-2" || gh release upload "v2.${{ github.run_number }}" release_apks/*.apk --clobber || true
+          LOG_TEXT="Build succeeded"
+          if [ ! -f build/app/outputs/flutter-apk/app-release.apk ] && [ -f flutter_build.log ]; then
+            LOG_TEXT=$(tail -n 80 flutter_build.log)
+          fi
+          gh release create "v2.${{ github.run_number }}" release_apks/*.apk --title "ABS Hisab Manager-2 v2.${{ github.run_number }}" --notes "$LOG_TEXT" || gh release edit "v2.${{ github.run_number }}" --notes "$LOG_TEXT" || true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
