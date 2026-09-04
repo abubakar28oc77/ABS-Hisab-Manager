@@ -1,5 +1,5 @@
 /**
- * ABS Hisab Manager - Complete Interactive Web Application
+ * ABS Hisab Manager - Complete Interactive Web Application (v2.0)
  * Logic & Local Database Controller
  */
 
@@ -8,6 +8,7 @@ const translations = {
   bn: {
     app_name: 'ABS হিসাব ম্যানেজার',
     dashboard: 'ড্যাশবোর্ড',
+    classes_nav: 'শ্রেণি',
     students: 'শিক্ষার্থী',
     transactions: 'লেনদেন',
     settings: 'সেটিংস',
@@ -17,8 +18,8 @@ const translations = {
     net_balance: 'নিট ব্যালেন্স',
     income: 'আয়',
     expense: 'ব্যয়',
-    total_income_month: 'মোট আয় (এই মাসে)',
-    total_expense_month: 'মোট ব্যয় (এই মাসে)',
+    total_income_month: 'মোট আয়',
+    total_expense_month: 'মোট ব্যয়',
     pending_fees: 'বাকি ফি',
     quick_actions: 'কুইক অ্যাকশন',
     quick_collect_fee: 'ফি গ্রহণ',
@@ -34,18 +35,21 @@ const translations = {
     filter_due: 'বকেয়া আছে',
     filter_paid: 'পরিশোধিত',
     filter_advance: 'অগ্রিম',
-    add_student: 'শিক্ষার্থী যুক্ত করুন',
-    edit_student: 'শিক্ষার্থী সম্পাদনা',
+    add_student: 'Add Student',
+    edit_student: 'Edit Student',
     student_profile: 'শিক্ষার্থীর প্রোফাইল',
     monthly_fee: 'মাসিক ফি',
     address: 'ঠিকানা',
     admission_date: 'ভর্তির তারিখ',
-    fathers_name: 'পিতার নাম',
-    fathers_mobile: 'পিতার মোবাইল',
+    fathers_name: 'Guardian Name',
+    fathers_mobile: 'Guardian Phone Number',
     notes: 'নোট',
-    call_father: 'পিতার সাথে কল',
-    message: 'মেসেজ',
-    send_due_sms: 'বকেয়া রিমাইন্ডার SMS',
+    direct_communication: 'Direct Communication',
+    call: 'Call',
+    sms: 'SMS',
+    whatsapp: 'WhatsApp',
+    telegram: 'Telegram',
+    save_contact: 'Save',
     total_expected: 'মোট প্রত্যাশিত',
     total_paid: 'মোট পরিশোধিত',
     due: 'বাকি',
@@ -63,12 +67,11 @@ const translations = {
     receipt_now_desc: 'এখনই মানি রিসিট (Receipt) তৈরি করবেন?',
     save_payment: 'পেমেন্ট সেভ করুন ও রশিদ তৈরি করুন',
     delete_confirm: 'আপনি কি নিশ্চিত এটি ডিলিট করতে চান?',
-    no_phone_msg: 'পিতার মোবাইল নম্বর দেওয়া হয়নি!',
+    no_phone_msg: 'অভিভাবকের মোবাইল নম্বর দেওয়া হয়নি!',
     no_due_msg: 'শিক্ষার্থীর কোনো বকেয়া ফি নেই!',
     receipt_given: 'রশিদ দেওয়া হয়েছে',
     no_receipt: 'রশিদ নেই',
     statement_pdf: 'স্টেটমেন্ট PDF',
-    vs_last_month: 'গত মাসের তুলনায়',
     language: 'ভাষা (Language)',
     security: 'নিরাপত্তা (Security)',
     finance: 'আর্থিক হিসাব (Finance)',
@@ -78,6 +81,7 @@ const translations = {
   en: {
     app_name: 'ABS Hisab Manager',
     dashboard: 'Dashboard',
+    classes_nav: 'Classes',
     students: 'Students',
     transactions: 'Transactions',
     settings: 'Settings',
@@ -87,8 +91,8 @@ const translations = {
     net_balance: 'Net Balance',
     income: 'Income',
     expense: 'Expense',
-    total_income_month: 'Total Income (This Month)',
-    total_expense_month: 'Total Expense (This Month)',
+    total_income_month: 'Total Income',
+    total_expense_month: 'Total Expense',
     pending_fees: 'Pending Fees',
     quick_actions: 'Quick Actions',
     quick_collect_fee: 'Collect Fee',
@@ -110,12 +114,15 @@ const translations = {
     monthly_fee: 'Monthly Fee',
     address: 'Address',
     admission_date: 'Admission Date',
-    fathers_name: "Father's Name",
-    fathers_mobile: "Father's Mobile",
+    fathers_name: 'Guardian Name',
+    fathers_mobile: 'Guardian Phone Number',
     notes: 'Notes',
-    call_father: 'Call Father',
-    message: 'Message',
-    send_due_sms: 'Send Due Reminder SMS',
+    direct_communication: 'Direct Communication',
+    call: 'Call',
+    sms: 'SMS',
+    whatsapp: 'WhatsApp',
+    telegram: 'Telegram',
+    save_contact: 'Save',
     total_expected: 'Total Expected',
     total_paid: 'Total Paid',
     due: 'Due',
@@ -133,12 +140,11 @@ const translations = {
     receipt_now_desc: 'Generate Money Receipt now?',
     save_payment: 'Save Payment & Generate Receipt',
     delete_confirm: 'Are you sure you want to delete this?',
-    no_phone_msg: 'Father mobile number is empty!',
+    no_phone_msg: 'Guardian phone number is empty!',
     no_due_msg: 'Student has no pending due!',
     receipt_given: 'Receipt given',
     no_receipt: 'No receipt',
     statement_pdf: 'Statement PDF',
-    vs_last_month: 'vs last month',
     language: 'Language',
     security: 'Security',
     finance: 'Finance',
@@ -153,16 +159,25 @@ const defaultCategories = {
   expense: ['Food', 'Travel', 'Books', 'Bills', 'Rent', 'Shopping', 'Other']
 };
 
+const defaultClasses = [
+  { id: 'cls-1', name: 'Class 6', sections: ['A', 'B'], subjects: ['গণিত', 'ইংরেজি', 'বিজ্ঞান', 'বাংলা'] },
+  { id: 'cls-2', name: 'Class 7', sections: ['A', 'B'], subjects: ['গণিত', 'ইংরেজি', 'বিজ্ঞান', 'বাংলা'] },
+  { id: 'cls-3', name: 'Class 8', sections: ['A', 'B'], subjects: ['গণিত', 'ইংরেজি', 'বিজ্ঞান', 'বাংলা'] },
+  { id: 'cls-4', name: 'Class 9', sections: ['Science', 'Commerce', 'Arts'], subjects: ['উচ্চতর গণিত', 'পদার্থবিজ্ঞান', 'রসায়ন', 'ইংরেজি'] },
+  { id: 'cls-5', name: 'Class 10', sections: ['Science', 'Commerce', 'Arts'], subjects: ['উচ্চতর গণিত', 'পদার্থবিজ্ঞান', 'রসায়ন', 'ইংরেজি'] }
+];
+
 const defaultStudents = [
   {
     id: 'std-1',
     name: 'রাফসান আহমেদ (Rafsan)',
-    className: 'Nine',
+    className: 'Class 9',
     rollNumber: '05',
-    section: 'A',
+    section: 'Science',
     monthlyFee: 2500,
     fatherName: 'মাহবুব আলম',
     fatherPhone: '01711223344',
+    studentPhone: '01911223344',
     address: 'মিরপুর-১০, ঢাকা',
     admissionDate: '2025-01-01',
     notes: 'পদার্থ ও উচ্চতর গণিত',
@@ -171,29 +186,31 @@ const defaultStudents = [
   {
     id: 'std-2',
     name: 'সাদিয়া ইসলাম (Sadia)',
-    className: 'Ten',
+    className: 'Class 10',
     rollNumber: '02',
-    section: 'B',
+    section: 'Science',
     monthlyFee: 3000,
     fatherName: 'রফিকুল ইসলাম',
     fatherPhone: '01822334455',
+    studentPhone: '01722334455',
     address: 'উত্তরা সেক্টর ৭, ঢাকা',
     admissionDate: '2025-02-01',
-    notes: 'ইংরেজি ও আইসিটি',
+    notes: 'রসায়ন ও জীববিজ্ঞান',
     attendance: { '2026-09': 12, '2026-08': 15 }
   },
   {
     id: 'std-3',
     name: 'তানভীর হাসান (Tanvir)',
-    className: 'Eight',
+    className: 'Class 8',
     rollNumber: '11',
     section: 'A',
     monthlyFee: 2000,
-    fatherName: 'মোশাররফ হোসেন',
+    fatherName: 'আনোয়ার হোসেন',
     fatherPhone: '01933445566',
-    address: 'ধানমন্ডি, ঢাকা',
+    studentPhone: '',
+    address: 'ধানমন্ডি ৩২, ঢাকা',
     admissionDate: '2025-03-01',
-    notes: 'সাধারণ গণিত',
+    notes: 'সাধারণ গণিত ও ইংরেজি',
     attendance: { '2026-09': 10, '2026-08': 14 }
   }
 ];
@@ -203,123 +220,108 @@ const defaultPayments = [
     id: 'pay-1',
     studentId: 'std-1',
     amount: 2500,
+    paymentDate: '2026-09-01',
+    forMonth: '2026-09',
     method: 'bKash',
-    paymentDate: '2026-08-05',
-    forMonth: '2026-08',
-    receiptNo: 'RCT-202608-0001',
+    note: 'September tuition fee paid via bKash',
     receiptGiven: true,
-    note: 'আগস্ট মাসের ফি'
+    receiptNo: 'REC-202609-001'
   },
   {
     id: 'pay-2',
     studentId: 'std-2',
     amount: 3000,
-    method: 'Cash',
-    paymentDate: '2026-08-10',
-    forMonth: '2026-08',
-    receiptNo: 'RCT-202608-0002',
-    receiptGiven: true,
-    note: 'ক্যাশ পরিশোধ'
-  },
-  {
-    id: 'pay-3',
-    studentId: 'std-1',
-    amount: 2500,
-    method: 'bKash',
     paymentDate: '2026-09-02',
     forMonth: '2026-09',
-    receiptNo: 'RCT-202609-0001',
+    method: 'Nagad',
+    note: 'September fee received',
     receiptGiven: true,
-    note: 'সেপ্টেম্বর মাসের ফি'
+    receiptNo: 'REC-202609-002'
   }
 ];
 
 const defaultTransactions = [
   {
-    id: 'pay-1',
-    amount: 2500,
-    type: 'income',
-    category: 'Tuition',
-    date: '2026-08-05',
-    note: 'Tuition fee - রাফসান আহমেদ (Rafsan) (RCT-202608-0001)',
-    linkedStudentId: 'std-1'
-  },
-  {
-    id: 'pay-2',
-    amount: 3000,
-    type: 'income',
-    category: 'Tuition',
-    date: '2026-08-10',
-    note: 'Tuition fee - সাদিয়া ইসলাম (Sadia) (RCT-202608-0002)',
-    linkedStudentId: 'std-2'
-  },
-  {
-    id: 'pay-3',
-    amount: 2500,
-    type: 'income',
-    category: 'Tuition',
-    date: '2026-09-02',
-    note: 'Tuition fee - রাফসান আহমেদ (Rafsan) (RCT-202609-0001)',
-    linkedStudentId: 'std-1'
-  },
-  {
     id: 'txn-1',
-    amount: 650,
-    type: 'expense',
-    category: 'Books',
+    type: 'income',
+    amount: 2500,
+    category: 'Tuition',
     date: '2026-09-01',
-    note: 'গাইড ও টেস্ট পেপার ক্রয়'
+    note: 'Rafsan Ahmed - Sep 2026 Tuition',
+    studentId: 'std-1',
+    paymentMethod: 'bKash'
   },
   {
     id: 'txn-2',
-    amount: 400,
-    type: 'expense',
-    category: 'Travel',
+    type: 'income',
+    amount: 3000,
+    category: 'Tuition',
     date: '2026-09-02',
-    note: 'সিএনজি ও রিকশা ভাড়া'
+    note: 'Sadia Islam - Sep 2026 Tuition',
+    studentId: 'std-2',
+    paymentMethod: 'Nagad'
   },
   {
     id: 'txn-3',
-    amount: 1200,
     type: 'expense',
+    amount: 1200,
+    category: 'Books',
+    date: '2026-09-02',
+    note: 'NCTB Science books & test papers',
+    paymentMethod: 'Cash'
+  },
+  {
+    id: 'txn-4',
+    type: 'expense',
+    amount: 500,
     category: 'Bills',
-    date: '2026-08-25',
-    note: 'ইন্টারনেট বিল'
+    date: '2026-09-03',
+    note: 'Internet broadband bill',
+    paymentMethod: 'bKash'
   }
 ];
 
-// ==================== STATE ENGINE ====================
+// ==================== APP STATE STORE ====================
 class AppState {
   constructor() {
-    this.init();
-  }
-
-  init() {
-    this.students = JSON.parse(localStorage.getItem('abs_students')) || defaultStudents;
-    this.payments = JSON.parse(localStorage.getItem('abs_payments')) || defaultPayments;
-    this.transactions = JSON.parse(localStorage.getItem('abs_transactions')) || defaultTransactions;
-    this.categories = JSON.parse(localStorage.getItem('abs_categories')) || defaultCategories;
-    this.settings = JSON.parse(localStorage.getItem('abs_settings')) || {
-      lang: 'bn',
-      pin: '',
-      biometric: false,
-    };
+    this.storagePrefix = 'abs_hisab_';
+    this.classes = this.load('classes', defaultClasses);
+    this.students = this.load('students', defaultStudents);
+    this.payments = this.load('payments', defaultPayments);
+    this.transactions = this.load('transactions', defaultTransactions);
+    this.categories = this.load('categories', defaultCategories);
+    this.settings = this.load('settings', { lang: 'bn', pin: '', theme: 'light' });
+    
     this.currentView = 'dashboard';
-    this.selectedStudentId = null;
     this.studentStatusFilter = 'all';
     this.studentClassFilter = 'All';
     this.txnTypeFilter = 'all';
-    this.enteredPin = '';
-    this.currentReportPeriod = 'monthly';
+    this.selectedStudentId = null;
     this.reportAnchorDate = new Date();
+    this.currentReportPeriod = 'monthly';
+    this.enteredPin = '';
+  }
+
+  load(key, fallback) {
+    try {
+      const data = localStorage.getItem(this.storagePrefix + key);
+      return data ? JSON.parse(data) : fallback;
+    } catch {
+      return fallback;
+    }
   }
 
   save() {
-    localStorage.setItem('abs_students', JSON.stringify(this.students));
-    localStorage.setItem('abs_payments', JSON.stringify(this.payments));
-    localStorage.setItem('abs_transactions', JSON.stringify(this.transactions));
-    localStorage.setItem('abs_categories', JSON.stringify(this.categories));
-    localStorage.setItem('abs_settings', JSON.stringify(this.settings));
+    try {
+      localStorage.setItem(this.storagePrefix + 'classes', JSON.stringify(this.classes));
+      localStorage.setItem(this.storagePrefix + 'students', JSON.stringify(this.students));
+      localStorage.setItem(this.storagePrefix + 'payments', JSON.stringify(this.payments));
+      localStorage.setItem(this.storagePrefix + 'transactions', JSON.stringify(this.transactions));
+      localStorage.setItem(this.storagePrefix + 'categories', JSON.stringify(this.categories));
+      localStorage.setItem(this.storagePrefix + 'settings', JSON.stringify(this.settings));
+    } catch (e) {
+      console.error('Storage save error', e);
+    }
   }
 
   t(key) {
@@ -327,17 +329,34 @@ class AppState {
     return (translations[lang] && translations[lang][key]) || translations['en'][key] || key;
   }
 
-  // Calculation Helpers
-  getMonthsSince(admissionDateStr) {
-    const adm = new Date(admissionDateStr);
-    const now = new Date();
-    let months = (now.getFullYear() - adm.getFullYear()) * 12 + (now.getMonth() - adm.getMonth());
-    if (now.getDate() < adm.getDate()) months -= 1;
-    return months < 0 ? 0 : months;
+  // Calculations
+  getMonthIncome(month, year) {
+    return this.transactions
+      .filter(t => {
+        if (t.type !== 'income') return false;
+        const d = new Date(t.date);
+        return d.getMonth() === month && d.getFullYear() === year;
+      })
+      .reduce((sum, t) => sum + Number(t.amount), 0);
+  }
+
+  getMonthExpense(month, year) {
+    return this.transactions
+      .filter(t => {
+        if (t.type !== 'expense') return false;
+        const d = new Date(t.date);
+        return d.getMonth() === month && d.getFullYear() === year;
+      })
+      .reduce((sum, t) => sum + Number(t.amount), 0);
   }
 
   getTotalExpected(student) {
-    return this.getMonthsSince(student.admissionDate) * student.monthlyFee;
+    if (!student.admissionDate) return student.monthlyFee;
+    const adm = new Date(student.admissionDate);
+    const now = new Date();
+    let months = (now.getFullYear() - adm.getFullYear()) * 12 + (now.getMonth() - adm.getMonth()) + 1;
+    if (months < 1) months = 1;
+    return months * Number(student.monthlyFee);
   }
 
   getTotalPaid(studentId) {
@@ -349,53 +368,34 @@ class AppState {
   getStudentDue(student) {
     const expected = this.getTotalExpected(student);
     const paid = this.getTotalPaid(student.id);
-    const diff = expected - paid;
-    return diff > 0 ? diff : 0;
+    return Math.max(0, expected - paid);
   }
 
   getStudentAdvance(student) {
     const expected = this.getTotalExpected(student);
     const paid = this.getTotalPaid(student.id);
-    const diff = paid - expected;
-    return diff > 0 ? diff : 0;
-  }
-
-  getNextReceiptNo() {
-    const now = new Date();
-    const prefix = `RCT-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}-`;
-    const count = this.payments.filter(p => p.receiptNo && p.receiptNo.startsWith(prefix)).length;
-    return `${prefix}${String(count + 1).padStart(4, '0')}`;
-  }
-
-  // Monthly Financial Summaries
-  getMonthIncome(month, year) {
-    return this.transactions
-      .filter(t => {
-        const d = new Date(t.date);
-        return t.type === 'income' && d.getMonth() === month && d.getFullYear() === year;
-      })
-      .reduce((sum, t) => sum + Number(t.amount), 0);
-  }
-
-  getMonthExpense(month, year) {
-    return this.transactions
-      .filter(t => {
-        const d = new Date(t.date);
-        return t.type === 'expense' && d.getMonth() === month && d.getFullYear() === year;
-      })
-      .reduce((sum, t) => sum + Number(t.amount), 0);
+    return Math.max(0, paid - expected);
   }
 
   getPendingFeesTotal() {
     return this.students.reduce((sum, s) => sum + this.getStudentDue(s), 0);
   }
 
-  getExpenseCategoryBreakdown() {
+  getExpenseCategoryBreakdown(month, year) {
+    const now = new Date();
+    const m = month !== undefined ? month : now.getMonth();
+    const y = year !== undefined ? year : now.getFullYear();
     const map = {};
+
     this.transactions
-      .filter(t => t.type === 'expense')
+      .filter(t => {
+        if (t.type !== 'expense') return false;
+        const d = new Date(t.date);
+        return d.getMonth() === m && d.getFullYear() === y;
+      })
       .forEach(t => {
-        map[t.category] = (map[t.category] || 0) + Number(t.amount);
+        const cat = t.category || 'Other';
+        map[cat] = (map[cat] || 0) + Number(t.amount);
       });
     return map;
   }
@@ -408,6 +408,8 @@ document.addEventListener('DOMContentLoaded', () => {
   applyLanguage();
   checkPinLock();
   renderDashboard();
+  renderClassesList();
+  renderStudentClassFilterChips();
   renderStudentsList();
   renderTransactionsList();
   renderCategoriesList();
@@ -427,6 +429,8 @@ function setLanguage(lang) {
   state.save();
   applyLanguage();
   renderDashboard();
+  renderClassesList();
+  renderStudentClassFilterChips();
   renderStudentsList();
   renderTransactionsList();
   if (state.selectedStudentId) renderStudentDetail(state.selectedStudentId);
@@ -461,6 +465,7 @@ function applyLanguage() {
 
   // Navigation labels
   document.getElementById('navLblDashboard').innerText = state.t('dashboard');
+  document.getElementById('navLblClasses').innerText = state.t('classes_nav');
   document.getElementById('navLblStudents').innerText = state.t('students');
   document.getElementById('navLblTransactions').innerText = state.t('transactions');
   document.getElementById('navLblSettings').innerText = state.t('settings');
@@ -491,6 +496,9 @@ function switchNavTab(tabName) {
   if (tabName === 'dashboard' || tabName === 'transactions') {
     fab.style.display = 'flex';
     fab.innerHTML = '<i class="fa-solid fa-plus"></i>';
+  } else if (tabName === 'classes') {
+    fab.style.display = 'flex';
+    fab.innerHTML = '<i class="fa-solid fa-folder-plus"></i>';
   } else if (tabName === 'students') {
     fab.style.display = 'flex';
     fab.innerHTML = '<i class="fa-solid fa-user-plus"></i>';
@@ -500,12 +508,18 @@ function switchNavTab(tabName) {
 
   // Refresh view data
   if (tabName === 'dashboard') renderDashboard();
-  if (tabName === 'students') renderStudentsList();
+  if (tabName === 'classes') renderClassesList();
+  if (tabName === 'students') {
+    renderStudentClassFilterChips();
+    renderStudentsList();
+  }
   if (tabName === 'transactions') renderTransactionsList();
 }
 
 function onFabClicked() {
-  if (state.currentView === 'students') {
+  if (state.currentView === 'classes') {
+    openAddClassModal();
+  } else if (state.currentView === 'students') {
     openAddStudentModal();
   } else {
     openAddTransactionModal('expense');
@@ -522,36 +536,28 @@ function renderDashboard() {
   const thisMonthExpense = state.getMonthExpense(curMonth, curYear);
   const thisMonthNet = thisMonthIncome - thisMonthExpense;
 
-  const lastMonthDate = new Date(curYear, curMonth - 1, 1);
-  const lastMonthIncome = state.getMonthIncome(lastMonthDate.getMonth(), lastMonthDate.getFullYear());
-  const lastMonthExpense = state.getMonthExpense(lastMonthDate.getMonth(), lastMonthDate.getFullYear());
-  const lastMonthNet = lastMonthIncome - lastMonthExpense;
-  const netDelta = thisMonthNet - lastMonthNet;
-
+  // Requirement 1: Clean Net Balance (no last month's +/- diff subtitle)
   document.getElementById('netBalanceAmount').innerText = `৳ ${thisMonthNet.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
-  
-  const isUp = netDelta >= 0;
-  const deltaBadge = document.getElementById('balanceDelta');
-  deltaBadge.style.color = isUp ? '#a7f3d0' : '#fca5a5';
-  deltaBadge.innerHTML = `
-    <i class="fa-solid ${isUp ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'}"></i>
-    <span>${isUp ? '+' : ''}৳ ${netDelta.toLocaleString('en-IN', { minimumFractionDigits: 2 })} ${state.t('vs_last_month')}</span>
-  `;
 
+  // Requirement 1: Total Income & Total Expense without "this month" label
   document.getElementById('valIncomeMonth').innerText = `৳ ${thisMonthIncome.toLocaleString('en-IN')}`;
   document.getElementById('valExpenseMonth').innerText = `৳ ${thisMonthExpense.toLocaleString('en-IN')}`;
   document.getElementById('valPendingFees').innerText = `৳ ${state.getPendingFeesTotal().toLocaleString('en-IN')}`;
   document.getElementById('valTotalStudents').innerText = `${state.students.length}`;
 
-  // Draw Pie Chart
+  // Requirement 1: Draw Expense Pie Chart for current month only
   drawExpensePieChart();
 
-  // Render Recent Transactions (Last 5)
+  // Requirement 1: Render Recent Transactions for current month only
   const recentList = document.getElementById('recentTxnList');
-  const sorted = [...state.transactions].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+  const currentMonthTxns = state.transactions.filter(t => {
+    const d = new Date(t.date);
+    return d.getMonth() === curMonth && d.getFullYear() === curYear;
+  });
+  const sorted = [...currentMonthTxns].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
   
   if (sorted.length === 0) {
-    recentList.innerHTML = `<div style="text-align:center; padding:18px; color:var(--text-muted); font-size:13px;">কোনো লেনদেন নেই</div>`;
+    recentList.innerHTML = `<div style="text-align:center; padding:18px; color:var(--text-muted); font-size:13px;">চলতি মাসে কোনো লেনদেন নেই</div>`;
   } else {
     recentList.innerHTML = sorted.map(t => renderTxnCardHtml(t)).join('');
   }
@@ -574,7 +580,7 @@ function drawExpensePieChart() {
     ctx.strokeStyle = '#e2e8f0';
     ctx.lineWidth = 14;
     ctx.stroke();
-    legend.innerHTML = `<div style="font-size:12px; color:var(--text-muted);">এখনো কোনো ব্যয় নেই</div>`;
+    legend.innerHTML = `<div style="font-size:12px; color:var(--text-muted);">চলতি মাসে কোনো ব্যয় নেই</div>`;
     return;
   }
 
@@ -627,7 +633,148 @@ function renderTxnCardHtml(t) {
   `;
 }
 
+// ==================== REQUIREMENT 2: CLASSES & SUBJECTS MANAGEMENT ====================
+function renderClassesList() {
+  const listEl = document.getElementById('classesList');
+  if (!listEl) return;
+
+  if (state.classes.length === 0) {
+    listEl.innerHTML = `
+      <div style="text-align:center; padding:36px 20px; color:var(--text-muted); background:white; border-radius:14px; border:1px solid var(--border);">
+        <i class="fa-solid fa-graduation-cap" style="font-size:36px; opacity:0.3; margin-bottom:10px;"></i>
+        <p style="font-size:14px; font-weight:600;">কোনো শ্রেণি যুক্ত করা হয়নি</p>
+        <button class="pill-btn btn-income mt-2" style="background:#2563eb; color:white;" onclick="openAddClassModal()">+ প্রথম শ্রেণি যোগ করুন</button>
+      </div>
+    `;
+    return;
+  }
+
+  listEl.innerHTML = state.classes.map(cls => {
+    const studentCount = state.students.filter(s => s.className === cls.name).length;
+    const sections = Array.isArray(cls.sections) ? cls.sections : [];
+    const subjects = Array.isArray(cls.subjects) ? cls.subjects : [];
+
+    return `
+      <div class="class-item-card">
+        <div class="class-header-row">
+          <div class="class-title">
+            <i class="fa-solid fa-chalkboard-user" style="color:#2563eb;"></i>
+            <span>${cls.name}</span>
+            <span style="font-size:12px; font-weight:500; color:var(--text-muted);">(${studentCount} জন শিক্ষার্থী)</span>
+          </div>
+          <div style="display:flex; gap:6px;">
+            <button class="icon-action-btn" title="Edit" onclick="openAddClassModal('${cls.id}')"><i class="fa-solid fa-pen"></i></button>
+            <button class="icon-action-btn text-danger" title="Delete" onclick="deleteClass('${cls.id}')"><i class="fa-solid fa-trash-can"></i></button>
+          </div>
+        </div>
+
+        <div style="margin-top:8px;">
+          <div style="font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:4px;">
+            <i class="fa-solid fa-table-cells-large" style="color:#2563eb; margin-right:4px;"></i> শাখা (Sections):
+          </div>
+          <div class="tags-row">
+            ${sections.length > 0 ? sections.map(sec => `<span class="section-tag">${sec}</span>`).join('') : '<span style="font-size:12px; color:var(--text-muted);">শাখা নেই</span>'}
+          </div>
+        </div>
+
+        <div style="margin-top:10px;">
+          <div style="font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:4px;">
+            <i class="fa-solid fa-book-open" style="color:#16a34a; margin-right:4px;"></i> বিষয়সমূহ (Subjects):
+          </div>
+          <div class="tags-row">
+            ${subjects.length > 0 ? subjects.map(sub => `<span class="subject-tag">${sub}</span>`).join('') : '<span style="font-size:12px; color:var(--text-muted);">কোনো বিষয় যুক্ত নেই</span>'}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function openAddClassModal(classId = null) {
+  const form = document.getElementById('classForm');
+  form.reset();
+  document.getElementById('classFormId').value = classId || '';
+
+  if (classId) {
+    const cls = state.classes.find(c => c.id === classId);
+    if (cls) {
+      document.getElementById('classModalTitle').innerText = 'শ্রেণি সম্পাদনা';
+      document.getElementById('fmClassName').value = cls.name;
+      document.getElementById('fmClassSections').value = (cls.sections || []).join(', ');
+      document.getElementById('fmClassSubjects').value = (cls.subjects || []).join(', ');
+    }
+  } else {
+    document.getElementById('classModalTitle').innerText = 'নতুন শ্রেণি যোগ';
+  }
+  openModal('classModal');
+}
+
+function handleSaveClass(e) {
+  e.preventDefault();
+  const id = document.getElementById('classFormId').value;
+  const name = document.getElementById('fmClassName').value.trim();
+  const rawSections = document.getElementById('fmClassSections').value.trim();
+  const rawSubjects = document.getElementById('fmClassSubjects').value.trim();
+
+  const sections = rawSections ? rawSections.split(',').map(s => s.trim()).filter(Boolean) : ['A'];
+  const subjects = rawSubjects ? rawSubjects.split(',').map(s => s.trim()).filter(Boolean) : [];
+
+  if (!name) return;
+
+  if (id) {
+    const cls = state.classes.find(c => c.id === id);
+    if (cls) {
+      cls.name = name;
+      cls.sections = sections;
+      cls.subjects = subjects;
+    }
+  } else {
+    state.classes.push({
+      id: 'cls-' + Date.now(),
+      name: name,
+      sections: sections,
+      subjects: subjects
+    });
+  }
+
+  state.save();
+  closeModal('classModal');
+  renderClassesList();
+  renderStudentClassFilterChips();
+  renderStudentsList();
+}
+
+function deleteClass(classId) {
+  if (confirm('আপনি কি এই শ্রেণি মুছে ফেলতে চান?')) {
+    state.classes = state.classes.filter(c => c.id !== classId);
+    state.save();
+    renderClassesList();
+    renderStudentClassFilterChips();
+    renderStudentsList();
+  }
+}
+
 // ==================== STUDENTS VIEW & FILTERS ====================
+function renderStudentClassFilterChips() {
+  const container = document.getElementById('studentClassChips');
+  if (!container) return;
+
+  const classNames = ['All', ...state.classes.map(c => c.name)];
+  if (!classNames.includes(state.studentClassFilter)) {
+    state.studentClassFilter = 'All';
+  }
+
+  container.innerHTML = classNames.map(name => {
+    const isActive = state.studentClassFilter === name;
+    const label = name === 'All' ? state.t('filter_all') : name;
+    return `
+      <button class="chip ${isActive ? 'active' : ''}" data-class="${name}" onclick="setStudentClassFilter('${name}')">
+        ${label}
+      </button>
+    `;
+  }).join('');
+}
+
 function setStudentStatusFilter(status) {
   state.studentStatusFilter = status;
   document.querySelectorAll('#studentStatusChips .chip').forEach(c => {
@@ -657,11 +804,12 @@ function renderStudentsList() {
   const filtered = state.students.filter(s => {
     // 1. Query Filter
     if (query) {
-      const matchName = s.name.toLowerCase().includes(query);
+      const matchName = (s.name || '').toLowerCase().includes(query);
       const matchRoll = (s.rollNumber || '').toLowerCase().includes(query);
       const matchFather = (s.fatherName || '').toLowerCase().includes(query);
       const matchPhone = (s.fatherPhone || '').toLowerCase().includes(query);
-      if (!matchName && !matchRoll && !matchFather && !matchPhone) return false;
+      const matchStdPhone = (s.studentPhone || '').toLowerCase().includes(query);
+      if (!matchName && !matchRoll && !matchFather && !matchPhone && !matchStdPhone) return false;
     }
     // 2. Class Filter
     if (state.studentClassFilter !== 'All' && s.className !== state.studentClassFilter) {
@@ -717,7 +865,7 @@ function renderStudentsList() {
   }).join('');
 }
 
-// ==================== STUDENT DETAIL & PROFILE ====================
+// ==================== REQUIREMENT 4: STUDENT DETAIL & DIRECT COMMUNICATION (Image 2) ====================
 function openStudentDetailModal(studentId) {
   state.selectedStudentId = studentId;
   renderStudentDetail(studentId);
@@ -737,6 +885,7 @@ function renderStudentDetail(studentId) {
 
   const curMonthKey = new Date().toISOString().substring(0, 7);
   const classesThisMonth = student.attendance ? (student.attendance[curMonthKey] || 0) : 0;
+  const effectivePhone = student.fatherPhone || student.studentPhone || '';
 
   const body = document.getElementById('studentDetailBody');
   body.innerHTML = `
@@ -751,9 +900,14 @@ function renderStudentDetail(studentId) {
         <strong style="font-size:14px; color:var(--primary);">৳ ${Number(student.monthlyFee).toLocaleString('en-IN')}</strong>
       </div>
       <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-        <span style="color:var(--text-muted); font-size:13px;">পিতার নাম ও মোবাইল:</span>
+        <span style="color:var(--text-muted); font-size:13px;">Guardian:</span>
         <span style="font-size:13px; font-weight:600;">${student.fatherName || '—'} (${student.fatherPhone || '—'})</span>
       </div>
+      ${student.studentPhone ? `
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+        <span style="color:var(--text-muted); font-size:13px;">Student Phone:</span>
+        <span style="font-size:13px; font-weight:600;">${student.studentPhone}</span>
+      </div>` : ''}
       <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
         <span style="color:var(--text-muted); font-size:13px;">ভর্তির তারিখ:</span>
         <span style="font-size:13px;">${student.admissionDate || '—'}</span>
@@ -763,22 +917,55 @@ function renderStudentDetail(studentId) {
         <span style="color:var(--text-muted); font-size:13px;">ঠিকানা:</span>
         <span style="font-size:13px;">${student.address}</span>
       </div>` : ''}
+    </div>
 
-      <!-- Contact Actions -->
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px;">
-        <button class="pill-btn" style="background:white; border:1px solid var(--border); padding:8px; display:flex; align-items:center; justify-content:center; gap:6px;" onclick="callFatherPhone('${student.fatherPhone}')">
-          <i class="fa-solid fa-phone" style="color:var(--primary)"></i> কল দিন
+    <!-- DIRECT COMMUNICATION CARD (Exact Design matching Image 2) -->
+    <div class="direct-comm-card">
+      <div class="direct-comm-header">
+        <i class="fa-regular fa-comment-dots"></i>
+        <span>Direct Communication</span>
+      </div>
+      <div class="direct-comm-buttons">
+        <!-- 1. Call -->
+        <button class="direct-comm-item comm-call" onclick="callDirect('${effectivePhone}')" title="Call">
+          <div class="direct-comm-circle">
+            <i class="fa-solid fa-phone"></i>
+          </div>
+          <span>Call</span>
         </button>
-        <button class="pill-btn" style="background:white; border:1px solid var(--border); padding:8px; display:flex; align-items:center; justify-content:center; gap:6px;" onclick="messageFatherPhone('${student.fatherPhone}')">
-          <i class="fa-solid fa-comment-sms" style="color:var(--secondary)"></i> মেসেজ
+
+        <!-- 2. SMS -->
+        <button class="direct-comm-item comm-sms" onclick="smsDirect('${effectivePhone}', '${student.id}')" title="SMS">
+          <div class="direct-comm-circle">
+            <i class="fa-solid fa-comment-dots"></i>
+          </div>
+          <span>SMS</span>
+        </button>
+
+        <!-- 3. WhatsApp -->
+        <button class="direct-comm-item comm-whatsapp" onclick="whatsappDirect('${effectivePhone}', '${student.id}')" title="WhatsApp">
+          <div class="direct-comm-circle">
+            <i class="fa-brands fa-whatsapp"></i>
+          </div>
+          <span>WhatsApp</span>
+        </button>
+
+        <!-- 4. Telegram -->
+        <button class="direct-comm-item comm-telegram" onclick="telegramDirect('${effectivePhone}')" title="Telegram">
+          <div class="direct-comm-circle">
+            <i class="fa-solid fa-paper-plane"></i>
+          </div>
+          <span>Telegram</span>
+        </button>
+
+        <!-- 5. Save -->
+        <button class="direct-comm-item comm-save" onclick="saveContactDirect('${student.id}')" title="Save Contact">
+          <div class="direct-comm-circle">
+            <i class="fa-regular fa-address-book"></i>
+          </div>
+          <span>Save</span>
         </button>
       </div>
-
-      <!-- One-Tap Due Reminder SMS Button -->
-      ${due > 0 ? `
-      <button class="submit-btn btn-expense" style="margin-top:10px; padding:10px; font-size:13px; display:flex; align-items:center; justify-content:center; gap:8px;" onclick="sendDueReminderSms('${student.id}')">
-        <i class="fa-solid fa-paper-plane"></i> ${state.t('send_due_sms')} (৳ ${due.toLocaleString('en-IN')})
-      </button>` : ''}
     </div>
 
     <!-- 4 Stats Grid -->
@@ -861,67 +1048,130 @@ function updateStudentAttendance(studentId, delta) {
   renderStudentDetail(studentId);
 }
 
-// ==================== ONE-TAP DUE REMINDER SMS ====================
-function sendDueReminderSms(studentId) {
-  const student = state.students.find(s => s.id === studentId);
-  if (!student) return;
-  const due = state.getStudentDue(student);
-
-  if (!student.fatherPhone) {
-    alert(state.t('no_phone_msg'));
-    return;
-  }
-  if (due <= 0) {
-    alert(state.t('no_due_msg'));
-    return;
-  }
-
-  const isBn = state.settings.lang === 'bn';
-  const text = isBn
-    ? `সম্মানিত অভিভাবক, আপনার সন্তান ${student.name} (শ্রেণি: ${student.className}, রোল: ${student.rollNumber})-এর টিউশন ফি বাবদ ৳${due.toLocaleString('en-IN')} বকেয়া রয়েছে। অনুগ্রহ করে দ্রুত পরিশোধ করুন। ধন্যবাদ - ABS Hisab Manager`
-    : `Dear Parent, Tuition fee of Tk ${due.toLocaleString('en-IN')} is due for your child ${student.name} (Class: ${student.className}, Roll: ${student.rollNumber}). Kindly arrange payment. Thank you - ABS Hisab Manager`;
-
-  const smsUrl = `sms:${student.fatherPhone}?body=${encodeURIComponent(text)}`;
-  window.open(smsUrl, '_blank');
+// ==================== DIRECT COMMUNICATION ACTIONS (Image 2 Handlers) ====================
+function cleanPhone(raw) {
+  if (!raw) return '';
+  let clean = raw.replace(/[^\d+]/g, '');
+  if (clean.startsWith('01')) clean = '88' + clean;
+  else if (clean.startsWith('+8801')) clean = clean.substring(1);
+  return clean;
 }
 
-function callFatherPhone(phone) {
+function callDirect(phone) {
   if (!phone) return alert(state.t('no_phone_msg'));
   window.location.href = `tel:${phone}`;
 }
 
-function messageFatherPhone(phone) {
+function smsDirect(phone, studentId) {
   if (!phone) return alert(state.t('no_phone_msg'));
-  window.location.href = `sms:${phone}`;
+  const student = state.students.find(s => s.id === studentId);
+  const due = student ? state.getStudentDue(student) : 0;
+  const text = due > 0
+    ? `সম্মানিত অভিভাবক, আপনার সন্তান ${student.name} (শ্রেণি: ${student.className}, রোল: ${student.rollNumber})-এর টিউশন ফি বাবদ ৳${due.toLocaleString('en-IN')} বকেয়া রয়েছে। বিনীত - ABS Hisab Manager`
+    : `সম্মানিত অভিভাবক, ${student ? student.name : 'শিক্ষার্থী'} সংক্রান্ত তথ্য। বিনীত - ABS Hisab Manager`;
+
+  window.location.href = `sms:${phone}?body=${encodeURIComponent(text)}`;
 }
 
-// ==================== ADD / EDIT STUDENT ====================
+function whatsappDirect(phone, studentId) {
+  if (!phone) return alert(state.t('no_phone_msg'));
+  const student = state.students.find(s => s.id === studentId);
+  const due = student ? state.getStudentDue(student) : 0;
+  const text = due > 0
+    ? `আসসালামু আলাইকুম। আপনার সন্তান ${student.name} (শ্রেণি: ${student.className}, রোল: ${student.rollNumber})-এর টিউশন ফি বাবদ ৳${due.toLocaleString('en-IN')} বকেয়া রয়েছে। - ABS Hisab Manager`
+    : `আসসালামু আলাইকুম। ${student ? student.name : 'শিক্ষার্থী'} সংক্রান্ত তথ্য। - ABS Hisab Manager`;
+
+  const clean = cleanPhone(phone);
+  window.open(`https://wa.me/${clean}?text=${encodeURIComponent(text)}`, '_blank');
+}
+
+function telegramDirect(phone) {
+  if (!phone) return alert(state.t('no_phone_msg'));
+  const clean = cleanPhone(phone);
+  window.open(`https://t.me/+${clean.replace('+', '')}`, '_blank');
+}
+
+function saveContactDirect(studentId) {
+  const s = state.students.find(x => x.id === studentId);
+  if (!s) return;
+  const phone = s.fatherPhone || s.studentPhone || '';
+  const text = `Student: ${s.name}\nClass: ${s.className} (Roll: ${s.rollNumber}, Sec: ${s.section})\nGuardian: ${s.fatherName}\nPhone: ${phone}\nAddress: ${s.address || '—'}\nMonthly Fee: ৳${s.monthlyFee}`;
+
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => {
+      alert('শিক্ষার্থীর কন্টাক্ট ও তথ্য কপি করা হয়েছে:\n\n' + text);
+    });
+  } else {
+    alert('শিক্ষার্থীর তথ্য:\n\n' + text);
+  }
+}
+
+// ==================== REQUIREMENT 3: ADD / EDIT STUDENT (Image 1 Style) ====================
 function openAddStudentModal(studentId = null) {
   const form = document.getElementById('studentForm');
   form.reset();
-  document.getElementById('studentFormId').value = '';
-  document.getElementById('studentModalTitle').innerText = state.t('add_student');
-  document.getElementById('fmAdmissionDate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('studentFormId').value = studentId || '';
+
+  renderStudentClassDropdownOptions();
 
   if (studentId) {
     const s = state.students.find(x => x.id === studentId);
     if (s) {
-      document.getElementById('studentFormId').value = s.id;
-      document.getElementById('studentModalTitle').innerText = state.t('edit_student');
-      document.getElementById('fmStudentName').value = s.name || '';
-      document.getElementById('fmStudentClass').value = s.className || 'Nine';
-      document.getElementById('fmStudentRoll').value = s.rollNumber || '';
-      document.getElementById('fmStudentSection').value = s.section || '';
-      document.getElementById('fmStudentFee').value = s.monthlyFee || '';
+      document.getElementById('studentModalTitle').innerText = 'Edit Student';
+      document.getElementById('btnSaveStudentSubmit').innerText = 'Update Student';
+      document.getElementById('fmStudentName').value = s.name;
+      document.getElementById('fmStudentRoll').value = s.rollNumber;
+      document.getElementById('fmStudentFee').value = s.monthlyFee;
       document.getElementById('fmFatherName').value = s.fatherName || '';
       document.getElementById('fmFatherPhone').value = s.fatherPhone || '';
+      document.getElementById('fmStudentPhone').value = s.studentPhone || '';
       document.getElementById('fmStudentAddress').value = s.address || '';
       document.getElementById('fmAdmissionDate').value = s.admissionDate || '';
-      document.getElementById('fmStudentNotes').value = s.notes || '';
+      
+      document.getElementById('fmStudentClass').value = s.className;
+      onStudentClassChanged(s.section);
     }
+  } else {
+    document.getElementById('studentModalTitle').innerText = 'Add Student';
+    document.getElementById('btnSaveStudentSubmit').innerText = 'Save Student';
+    document.getElementById('fmAdmissionDate').value = new Date().toISOString().split('T')[0];
+    onStudentClassChanged();
   }
 
   openModal('studentModal');
+}
+
+function renderStudentClassDropdownOptions() {
+  const classSelect = document.getElementById('fmStudentClass');
+  if (!classSelect) return;
+
+  if (state.classes.length === 0) {
+    state.classes = defaultClasses;
+    state.save();
+  }
+
+  classSelect.innerHTML = state.classes.map(c => `
+    <option value="${c.name}">${c.name}</option>
+  `).join('');
+}
+
+function onStudentClassChanged(selectedSection = null) {
+  const classSelect = document.getElementById('fmStudentClass');
+  const sectionSelect = document.getElementById('fmStudentSection');
+  if (!classSelect || !sectionSelect) return;
+
+  const currentClass = state.classes.find(c => c.name === classSelect.value) || state.classes[0];
+  const sections = (currentClass && currentClass.sections && currentClass.sections.length > 0)
+    ? currentClass.sections
+    : ['A', 'B'];
+
+  sectionSelect.innerHTML = sections.map(sec => `
+    <option value="${sec}">${sec}</option>
+  `).join('');
+
+  if (selectedSection && sections.includes(selectedSection)) {
+    sectionSelect.value = selectedSection;
+  }
 }
 
 function handleSaveStudent(e) {
@@ -930,91 +1180,103 @@ function handleSaveStudent(e) {
   const name = document.getElementById('fmStudentName').value.trim();
   const className = document.getElementById('fmStudentClass').value;
   const rollNumber = document.getElementById('fmStudentRoll').value.trim();
-  const section = document.getElementById('fmStudentSection').value.trim();
-  const monthlyFee = Number(document.getElementById('fmStudentFee').value);
+  const section = document.getElementById('fmStudentSection').value;
+  const monthlyFee = Number(document.getElementById('fmStudentFee').value) || 0;
   const fatherName = document.getElementById('fmFatherName').value.trim();
   const fatherPhone = document.getElementById('fmFatherPhone').value.trim();
+  const studentPhone = (document.getElementById('fmStudentPhone')?.value || '').trim();
   const address = document.getElementById('fmStudentAddress').value.trim();
   const admissionDate = document.getElementById('fmAdmissionDate').value;
-  const notes = document.getElementById('fmStudentNotes').value.trim();
+
+  if (!name || !rollNumber || !fatherPhone) {
+    alert('অনুগ্রহ করে তারকাচিহ্নিত (*) সব প্রয়োজনীয় ঘর পূরণ করুন।');
+    return;
+  }
 
   if (id) {
-    const index = state.students.findIndex(s => s.id === id);
-    if (index !== -1) {
-      state.students[index] = {
-        ...state.students[index],
-        name, className, rollNumber, section, monthlyFee, fatherName, fatherPhone, address, admissionDate, notes
-      };
+    const s = state.students.find(x => x.id === id);
+    if (s) {
+      s.name = name;
+      s.className = className;
+      s.rollNumber = rollNumber;
+      s.section = section;
+      s.monthlyFee = monthlyFee;
+      s.fatherName = fatherName;
+      s.fatherPhone = fatherPhone;
+      s.studentPhone = studentPhone;
+      s.address = address;
+      s.admissionDate = admissionDate;
     }
   } else {
-    const newStudent = {
-      id: `std-${Date.now()}`,
-      name, className, rollNumber, section, monthlyFee, fatherName, fatherPhone, address, admissionDate, notes,
+    state.students.push({
+      id: 'std-' + Date.now(),
+      name,
+      className,
+      rollNumber,
+      section,
+      monthlyFee,
+      fatherName,
+      fatherPhone,
+      studentPhone,
+      address,
+      admissionDate,
       attendance: {}
-    };
-    state.students.unshift(newStudent);
+    });
   }
 
   state.save();
   closeModal('studentModal');
-  renderDashboard();
   renderStudentsList();
-  if (id && state.selectedStudentId === id) renderStudentDetail(id);
+  renderDashboard();
+  if (id && state.selectedStudentId === id) {
+    renderStudentDetail(id);
+  }
 }
 
 function editCurrentStudent() {
-  if (state.selectedStudentId) {
-    closeModal('studentDetailModal');
-    openAddStudentModal(state.selectedStudentId);
-  }
+  closeModal('studentDetailModal');
+  openAddStudentModal(state.selectedStudentId);
 }
 
 function deleteCurrentStudent() {
-  if (!state.selectedStudentId) return;
-  if (!confirm(state.t('delete_confirm'))) return;
-
-  const id = state.selectedStudentId;
-  state.students = state.students.filter(s => s.id !== id);
-  state.payments = state.payments.filter(p => p.studentId !== id);
-  state.transactions = state.transactions.filter(t => t.linkedStudentId !== id && t.id !== id);
-
-  state.save();
-  closeModal('studentDetailModal');
-  renderDashboard();
-  renderStudentsList();
+  if (confirm('আপনি কি এই শিক্ষার্থীর সম্পূর্ণ প্রোফাইল ও পেমেন্ট হিস্ট্রি ডিলিট করতে চান?')) {
+    state.students = state.students.filter(s => s.id !== state.selectedStudentId);
+    state.payments = state.payments.filter(p => p.studentId !== state.selectedStudentId);
+    state.save();
+    closeModal('studentDetailModal');
+    renderStudentsList();
+    renderDashboard();
+  }
 }
 
-// ==================== COLLECT PAYMENT ====================
+// ==================== PAYMENT COLLECTION (Cash / bKash / Nagad / Rocket) ====================
 function openStudentPickerModal() {
-  renderStudentPickerList();
-  openModal('studentPickerModal');
-}
-
-function renderStudentPickerList() {
   const list = document.getElementById('pickerStudentList');
-  const q = (document.getElementById('pickerSearchInput')?.value || '').trim().toLowerCase();
-  const filtered = state.students.filter(s => !q || s.name.toLowerCase().includes(q) || (s.rollNumber || '').includes(q));
+  if (!list) return;
 
-  if (filtered.length === 0) {
-    list.innerHTML = `<div style="text-align:center; padding:16px; color:var(--text-muted);">কোনো শিক্ষার্থী পাওয়া যায়নি</div>`;
-    return;
+  if (state.students.length === 0) {
+    alert('প্রথমে একজন শিক্ষার্থী যুক্ত করুন');
+    return openAddStudentModal();
   }
 
-  list.innerHTML = filtered.map(s => {
+  list.innerHTML = state.students.map(s => {
     const due = state.getStudentDue(s);
     return `
-      <div style="background:var(--background); padding:12px; border-radius:var(--radius-md); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="selectStudentForPayment('${s.id}')">
-        <div>
-          <strong>${s.name}</strong>
-          <div style="font-size:12px; color:var(--text-muted);">${s.className} · Roll ${s.rollNumber}</div>
+      <div class="student-item-card" onclick="selectStudentForPayment('${s.id}')">
+        <div class="student-avatar">${s.name.charAt(0)}</div>
+        <div class="student-main-info">
+          <div class="student-name">${s.name}</div>
+          <div class="student-meta">${s.className} · Roll ${s.rollNumber}</div>
         </div>
-        <div style="text-align:right;">
-          <div style="font-weight:700;">৳ ${s.monthlyFee}</div>
-          ${due > 0 ? `<span class="badge-pill badge-due">বাকি: ৳ ${due}</span>` : ''}
+        <div class="student-right-info">
+          <div class="student-fee">ফি: ৳ ${s.monthlyFee}</div>
+          ${due > 0 ? `<span class="badge-pill badge-due">বাকি: ৳ ${due}</span>` : '<span class="badge-pill badge-paid">পরিশোধিত</span>'}
         </div>
       </div>
     `;
   }).join('');
+
+  openModal('studentPickerModal');
 }
 
 function selectStudentForPayment(studentId) {
@@ -1028,20 +1290,18 @@ function openCollectPaymentForStudent(studentId) {
 
   document.getElementById('paymentForm').reset();
   document.getElementById('pmStudentId').value = student.id;
-  document.getElementById('pmAmount').value = student.monthlyFee;
-  document.getElementById('pmDate').value = new Date().toISOString().split('T')[0];
-  document.getElementById('pmMonth').value = new Date().toISOString().substring(0, 7);
-  document.getElementById('pmGiveReceipt').checked = true;
 
   const due = state.getStudentDue(student);
   document.getElementById('pmStudentBadge').innerHTML = `
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-      <div>
-        <strong>${student.name}</strong> (${student.className} - Roll ${student.rollNumber})
-      </div>
-      <span class="badge-pill ${due > 0 ? 'badge-due' : 'badge-paid'}">বর্তমান বাকি: ৳ ${due.toLocaleString('en-IN')}</span>
+    <strong>${student.name}</strong> (${student.className} · Roll ${student.rollNumber})
+    <div style="font-size:12px; margin-top:2px; color:${due > 0 ? 'var(--expense)' : 'var(--income)'}; font-weight:700;">
+      বর্তমান বকেয়া: ৳ ${due.toLocaleString('en-IN')}
     </div>
   `;
+
+  document.getElementById('pmAmount').value = due > 0 ? due : student.monthlyFee;
+  document.getElementById('pmDate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('pmMonth').value = new Date().toISOString().substring(0, 7);
 
   openModal('collectPaymentModal');
 }
@@ -1049,43 +1309,44 @@ function openCollectPaymentForStudent(studentId) {
 function handleSavePayment(e) {
   e.preventDefault();
   const studentId = document.getElementById('pmStudentId').value;
-  const student = state.students.find(s => s.id === studentId);
-  if (!student) return;
-
   const amount = Number(document.getElementById('pmAmount').value);
   const method = document.getElementById('pmMethod').value;
   const forMonth = document.getElementById('pmMonth').value;
   const paymentDate = document.getElementById('pmDate').value;
   const note = document.getElementById('pmNote').value.trim();
   const giveReceipt = document.getElementById('pmGiveReceipt').checked;
-  const receiptNo = state.getNextReceiptNo();
 
-  const paymentId = `pay-${Date.now()}`;
+  if (!studentId || !amount) return;
+  const student = state.students.find(s => s.id === studentId);
+  if (!student) return;
+
+  const receiptNo = 'REC-' + forMonth.replace('-', '') + '-' + Math.floor(100 + Math.random() * 900);
+
   const payment = {
-    id: paymentId,
+    id: 'pay-' + Date.now(),
     studentId,
     amount,
     method,
-    paymentDate,
     forMonth,
+    paymentDate,
     note,
-    receiptNo,
-    receiptGiven: giveReceipt
+    receiptGiven: giveReceipt,
+    receiptNo
   };
-  state.payments.unshift(payment);
 
-  // Auto-sync into Transactions as Income
-  const txnNote = `Tuition fee - ${student.name} (${receiptNo})${note ? ' · ' + note : ''}`;
-  const txn = {
-    id: paymentId,
-    amount,
+  state.payments.push(payment);
+
+  // Automatically record Income transaction
+  state.transactions.push({
+    id: 'txn-' + Date.now(),
     type: 'income',
+    amount,
     category: 'Tuition',
     date: paymentDate,
-    note: txnNote,
-    linkedStudentId: studentId
-  };
-  state.transactions.unshift(txn);
+    note: `${student.name} (${student.className}) - ${forMonth} Fee [${method}]`,
+    studentId,
+    paymentMethod: method
+  });
 
   state.save();
   closeModal('collectPaymentModal');
@@ -1093,25 +1354,26 @@ function handleSavePayment(e) {
   renderDashboard();
   renderStudentsList();
   renderTransactionsList();
-  if (state.selectedStudentId === studentId) renderStudentDetail(studentId);
+  if (state.selectedStudentId === studentId) {
+    renderStudentDetail(studentId);
+  }
 
   if (giveReceipt) {
-    printMoneyReceipt(paymentId);
+    setTimeout(() => printMoneyReceipt(payment.id), 300);
   }
 }
 
 function deletePaymentRecord(paymentId) {
-  if (!confirm(state.t('delete_confirm'))) return;
-  state.payments = state.payments.filter(p => p.id !== paymentId);
-  state.transactions = state.transactions.filter(t => t.id !== paymentId);
-  state.save();
-
-  renderDashboard();
-  renderTransactionsList();
-  if (state.selectedStudentId) renderStudentDetail(state.selectedStudentId);
+  if (confirm('আপনি কি এই পেমেন্ট রেকর্ড মুছে ফেলতে চান?')) {
+    state.payments = state.payments.filter(p => p.id !== paymentId);
+    state.save();
+    renderDashboard();
+    renderStudentsList();
+    if (state.selectedStudentId) renderStudentDetail(state.selectedStudentId);
+  }
 }
 
-// ==================== TRANSACTIONS VIEW & ACTIONS ====================
+// ==================== TRANSACTIONS ====================
 function setTxnTypeFilter(type) {
   state.txnTypeFilter = type;
   document.querySelectorAll('#txnFilterChips .chip').forEach(c => {
@@ -1127,25 +1389,27 @@ function renderTransactionsList() {
   const filtered = state.transactions.filter(t => {
     if (state.txnTypeFilter === 'all') return true;
     return t.type === state.txnTypeFilter;
-  }).sort((a, b) => new Date(b.date) - new Date(a.date));
+  });
 
-  if (filtered.length === 0) {
-    listEl.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-muted);">কোনো লেনদেন পাওয়া যায়নি</div>`;
+  const sorted = [...filtered].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  if (sorted.length === 0) {
+    listEl.innerHTML = `<div style="text-align:center; padding:36px; color:var(--text-muted);">কোনো লেনদেন রেকর্ড পাওয়া যায়নি</div>`;
     return;
   }
 
-  listEl.innerHTML = filtered.map(t => renderTxnCardHtml(t)).join('');
+  listEl.innerHTML = sorted.map(t => renderTxnCardHtml(t)).join('');
 }
 
 function openAddTransactionModal(type = 'expense') {
-  document.getElementById('txnForm').reset();
-  document.getElementById('txnFormId').value = '';
+  const form = document.getElementById('txnForm');
+  form.reset();
+  setTxnFormType(type);
   document.getElementById('txnDate').value = new Date().toISOString().split('T')[0];
-  setFormTxnType(type);
   openModal('transactionModal');
 }
 
-function setFormTxnType(type) {
+function setTxnFormType(type) {
   document.getElementById('txnFormType').value = type;
   document.getElementById('txnTypeIncomeBtn').classList.toggle('active', type === 'income');
   document.getElementById('txnTypeExpenseBtn').classList.toggle('active', type === 'expense');
@@ -1153,31 +1417,28 @@ function setFormTxnType(type) {
   const catSelect = document.getElementById('txnCategory');
   const cats = state.categories[type] || [];
   catSelect.innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('');
-
-  const submitBtn = document.getElementById('btnSaveTxnSubmit');
-  submitBtn.className = `submit-btn ${type === 'income' ? 'btn-income' : 'btn-expense'}`;
 }
 
 function handleSaveTransaction(e) {
   e.preventDefault();
-  const id = document.getElementById('txnFormId').value;
   const type = document.getElementById('txnFormType').value;
   const amount = Number(document.getElementById('txnAmount').value);
   const category = document.getElementById('txnCategory').value;
   const date = document.getElementById('txnDate').value;
+  const paymentMethod = document.getElementById('txnMethod').value;
   const note = document.getElementById('txnNote').value.trim();
 
-  if (id) {
-    const idx = state.transactions.findIndex(t => t.id === id);
-    if (idx !== -1) {
-      state.transactions[idx] = { ...state.transactions[idx], type, amount, category, date, note };
-    }
-  } else {
-    state.transactions.unshift({
-      id: `txn-${Date.now()}`,
-      type, amount, category, date, note
-    });
-  }
+  if (!amount || !category) return;
+
+  state.transactions.push({
+    id: 'txn-' + Date.now(),
+    type,
+    amount,
+    category,
+    date,
+    paymentMethod,
+    note
+  });
 
   state.save();
   closeModal('transactionModal');
@@ -1185,18 +1446,21 @@ function handleSaveTransaction(e) {
   renderTransactionsList();
 }
 
-function deleteTransaction(txnId) {
-  if (!confirm(state.t('delete_confirm'))) return;
-  state.transactions = state.transactions.filter(t => t.id !== txnId);
-  state.payments = state.payments.filter(p => p.id !== txnId); // Sync if linked
-  state.save();
-  renderDashboard();
-  renderTransactionsList();
-  if (state.selectedStudentId) renderStudentDetail(state.selectedStudentId);
+function deleteTransaction(id) {
+  if (confirm('আপনি কি এই লেনদেন মুছে ফেলতে চান?')) {
+    state.transactions = state.transactions.filter(t => t.id !== id);
+    state.save();
+    renderDashboard();
+    renderTransactionsList();
+  }
 }
 
-// ==================== FINANCIAL REPORTS ====================
-function openReportModal() {
+// ==================== REPORTS (Daily, Weekly, Monthly, Yearly) ====================
+function openReportModal(period = 'monthly') {
+  state.currentReportPeriod = period;
+  document.querySelectorAll('#reportPeriodTabs .seg-btn').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('data-period') === period);
+  });
   renderReportContent();
   openModal('reportModal');
 }
@@ -1331,8 +1595,8 @@ function printStudentFullStatement() {
         </div>
         <div style="text-align:right;">
           <div><strong>Monthly Fee:</strong> Tk ${Number(s.monthlyFee).toLocaleString('en-IN')}</div>
-          <div><strong>Father's Name:</strong> ${s.fatherName || '—'}</div>
-          <div><strong>Father's Mobile:</strong> ${s.fatherPhone || '—'}</div>
+          <div><strong>Guardian:</strong> ${s.fatherName || '—'}</div>
+          <div><strong>Guardian Mobile:</strong> ${s.fatherPhone || '—'}</div>
           <div><strong>Total Classes Attended:</strong> ${totalClasses}</div>
         </div>
       </div>
@@ -1475,7 +1739,6 @@ function updatePinDots() {
 }
 
 function simulateBiometric() {
-  // Biometric Unlock Simulation
   document.getElementById('pinLockOverlay').classList.remove('show');
 }
 
@@ -1510,6 +1773,7 @@ function exportDataBackup() {
   const data = {
     version: 2,
     exportedAt: new Date().toISOString(),
+    classes: state.classes,
     students: state.students,
     payments: state.payments,
     transactions: state.transactions,
@@ -1536,6 +1800,7 @@ function handleImportFile(e) {
   reader.onload = (evt) => {
     try {
       const data = JSON.parse(evt.target.result);
+      if (data.classes) state.classes = data.classes;
       if (data.students) state.students = data.students;
       if (data.payments) state.payments = data.payments;
       if (data.transactions) state.transactions = data.transactions;
@@ -1543,6 +1808,8 @@ function handleImportFile(e) {
       state.save();
       alert('ডাটা ব্যাকআপ সফলভাবে রিস্টোর হয়েছে!');
       renderDashboard();
+      renderClassesList();
+      renderStudentClassFilterChips();
       renderStudentsList();
       renderTransactionsList();
     } catch (err) {
@@ -1559,6 +1826,8 @@ function confirmClearAllData() {
     state.transactions = [];
     state.save();
     renderDashboard();
+    renderClassesList();
+    renderStudentClassFilterChips();
     renderStudentsList();
     renderTransactionsList();
     alert('সকল ডাটা মুছে ফেলা হয়েছে');

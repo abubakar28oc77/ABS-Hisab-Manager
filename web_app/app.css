@@ -1069,6 +1069,174 @@ body {
 .text-success { color: var(--income); }
 .text-primary { color: var(--primary); }
 
+/* ==================== DIRECT COMMUNICATION CARD (Image 2) ==================== */
+.direct-comm-card {
+  background: white;
+  border-radius: 20px;
+  padding: 16px 18px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--border);
+  margin-top: 14px;
+}
+
+.direct-comm-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.direct-comm-header i {
+  color: #2563eb;
+  font-size: 20px;
+}
+
+.direct-comm-header span {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.direct-comm-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.direct-comm-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  transition: transform 0.15s ease;
+}
+
+.direct-comm-item:active {
+  transform: scale(0.92);
+}
+
+.direct-comm-circle {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  transition: box-shadow 0.2s;
+}
+
+.direct-comm-item span {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* 5 Action Themes */
+.comm-call .direct-comm-circle { background: #e8f5e9; color: #10b981; }
+.comm-call span { color: #059669; }
+
+.comm-sms .direct-comm-circle { background: #e3f2fd; color: #2563eb; }
+.comm-sms span { color: #1d4ed8; }
+
+.comm-whatsapp .direct-comm-circle { background: #e8f8f0; color: #25d366; }
+.comm-whatsapp span { color: #16a34a; }
+
+.comm-telegram .direct-comm-circle { background: #e0f2fe; color: #0284c7; }
+.comm-telegram span { color: #0284c7; }
+
+.comm-save .direct-comm-circle { background: #f3e8ff; color: #9333ea; }
+.comm-save span { color: #7c3aed; }
+
+/* ==================== ADD STUDENT FORM (Image 1 Style) ==================== */
+.image-style-field {
+  background: white;
+  border: 1px solid #cbd5e1;
+  border-radius: 14px;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.image-style-field i {
+  color: #64748b;
+  font-size: 18px;
+  width: 20px;
+  text-align: center;
+}
+
+.image-style-field input,
+.image-style-field select {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: 14px;
+  color: #1e293b;
+  background: transparent;
+  padding: 6px 0;
+}
+
+.image-style-field input::placeholder {
+  color: #94a3b8;
+}
+
+/* ==================== CLASS MANAGEMENT VIEW ==================== */
+.class-item-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.class-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.class-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.section-tag {
+  background: #eff6ff;
+  color: #2563eb;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.subject-tag {
+  background: #f0fdf4;
+  color: #16a34a;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
 /* ==================== PRINT STYLES ==================== */
 @media print {
   body {

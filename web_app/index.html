@@ -38,14 +38,10 @@
         
         <!-- 1. DASHBOARD VIEW -->
         <div class="view active" id="dashboardView">
-          <!-- Balance Card -->
+          <!-- Balance Card (Clean Net Balance without +/-) -->
           <div class="balance-card">
             <div class="balance-sub" id="netBalanceLabel">নিট ব্যালেন্স</div>
             <div class="balance-amount" id="netBalanceAmount">৳ 0.00</div>
-            <div class="balance-delta" id="balanceDelta">
-              <i class="fa-solid fa-arrow-trend-up"></i>
-              <span id="deltaText">+৳ 0.00 গত মাসের তুলনায়</span>
-            </div>
           </div>
 
           <!-- Quick Actions Bar -->
@@ -76,14 +72,14 @@
             <div class="stat-card income-card">
               <div class="stat-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
               <div class="stat-info">
-                <div class="stat-label" id="lblIncomeMonth">মোট আয় (এই মাসে)</div>
+                <div class="stat-label" id="lblIncomeMonth">মোট আয়</div>
                 <div class="stat-value" id="valIncomeMonth">৳ 0.00</div>
               </div>
             </div>
             <div class="stat-card expense-card">
               <div class="stat-icon"><i class="fa-solid fa-arrow-trend-down"></i></div>
               <div class="stat-info">
-                <div class="stat-label" id="lblExpenseMonth">মোট ব্যয় (এই মাসে)</div>
+                <div class="stat-label" id="lblExpenseMonth">মোট ব্যয়</div>
                 <div class="stat-value" id="valExpenseMonth">৳ 0.00</div>
               </div>
             </div>
@@ -103,7 +99,7 @@
             </div>
           </div>
 
-          <!-- Expense Breakdown Chart -->
+          <!-- Expense Breakdown Chart (Current Month) -->
           <div class="card-box mt-4">
             <div class="box-title" id="lblExpenseBreakdown">ব্যয়ের বিবরণী</div>
             <div class="chart-container" id="expenseChartContainer">
@@ -112,7 +108,7 @@
             </div>
           </div>
 
-          <!-- Recent Transactions -->
+          <!-- Recent Transactions (Current Month) -->
           <div class="card-box mt-4">
             <div class="box-header-row">
               <div class="box-title" id="lblRecentTransactions">সাম্প্রতিক লেনদেন</div>
@@ -122,7 +118,21 @@
           </div>
         </div>
 
-        <!-- 2. STUDENTS VIEW -->
+        <!-- 2. CLASSES VIEW -->
+        <div class="view" id="classesView">
+          <div class="box-header-row mb-3">
+            <div>
+              <h2 style="font-size:18px; font-weight:700; color:var(--text-main);" id="lblClassesTitle">শ্রেণি ও বিষয় ব্যবস্থাপনা</h2>
+              <p style="font-size:12px; color:var(--text-muted);">শ্রেণি, শাখা (Sections) ও বিষয় (Subjects) যোগ করুন</p>
+            </div>
+            <button class="pill-btn btn-income" style="background:#2563eb; color:white; padding:8px 14px; font-size:13px;" onclick="openAddClassModal()">
+              <i class="fa-solid fa-plus"></i> <span id="lblAddClassBtn">নতুন শ্রেণি যোগ</span>
+            </button>
+          </div>
+          <div class="classes-list" id="classesList"></div>
+        </div>
+
+        <!-- 3. STUDENTS VIEW -->
         <div class="view" id="studentsView">
           <div class="search-bar-wrap">
             <i class="fa-solid fa-magnifying-glass search-icon"></i>
@@ -139,19 +149,12 @@
           </div>
 
           <!-- Class Grade Filters -->
-          <div class="filter-chips-row mt-2" id="studentClassChips">
-            <button class="chip active" data-class="All" onclick="setStudentClassFilter('All')">সকল শ্রেণি</button>
-            <button class="chip" data-class="Six" onclick="setStudentClassFilter('Six')">Six</button>
-            <button class="chip" data-class="Seven" onclick="setStudentClassFilter('Seven')">Seven</button>
-            <button class="chip" data-class="Eight" onclick="setStudentClassFilter('Eight')">Eight</button>
-            <button class="chip" data-class="Nine" onclick="setStudentClassFilter('Nine')">Nine</button>
-            <button class="chip" data-class="Ten" onclick="setStudentClassFilter('Ten')">Ten</button>
-          </div>
+          <div class="filter-chips-row mt-2" id="studentClassChips"></div>
 
           <div class="students-list mt-3" id="studentsList"></div>
         </div>
 
-        <!-- 3. TRANSACTIONS VIEW -->
+        <!-- 4. TRANSACTIONS VIEW -->
         <div class="view" id="transactionsView">
           <div class="filter-chips-row" id="txnFilterChips">
             <button class="chip active" data-type="all" onclick="setTxnTypeFilter('all')">সব</button>
@@ -161,7 +164,7 @@
           <div class="transactions-list mt-3" id="fullTxnList"></div>
         </div>
 
-        <!-- 4. SETTINGS VIEW -->
+        <!-- 5. SETTINGS VIEW -->
         <div class="view" id="settingsView">
           
           <!-- Language Section -->
@@ -262,7 +265,7 @@
               <div class="sc-left">
                 <i class="fa-solid fa-circle-info sc-icon"></i>
                 <div>
-                  <div class="sc-title">ABS Hisab Manager v1.0.0</div>
+                  <div class="sc-title">ABS Hisab Manager v2.0.0</div>
                   <div class="sc-desc">লোকাল-ফার্স্ট প্রাইভেট টিউটর ও ফিন্যান্স ম্যানেজার</div>
                 </div>
               </div>
@@ -282,6 +285,10 @@
         <button class="nav-item active" data-tab="dashboard" onclick="switchNavTab('dashboard')">
           <i class="fa-solid fa-chart-simple"></i>
           <span id="navLblDashboard">ড্যাশবোর্ড</span>
+        </button>
+        <button class="nav-item" data-tab="classes" onclick="switchNavTab('classes')">
+          <i class="fa-solid fa-graduation-cap"></i>
+          <span id="navLblClasses">শ্রেণি</span>
         </button>
         <button class="nav-item" data-tab="students" onclick="switchNavTab('students')">
           <i class="fa-solid fa-user-graduate"></i>
@@ -334,66 +341,112 @@
     </div>
   </div>
 
-  <!-- ADD / EDIT STUDENT MODAL -->
+  <!-- ADD / EDIT STUDENT MODAL (Matching Image 1) -->
   <div class="modal-backdrop" id="studentModal">
+    <div class="modal-dialog" style="padding:0; overflow:hidden; border-radius:20px;">
+      <!-- Blue App Bar like Image 1 -->
+      <div style="background:#1E88E5; color:white; padding:16px 18px; display:flex; align-items:center; justify-content:space-between;">
+        <div style="display:flex; align-items:center; gap:14px;">
+          <button type="button" onclick="closeModal('studentModal')" style="background:none; border:none; color:white; font-size:18px; cursor:pointer;">
+            <i class="fa-solid fa-arrow-left"></i>
+          </button>
+          <h3 id="studentModalTitle" style="font-size:18px; font-weight:700; margin:0; color:white;">Add Student</h3>
+        </div>
+        <button type="button" class="modal-close-btn" onclick="closeModal('studentModal')" style="color:white; opacity:0.8;">&times;</button>
+      </div>
+
+      <form class="modal-body" id="studentForm" onsubmit="handleSaveStudent(event)" style="padding:18px; background:#F8FAFC;">
+        <input type="hidden" id="studentFormId">
+
+        <!-- 1. Student Name * -->
+        <div class="image-style-field">
+          <i class="fa-solid fa-user"></i>
+          <input type="text" id="fmStudentName" required placeholder="Student Name *">
+        </div>
+
+        <!-- 2. Roll Number * -->
+        <div class="image-style-field">
+          <i class="fa-solid fa-id-badge"></i>
+          <input type="text" id="fmStudentRoll" required placeholder="Roll Number *">
+        </div>
+
+        <!-- 3. Class * -->
+        <div class="image-style-field">
+          <i class="fa-solid fa-graduation-cap"></i>
+          <select id="fmStudentClass" required onchange="onStudentClassChanged()"></select>
+        </div>
+
+        <!-- 4. Section * -->
+        <div class="image-style-field">
+          <i class="fa-solid fa-table-cells-large"></i>
+          <select id="fmStudentSection" required></select>
+        </div>
+
+        <!-- 5. Monthly Fee * -->
+        <div class="image-style-field">
+          <i class="fa-solid fa-dollar-sign"></i>
+          <input type="number" id="fmStudentFee" required min="0" step="50" placeholder="Monthly Fee *">
+        </div>
+
+        <!-- 6. Admission Date * -->
+        <div class="image-style-field" style="position:relative;">
+          <i class="fa-regular fa-calendar-days"></i>
+          <input type="date" id="fmAdmissionDate" required style="cursor:pointer;">
+        </div>
+
+        <!-- 7. Guardian Name -->
+        <div class="image-style-field">
+          <i class="fa-solid fa-users"></i>
+          <input type="text" id="fmFatherName" placeholder="Guardian Name">
+        </div>
+
+        <!-- 8. Guardian Phone Number * -->
+        <div class="image-style-field">
+          <i class="fa-solid fa-phone"></i>
+          <input type="tel" id="fmFatherPhone" required placeholder="Guardian Phone Number *">
+        </div>
+
+        <!-- 9. Student's Own Phone Number (Optional) -->
+        <div class="image-style-field">
+          <i class="fa-solid fa-mobile-screen"></i>
+          <input type="tel" id="fmStudentPhone" placeholder="Student's Own Phone Number (Optional)">
+        </div>
+
+        <!-- 10. Address -->
+        <div class="image-style-field">
+          <i class="fa-solid fa-location-dot"></i>
+          <input type="text" id="fmStudentAddress" placeholder="Address">
+        </div>
+
+        <button type="submit" class="submit-btn" id="btnSaveStudentSubmit" style="background:#1E88E5; color:white; font-weight:700; margin-top:8px; border-radius:12px; padding:14px;">
+          Save Student
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ADD / EDIT CLASS MODAL -->
+  <div class="modal-backdrop" id="classModal">
     <div class="modal-dialog">
       <div class="modal-header">
-        <h3 id="studentModalTitle">শিক্ষার্থী যুক্ত করুন</h3>
-        <button class="modal-close-btn" onclick="closeModal('studentModal')">&times;</button>
+        <h3 id="classModalTitle">নতুন শ্রেণি যোগ</h3>
+        <button class="modal-close-btn" onclick="closeModal('classModal')">&times;</button>
       </div>
-      <form class="modal-body" id="studentForm" onsubmit="handleSaveStudent(event)">
-        <input type="hidden" id="studentFormId">
+      <form class="modal-body" id="classForm" onsubmit="handleSaveClass(event)">
+        <input type="hidden" id="classFormId">
         <div class="form-group">
-          <label id="lblFmName">শিক্ষার্থীর নাম *</label>
-          <input type="text" id="fmStudentName" required placeholder="নাম লিখুন">
+          <label id="lblClsName">শ্রেণির নাম *</label>
+          <input type="text" id="fmClassName" required placeholder="e.g. Class 6, Class 7, Batch A">
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label id="lblFmClass">শ্রেণি *</label>
-            <select id="fmStudentClass" required>
-              <option value="Six">Six</option>
-              <option value="Seven">Seven</option>
-              <option value="Eight">Eight</option>
-              <option value="Nine">Nine</option>
-              <option value="Ten">Ten</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label id="lblFmRoll">রোল নম্বর *</label>
-            <input type="text" id="fmStudentRoll" required placeholder="e.g. 01">
-          </div>
+        <div class="form-group mt-2">
+          <label id="lblClsSections">শাখা (Sections - কমা দিয়ে লিখুন)</label>
+          <input type="text" id="fmClassSections" placeholder="e.g. A, B, C, Padma, Meghna">
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label id="lblFmSection">শাখা</label>
-            <input type="text" id="fmStudentSection" placeholder="e.g. A">
-          </div>
-          <div class="form-group">
-            <label id="lblFmFee">মাসিক ফি (৳) *</label>
-            <input type="number" id="fmStudentFee" required min="0" step="50" placeholder="e.g. 2000">
-          </div>
+        <div class="form-group mt-2">
+          <label id="lblClsSubjects">বিষয়সমূহ (Subjects - কমা দিয়ে লিখুন)</label>
+          <input type="text" id="fmClassSubjects" placeholder="e.g. গণিত, ইংরেজি, বিজ্ঞান, বাংলা">
         </div>
-        <div class="form-group">
-          <label id="lblFmFather">পিতার নাম</label>
-          <input type="text" id="fmFatherName" placeholder="পিতার নাম">
-        </div>
-        <div class="form-group">
-          <label id="lblFmPhone">পিতার মোবাইল নম্বর</label>
-          <input type="tel" id="fmFatherPhone" placeholder="01XXXXXXXXX">
-        </div>
-        <div class="form-group">
-          <label id="lblFmAddress">ঠিকানা</label>
-          <input type="text" id="fmStudentAddress" placeholder="ঠিকানা">
-        </div>
-        <div class="form-group">
-          <label id="lblFmAdmDate">ভর্তির তারিখ</label>
-          <input type="date" id="fmAdmissionDate">
-        </div>
-        <div class="form-group">
-          <label id="lblFmNotes">নোট (ঐচ্ছিক)</label>
-          <textarea id="fmStudentNotes" rows="2" placeholder="অতিরিক্ত কোনো তথ্য..."></textarea>
-        </div>
-        <button type="submit" class="submit-btn" id="btnSaveStudentSubmit">সংরক্ষণ করুন</button>
+        <button type="submit" class="submit-btn mt-3" id="btnSaveClassSubmit" style="background:#2563eb; color:white;">সংরক্ষণ করুন</button>
       </form>
     </div>
   </div>
