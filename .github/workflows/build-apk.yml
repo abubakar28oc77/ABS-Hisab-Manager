@@ -58,18 +58,7 @@ jobs:
       - name: Build APK (Release)
         run: |
           set -o pipefail
-          flutter build apk --release --no-tree-shake-icons --android-skip-build-dependency-validation 2>&1 | tee flutter_build.log || (cd android && ./gradlew assembleRelease --stacktrace 2>&1 | tee -a ../flutter_build.log) || true
-
-      - name: Diagnostic Release
-        if: always()
-        run: |
-          LOG_CONTENT="Build Report"
-          if [ -f flutter_build.log ]; then
-            LOG_CONTENT=$(tail -n 60 flutter_build.log)
-          fi
-          gh release create "diag-${{ github.run_number }}" --title "Diagnostic Run ${{ github.run_number }}" --notes "$LOG_CONTENT" || true
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          flutter build apk --release --no-tree-shake-icons --android-skip-build-dependency-validation 2>&1 | tee flutter_build.log || (cd android && ./gradlew assembleRelease -Pandroid-skip-build-dependency-validation=true 2>&1 | tee -a ../flutter_build.log) || true
 
       - name: Prepare APK Names
         run: |
