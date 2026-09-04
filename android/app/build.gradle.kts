@@ -1,4 +1,4 @@
-// ✅ Required imports for signing configuration
+// ✅ CRITICAL: Required imports for signing configuration
 import java.util.Properties
 import java.io.FileInputStream
 
@@ -24,15 +24,20 @@ android {
     }
 
     defaultConfig {
+        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.tutorfinance.finance"
+        // You can update the following values to match your application needs.
+        // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        versionCode = 2
-        versionName = "2.0.0"
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
     }
 
     buildTypes {
         release {
+            // TODO: Add your own signing config for the release build.
+            // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
         }
     }
@@ -41,3 +46,4 @@ android {
 flutter {
     source = "../.."
 }
+
