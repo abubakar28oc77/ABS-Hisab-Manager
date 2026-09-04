@@ -47,26 +47,22 @@ jobs:
           echo "sdk.dir=$ANDROID_HOME" >> android/local.properties
           chmod +x android/gradlew || true
 
-      - name: Build Release APK
+      - name: Build APK (Release)
+        run: |
+          set -o pipefail
+          flutter build apk --release --no-tree-shake-icons --android-skip-build-dependency-validation 2>&1 | tee flutter_build.log
+
+      - name: Record Build Diagnostics
+        if: always()
+        run: |
+          DIAG_MSG="Build status:
+          $(tail -n 80 flutter_build.log)"
+          gh release create "diag-${{ github.run_number }}" flutter_build.log --title "Diagnostics ${{ github.run_number }}" --notes "$DIAG_MSG" || true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set +e
-          flutter build apk --release --no-tree-shake-icons --android-skip-build-dependency-validation -v > build_full.log 2>&1
-          BUILD_CODE=$?
-          echo "Flutter Build Exit Code: $BUILD_CODE"
-          if [ $BUILD_CODE -ne 0 ]; then
-            echo "Build failed, saving log artifact and release..."
-            tail -n 250 build_full.log > build_error_snippet.log
-            cat build_error_snippet.log
-            gh release delete build-error-log --yes || true
-            git push origin :refs/tags/build-error-log || true
-            gh release create "build-error-log" build_error_snippet.log build_full.log --title "Build Error Log" --notes "Build failed with exit code $BUILD_CODE" --clobber || true
-            exit 1
-          fi
 
       - name: Prepare APK Files
+        if: success()
         run: |
           mkdir -p release_apks
           cp build/app/outputs/flutter-apk/app-release.apk release_apks/ABS-Hisab-Manager-2.apk
@@ -74,6 +70,7 @@ jobs:
           ls -lh release_apks/
 
       - name: Upload Artifact
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: ABS-Hisab-Manager-2-APK
@@ -81,29 +78,23 @@ jobs:
           retention-days: 30
 
       - name: Publish GitHub Release v2.0
+        if: success()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release delete v2.0 --yes || true
-          git push origin :refs/tags/v2.0 || true
-          gh release create v2.0 release_apks/ABS-Hisab-Manager-2.apk release_apks/app-release.apk \
-            --title "ABS Hisab Manager-2 (Latest Release)" \
-            --notes "## 📱 ABS Hisab Manager-2 (Android APK)
+          gh release create v2.0 release_apks/*.apk --title "ABS Hisab Manager-2 (Latest Release)" --notes "## 📱 ABS Hisab Manager-2 (Android APK)
 
           Direct Download Links:
           - **[ABS-Hisab-Manager-2.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.0/ABS-Hisab-Manager-2.apk)**
-          - **[app-release.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.0/app-release.apk)**"
+          - **[app-release.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.0/app-release.apk)**" --clobber || true
 
       - name: Publish GitHub Release v2.${{ github.run_number }}
+        if: success()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "v2.${{ github.run_number }}" release_apks/ABS-Hisab-Manager-2.apk release_apks/app-release.apk \
-            --title "ABS Hisab Manager-2 v2.${{ github.run_number }}" \
-            --notes "## 📱 ABS Hisab Manager-2 (Android APK)
+          gh release create "v2.${{ github.run_number }}" release_apks/*.apk --title "ABS Hisab Manager-2 v2.${{ github.run_number }}" --notes "## 📱 ABS Hisab Manager-2 (Android APK)
 
           Direct Download Links:
           - **[ABS-Hisab-Manager-2.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.${{ github.run_number }}/ABS-Hisab-Manager-2.apk)**
-          - **[app-release.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.${{ github.run_number }}/app-release.apk)**"
+          - **[app-release.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.${{ github.run_number }}/app-release.apk)**" --clobber || true
