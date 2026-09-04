@@ -56,16 +56,14 @@ jobs:
 
       - name: Build Android APK
         run: |
-          echo "Building Release APK..."
-          flutter build apk --release --no-tree-shake-icons || echo "Release build failed, trying debug..."
-          flutter build apk --debug --no-tree-shake-icons || true
+          set -x
+          flutter build apk --release --no-tree-shake-icons
           mkdir -p release_apks
-          find . -name "*.apk" -type f -exec cp -v {} release_apks/ \; || true
-          ls -la release_apks/
+          find . -name "*.apk" -type f -exec cp -v {} release_apks/ \;
           if [ -f "release_apks/app-release.apk" ]; then
-            cp release_apks/app-release.apk release_apks/ABS-Hisab-Manager-2.apk
+            cp -v release_apks/app-release.apk release_apks/ABS-Hisab-Manager-2.apk
           elif [ -f "release_apks/app-debug.apk" ]; then
-            cp release_apks/app-debug.apk release_apks/ABS-Hisab-Manager-2.apk
+            cp -v release_apks/app-debug.apk release_apks/ABS-Hisab-Manager-2.apk
           fi
           ls -la release_apks/
 
@@ -80,7 +78,8 @@ jobs:
       - name: Create GitHub Release
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
+          set -x
           TAG_NAME="v2.${{ github.run_number }}"
-          gh release create "$TAG_NAME" release_apks/*.apk --title "ABS Hisab Manager-2 $TAG_NAME" --notes "### 📱 ABS Hisab Manager-2 (Android APK)\n\nDownload the APK file below and install on your Android device." || gh release upload "$TAG_NAME" release_apks/*.apk --clobber
+          gh release create "$TAG_NAME" release_apks/*.apk --title "ABS Hisab Manager-2 $TAG_NAME" --notes "### 📱 ABS Hisab Manager-2 (Android APK)\n\nDownload the APK file below and install on your Android device."
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
