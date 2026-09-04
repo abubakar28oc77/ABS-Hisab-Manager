@@ -74,19 +74,22 @@ jobs:
             python3 -c "
 with open('build_verbose.log', 'r', errors='ignore') as f:
     lines = f.readlines()
+output = []
 for i, line in enumerate(lines):
-    if any(k in line for k in ['compileFlutterBuildRelease', 'Error:', 'Exception:', 'NoSuchMethod', 'Invalid', 'Target', 'FAILURE']):
-        start = max(0, i - 10)
+    if any(k in line.lower() for k in ['flutter assemble', 'failed', 'error', 'exception', 'target ']):
+        start = max(0, i - 20)
         end = min(len(lines), i + 20)
-        print('--- ERROR MATCH AT LINE ' + str(i) + ' ---')
-        print(''.join(lines[start:end]))
-        print('='*50)
-" > build_error_snippet.txt
+        output.append(f'=== MATCH AT LINE {i} ===\n')
+        output.extend(lines[start:end])
+        output.append('='*50 + '\n')
+with open('build_error_snippet.txt', 'w') as out:
+    out.writelines(output)
+"
             if [ ! -s build_error_snippet.txt ]; then
               tail -n 300 build_verbose.log > build_error_snippet.txt
             fi
             git add build_error_snippet.txt
-            git commit -m "Capture detailed flutter assemble error" || true
+            git commit -m "Capture assemble match logs" || true
             git push -f origin error-log-branch || true
             exit 1
           fi
