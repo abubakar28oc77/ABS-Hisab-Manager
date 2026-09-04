@@ -49,14 +49,29 @@ jobs:
 
       - name: Build Release APK
         run: |
-          flutter build apk --release --no-tree-shake-icons --android-skip-build-dependency-validation || true
-          mkdir -p release_apks
+          mkdir -p release_apks logs
+          echo "Starting Flutter release build..."
+          flutter build apk --release --no-tree-shake-icons --android-skip-build-dependency-validation > logs/build.log 2>&1 || true
+          cat logs/build.log | tail -n 50
+
+          if [ ! -f build/app/outputs/flutter-apk/app-release.apk ] && [ ! -f android/app/build/outputs/apk/release/app-release.apk ]; then
+            echo "Attempting direct Gradle assembleRelease..."
+            cd android
+            ./gradlew assembleRelease --stacktrace --no-daemon >> ../logs/build.log 2>&1 || true
+            cd ..
+          fi
+
           echo "Listing all generated APK files:"
           find . -name "*.apk" -ls
+
           find . -name "*release*.apk" -exec cp -v {} release_apks/ABS-Hisab-Manager-2.apk \;
+          if [ ! -s release_apks/ABS-Hisab-Manager-2.apk ]; then
+            echo "Copying any found APK as fallback..."
+            find . -name "*.apk" -exec cp -v {} release_apks/ABS-Hisab-Manager-2.apk \;
+          fi
+
           cp -v release_apks/ABS-Hisab-Manager-2.apk release_apks/app-release.apk || true
-          ls -lh release_apks/
-          test -s release_apks/ABS-Hisab-Manager-2.apk
+          ls -lh release_apks/ || true
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
@@ -65,17 +80,33 @@ jobs:
           path: release_apks/*.apk
           retention-days: 30
 
+      - name: Publish Diagnostic Release (if APK missing)
+        if: failure() || always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ ! -s release_apks/ABS-Hisab-Manager-2.apk ]; then
+            echo "APK not found, creating diagnostic release diag-${{ github.run_number }}..."
+            gh release create "diag-${{ github.run_number }}" logs/build.log --title "Diagnostic Log Run #${{ github.run_number }}" --notes "Build failed to generate APK. See attached log." || true
+          fi
+
       - name: Publish GitHub Release v2.0
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create v2.0 release_apks/*.apk --title "ABS Hisab Manager-2 (Latest Release)" --notes "## 📱 ABS Hisab Manager-2 (Android APK)
+          if [ -s release_apks/ABS-Hisab-Manager-2.apk ]; then
+            gh release create v2.0 release_apks/*.apk --title "ABS Hisab Manager-2 (Latest Release)" --notes "## 📱 ABS Hisab Manager-2 (Android APK)
 
-          Direct Download Links:
-          - **[ABS-Hisab-Manager-2.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.0/ABS-Hisab-Manager-2.apk)**
-          - **[app-release.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.0/app-release.apk)**" --clobber || true
+            Direct Download Links:
+            - **[ABS-Hisab-Manager-2.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.0/ABS-Hisab-Manager-2.apk)**
+            - **[app-release.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.0/app-release.apk)**" --clobber
+          else
+            echo "Skipping v2.0 release because APK was not generated."
+            exit 1
+          fi
 
       - name: Publish GitHub Release v2.${{ github.run_number }}
+        if: success()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -83,4 +114,5 @@ jobs:
 
           Direct Download Links:
           - **[ABS-Hisab-Manager-2.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.${{ github.run_number }}/ABS-Hisab-Manager-2.apk)**
-          - **[app-release.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.${{ github.run_number }}/app-release.apk)**" --clobber || true
+          - **[app-release.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.${{ github.run_number }}/app-release.apk)**" --clobber
+
