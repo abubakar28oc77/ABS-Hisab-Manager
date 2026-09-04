@@ -5,8 +5,6 @@ on:
     branches:
       - main
       - master
-    tags:
-      - 'v*'
   pull_request:
     branches:
       - main
@@ -69,19 +67,28 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ github.run_number }}
-          name: "ABS Hisab Manager-2 v${{ github.run_number }}"
+          tag_name: v2.${{ github.run_number }}
+          name: "ABS Hisab Manager-2 v2.${{ github.run_number }}"
           make_latest: true
           body: |
             ## 📱 ABS Hisab Manager-2 (Android APK)
 
             Direct APK Download Links:
-            - **[ABS-Hisab-Manager-2.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v${{ github.run_number }}/ABS-Hisab-Manager-2.apk)**
-            - **[app-release.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v${{ github.run_number }}/app-release.apk)**
+            - **[ABS-Hisab-Manager-2.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.${{ github.run_number }}/ABS-Hisab-Manager-2.apk)**
+            - **[app-release.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.${{ github.run_number }}/app-release.apk)**
 
             Auto-built from commit: ${{ github.sha }}
-          files: release_apks/*.apk
+          files: |
+            release_apks/ABS-Hisab-Manager-2.apk
+            release_apks/app-release.apk
+            build/app/outputs/flutter-apk/app-release.apk
+          token: ${{ secrets.GITHUB_TOKEN }}
           draft: false
           prerelease: false
+
+      - name: Publish with GitHub CLI Fallback
+        if: always()
+        run: |
+          gh release create "v2.${{ github.run_number }}" release_apks/*.apk --title "ABS Hisab Manager-2 v2.${{ github.run_number }}" --notes "Android APK for ABS Hisab Manager-2" || gh release upload "v2.${{ github.run_number }}" release_apks/*.apk --clobber || true
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
