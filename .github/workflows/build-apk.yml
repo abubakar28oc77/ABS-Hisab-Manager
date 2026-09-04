@@ -35,41 +35,35 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Show Flutter & Dart version
-        run: |
-          flutter --version
-          dart --version
-          yes | flutter doctor --android-licenses || true
-          flutter doctor -v
-
       - name: Install Flutter Dependencies
         run: flutter pub get
-
-      - name: Analyze Flutter Code
-        run: flutter analyze --no-fatal-infos
-        continue-on-error: true
 
       - name: Configure local.properties & permissions
         run: |
           mkdir -p android
           echo "flutter.sdk=$FLUTTER_ROOT" > android/local.properties
           echo "sdk.dir=$ANDROID_HOME" >> android/local.properties
-          cat android/local.properties
           chmod +x android/gradlew || true
 
       - name: Build APK (Release)
         run: |
-          set -e
           flutter clean
           flutter pub get
-          flutter build apk --release --no-tree-shake-icons --verbose
+          flutter build apk --release --no-tree-shake-icons 2>&1 | tee build_err.txt || (
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add build_err.txt
+            git commit -m "Capture build error log" || true
+            git push origin main || true
+            exit 1
+          )
 
       - name: Prepare APK Files
         run: |
           mkdir -p release_apks
-          find . -name "*.apk" -ls
-          cp build/app/outputs/flutter-apk/app-release.apk release_apks/ABS-Hisab-Manager-2.apk || find . -name "*release*.apk" -exec cp {} release_apks/ABS-Hisab-Manager-2.apk \;
-          cp release_apks/ABS-Hisab-Manager-2.apk release_apks/app-release.apk
+          FOUND_APK=$(find . -name "*.apk" -type f | head -n 1)
+          cp "$FOUND_APK" release_apks/ABS-Hisab-Manager-2.apk
+          cp "$FOUND_APK" release_apks/app-release.apk
           ls -lh release_apks/
 
       - name: Upload APK Artifact
@@ -91,25 +85,6 @@ jobs:
             Direct APK Download Links:
             - **[ABS-Hisab-Manager-2.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.0/ABS-Hisab-Manager-2.apk)**
             - **[app-release.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.0/app-release.apk)**
-          files: |
-            release_apks/ABS-Hisab-Manager-2.apk
-            release_apks/app-release.apk
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create GitHub Release v2.${{ github.run_number }}
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: v2.${{ github.run_number }}
-          name: "ABS Hisab Manager-2 v2.${{ github.run_number }}"
-          body: |
-            ## 📱 ABS Hisab Manager-2 (Android APK)
-
-            Direct APK Download Links:
-            - **[ABS-Hisab-Manager-2.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.${{ github.run_number }}/ABS-Hisab-Manager-2.apk)**
-            - **[app-release.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.${{ github.run_number }}/app-release.apk)**
           files: |
             release_apks/ABS-Hisab-Manager-2.apk
             release_apks/app-release.apk
