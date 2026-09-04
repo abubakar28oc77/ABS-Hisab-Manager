@@ -69,17 +69,17 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v2.0
-          name: "ABS Hisab Manager-2 v2.0"
+          tag_name: v${{ github.run_number }}
+          name: "ABS Hisab Manager-2 v${{ github.run_number }}"
           make_latest: true
           body: |
             ## 📱 ABS Hisab Manager-2 (Android APK)
 
             Direct APK Download Links:
-            - **[ABS-Hisab-Manager-2.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.0/ABS-Hisab-Manager-2.apk)**
-            - **[app-release.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.0/app-release.apk)**
+            - **[ABS-Hisab-Manager-2.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v${{ github.run_number }}/ABS-Hisab-Manager-2.apk)**
+            - **[app-release.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v${{ github.run_number }}/app-release.apk)**
 
-            Auto-built from latest updates.
+            Auto-built from commit: ${{ github.sha }}
           files: release_apks/*.apk
           draft: false
           prerelease: false
