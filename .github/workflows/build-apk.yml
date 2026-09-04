@@ -31,10 +31,10 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Setup Flutter SDK
+      - name: Setup Flutter SDK (Fixed Stable 3.24.5)
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          flutter-version: '3.24.5'
           cache: true
 
       - name: Show Flutter & Dart version
@@ -46,10 +46,6 @@ jobs:
 
       - name: Install Flutter Dependencies
         run: flutter pub get
-
-      - name: Analyze Flutter Code
-        run: flutter analyze --no-fatal-infos
-        continue-on-error: true
 
       - name: Configure local.properties & permissions
         run: |
@@ -64,32 +60,17 @@ jobs:
           set +e
           flutter clean
           flutter pub get
-          flutter build apk --release --verbose --no-tree-shake-icons --android-skip-build-dependency-validation > build_verbose.log 2>&1
+          flutter build apk --release --verbose --no-tree-shake-icons > build_verbose.log 2>&1
           BUILD_STATUS=$?
           echo "BUILD STATUS CODE: $BUILD_STATUS"
           if [ $BUILD_STATUS -ne 0 ]; then
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
+            git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
             git checkout -B error-log-branch
-            python3 -c "
-with open('build_verbose.log', 'r', errors='ignore') as f:
-    lines = f.readlines()
-output = []
-for i, line in enumerate(lines):
-    if any(k in line.lower() for k in ['flutter assemble', 'failed', 'error', 'exception', 'target ']):
-        start = max(0, i - 20)
-        end = min(len(lines), i + 20)
-        output.append(f'=== MATCH AT LINE {i} ===\n')
-        output.extend(lines[start:end])
-        output.append('='*50 + '\n')
-with open('build_error_snippet.txt', 'w') as out:
-    out.writelines(output)
-"
-            if [ ! -s build_error_snippet.txt ]; then
-              tail -n 300 build_verbose.log > build_error_snippet.txt
-            fi
+            tail -n 200 build_verbose.log > build_error_snippet.txt
             git add build_error_snippet.txt
-            git commit -m "Capture assemble match logs" || true
+            git commit -m "Capture build error with authenticated push" || true
             git push -f origin error-log-branch || true
             exit 1
           fi
