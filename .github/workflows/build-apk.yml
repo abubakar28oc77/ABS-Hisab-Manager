@@ -48,8 +48,23 @@ jobs:
           chmod +x android/gradlew || true
 
       - name: Build Release APK
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          flutter build apk --release --no-tree-shake-icons --android-skip-build-dependency-validation
+          set +e
+          flutter build apk --release --no-tree-shake-icons --android-skip-build-dependency-validation -v > build_full.log 2>&1
+          BUILD_CODE=$?
+          echo "Flutter Build Exit Code: $BUILD_CODE"
+          if [ $BUILD_CODE -ne 0 ]; then
+            echo "Build failed, saving log artifact and release..."
+            tail -n 250 build_full.log > build_error_snippet.log
+            cat build_error_snippet.log
+            gh release delete build-error-log --yes || true
+            git push origin :refs/tags/build-error-log || true
+            gh release create "build-error-log" build_error_snippet.log build_full.log --title "Build Error Log" --notes "Build failed with exit code $BUILD_CODE" --clobber || true
+            exit 1
+          fi
 
       - name: Prepare APK Files
         run: |
