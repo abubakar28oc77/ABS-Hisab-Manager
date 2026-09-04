@@ -1,35 +1,38 @@
+// ✅ Required imports for signing configuration
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
+    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
 
 android {
     namespace = "com.tutorfinance.finance"
-    compileSdk = 34
+    compileSdk = flutter.compileSdkVersion
+    ndkVersion = flutter.ndkVersion
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = JavaVersion.VERSION_11.toString()
     }
 
     defaultConfig {
         applicationId = "com.tutorfinance.finance"
-        minSdk = 21
-        targetSdk = 34
-        versionCode = 1
+        minSdk = flutter.minSdkVersion
+        targetSdk = flutter.targetSdkVersion
+        versionCode = 2
         versionName = "2.0.0"
-        multiDexEnabled = true
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false
-            isShrinkResources = false
             signingConfig = signingConfigs.getByName("debug")
         }
     }
@@ -38,5 +41,3 @@ android {
 flutter {
     source = "../.."
 }
-
-

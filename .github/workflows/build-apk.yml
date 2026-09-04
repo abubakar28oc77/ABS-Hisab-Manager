@@ -26,7 +26,7 @@ jobs:
       - name: Setup Java JDK
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: 'zulu'
           java-version: '17'
 
       - name: Setup Flutter SDK
@@ -47,40 +47,40 @@ jobs:
         run: flutter analyze --no-fatal-infos
         continue-on-error: true
 
-      - name: Ensure Android Permissions and Keystore
-        run: |
-          chmod +x android/gradlew
-          mkdir -p ~/.android
-          keytool -genkey -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US" || true
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+      - name: Build APK (Release)
+        run: flutter build apk --release --no-tree-shake-icons --android-skip-build-dependency-validation
 
-      - name: Build Android APK
+      - name: Prepare APK Names
         run: |
-          set +e
-          echo "Starting Flutter Build APK..." > build.log
-          flutter build apk --release --verbose >> build.log 2>&1
-          BUILD_STATUS=$?
-          echo "Build exit code: $BUILD_STATUS" >> build.log
           mkdir -p release_apks
-          find / -name "*.apk" -type f -exec cp -v {} release_apks/ 2>/dev/null \; || true
-          ls -la release_apks/ >> build.log
-          cat build.log | tail -n 100
+          cp build/app/outputs/flutter-apk/app-release.apk release_apks/ABS-Hisab-Manager-2.apk
+          cp build/app/outputs/flutter-apk/app-release.apk release_apks/app-release.apk
+          ls -la release_apks/
 
-      - name: Upload Build Log & APK Artifact
-        if: always()
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ABS-Hisab-Manager-Build-Output
-          path: |
-            build.log
-            release_apks/*
+          name: ABS-Hisab-Manager-2-APK
+          path: release_apks/*.apk
           retention-days: 30
 
       - name: Create GitHub Release
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: |
-          set -x
-          TAG_NAME="v2.${{ github.run_number }}"
-          gh release create "$TAG_NAME" release_apks/*.apk --title "ABS Hisab Manager-2 $TAG_NAME" --notes "### 📱 ABS Hisab Manager-2 (Android APK)\n\nDownload the APK file below and install on your Android device."
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v2.${{ github.run_number }}
+          name: "ABS Hisab Manager-2 v2.${{ github.run_number }}"
+          make_latest: true
+          body: |
+            ## 📱 ABS Hisab Manager-2 (Android APK)
+
+            Direct APK Download Links:
+            - **[ABS-Hisab-Manager-2.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.${{ github.run_number }}/ABS-Hisab-Manager-2.apk)**
+            - **[app-release.apk](https://github.com/abubakar28oc77/ABS-Hisab-Manager/releases/download/v2.${{ github.run_number }}/app-release.apk)**
+
+            Auto-built from commit: ${{ github.sha }}
+          files: release_apks/*.apk
+          draft: false
+          prerelease: false
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
