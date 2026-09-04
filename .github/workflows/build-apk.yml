@@ -22,6 +22,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Java JDK
         uses: actions/setup-java@v4
@@ -66,14 +68,15 @@ jobs:
           BUILD_STATUS=$?
           echo "BUILD STATUS CODE: $BUILD_STATUS"
           if [ $BUILD_STATUS -ne 0 ]; then
-            echo "========== BUILD FAILED. LAST 100 LINES OF LOG =========="
-            tail -n 100 build_verbose.log
-            echo "======================================================="
-            gh release create "build-error-log" build_verbose.log --title "Build Error Log" --notes "Build failed with exit code $BUILD_STATUS" --clobber || true
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git checkout -B error-log-branch
+            tail -n 250 build_verbose.log > build_error_snippet.txt
+            git add build_error_snippet.txt
+            git commit -m "Capture build error snippet" || true
+            git push -f origin error-log-branch || true
             exit 1
           fi
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Prepare APK Files
         run: |
