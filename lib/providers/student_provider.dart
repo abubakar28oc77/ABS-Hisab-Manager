@@ -26,6 +26,7 @@ class StudentProvider extends ChangeNotifier {
     required double monthlyFee,
     required String section,
     required DateTime admissionDate,
+    String? notes,
     String fatherName = '',
     String fatherPhone = '',
     String guardianName = '',

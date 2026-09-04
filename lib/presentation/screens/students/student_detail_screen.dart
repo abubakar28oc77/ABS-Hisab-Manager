@@ -82,11 +82,11 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
     final isBn = context.read<LocaleProvider>().isBangla;
     final body = due > 0
         ? (isBn
-            ? 'সম্মানিত অভিভাবক, আপনার সন্তান ${s.name} (শ্রেণি: ${s.className}, রোল: ${s.rollNumber})-এর টিউশন ফি বাবদ ৳${due.toStringAsFixed(0)} বকেয়া রয়েছে। বিনীত - ABS Hisab Manager'
-            : 'Dear Guardian, Tuition fee of Tk ${due.toStringAsFixed(0)} is due for ${s.name} (Class: ${s.className}, Roll: ${s.rollNumber}). Thank you - ABS Hisab Manager')
+            ? 'সম্মানিত অভিভাবক, আপনার সন্তান ${s.name} (শ্রেণি: ${s.className}, রোল: ${s.rollNumber})-এর টিউশন ফি বাবদ ৳${due.toStringAsFixed(0)} বকেয়া রয়েছে। বিনীত - ABS Hisab Manager-2'
+            : 'Dear Guardian, Tuition fee of Tk ${due.toStringAsFixed(0)} is due for ${s.name} (Class: ${s.className}, Roll: ${s.rollNumber}). Thank you - ABS Hisab Manager-2')
         : (isBn
-            ? 'সম্মানিত অভিভাবক, ${s.name} (শ্রেণি: ${s.className})-এর বর্তমান অ্যাকাউন্টে কোনো বকেয়া নেই। ধন্যবাদ - ABS Hisab Manager'
-            : 'Dear Guardian, ${s.name} (Class: ${s.className}) has no pending due. Thank you - ABS Hisab Manager');
+            ? 'সম্মানিত অভিভাবক, ${s.name} (শ্রেণি: ${s.className})-এর বর্তমান অ্যাকাউন্টে কোনো বকেয়া নেই। ধন্যবাদ - ABS Hisab Manager-2'
+            : 'Dear Guardian, ${s.name} (Class: ${s.className}) has no pending due. Thank you - ABS Hisab Manager-2');
 
     final uri = Uri(
       scheme: 'sms',
@@ -114,11 +114,11 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
     final isBn = context.read<LocaleProvider>().isBangla;
     final message = due > 0
         ? (isBn
-            ? 'আসসালামু আলাইকুম। আপনার সন্তান ${s.name} (শ্রেণি: ${s.className}, রোল: ${s.rollNumber})-এর টিউশন ফি বাবদ ৳${due.toStringAsFixed(0)} বকেয়া রয়েছে। - ABS Hisab Manager'
-            : 'Hello. Tuition fee of Tk ${due.toStringAsFixed(0)} is due for ${s.name} (Class: ${s.className}, Roll: ${s.rollNumber}). - ABS Hisab Manager')
+            ? 'আসসালামু আলাইকুম। আপনার সন্তান ${s.name} (শ্রেণি: ${s.className}, রোল: ${s.rollNumber})-এর টিউশন ফি বাবদ ৳${due.toStringAsFixed(0)} বকেয়া রয়েছে। - ABS Hisab Manager-2'
+            : 'Hello. Tuition fee of Tk ${due.toStringAsFixed(0)} is due for ${s.name} (Class: ${s.className}, Roll: ${s.rollNumber}). - ABS Hisab Manager-2')
         : (isBn
-            ? 'আসসালামু আলাইকুম। ${s.name} (শ্রেণি: ${s.className}) সংক্রান্ত তথ্য। - ABS Hisab Manager'
-            : 'Hello. Regarding student ${s.name} (Class: ${s.className}). - ABS Hisab Manager');
+            ? 'আসসালামু আলাইকুম। ${s.name} (শ্রেণি: ${s.className}) সংক্রান্ত তথ্য। - ABS Hisab Manager-2'
+            : 'Hello. Regarding student ${s.name} (Class: ${s.className}). - ABS Hisab Manager-2');
 
     final uri = Uri.parse(
       'https://wa.me/$cleanPhone?text=${Uri.encodeComponent(message)}',
@@ -171,7 +171,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
             children: [
               pw.Center(
                 child: pw.Text(
-                  'ABS Hisab Manager',
+                  'ABS Hisab Manager-2',
                   style: pw.TextStyle(
                     fontSize: 18,
                     fontWeight: pw.FontWeight.bold,
@@ -240,7 +240,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
         build: (ctx) => [
           pw.Center(
             child: pw.Text(
-              'ABS Hisab Manager',
+              'ABS Hisab Manager-2',
               style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold),
             ),
           ),

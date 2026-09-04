@@ -8,7 +8,7 @@ class AppStrings {
   AppStrings._();
 
   static const Map<String, String> _en = {
-    'app_name': 'ABS Hisab Manager',
+    'app_name': 'ABS Hisab Manager-2',
     'dashboard': 'Dashboard',
     'students': 'Students',
     'transactions': 'Transactions',
@@ -124,7 +124,7 @@ class AppStrings {
   };
 
   static const Map<String, String> _bn = {
-    'app_name': 'ABS হিসাব ম্যানেজার',
+    'app_name': 'ABS হিসাব ম্যানেজার-২',
     'dashboard': 'ড্যাশবোর্ড',
     'students': 'শিক্ষার্থী',
     'transactions': 'লেনদেন',
