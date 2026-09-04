@@ -59,24 +59,28 @@ jobs:
 
       - name: Build APK (Release)
         run: |
+          set +e
           flutter clean
           flutter pub get
-          flutter build apk --release --no-tree-shake-icons
+          flutter build apk --release --verbose > build_verbose.log 2>&1
+          BUILD_STATUS=$?
+          echo "BUILD STATUS CODE: $BUILD_STATUS"
+          if [ $BUILD_STATUS -ne 0 ]; then
+            echo "========== BUILD FAILED. LAST 100 LINES OF LOG =========="
+            tail -n 100 build_verbose.log
+            echo "======================================================="
+            gh release create "build-error-log" build_verbose.log --title "Build Error Log" --notes "Build failed with exit code $BUILD_STATUS" --clobber || true
+            exit 1
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Prepare APK Files
         run: |
           mkdir -p release_apks
           find . -name "*.apk" -ls
-          if [ -f "build/app/outputs/flutter-apk/app-release.apk" ]; then
-            cp "build/app/outputs/flutter-apk/app-release.apk" release_apks/ABS-Hisab-Manager-2.apk
-            cp "build/app/outputs/flutter-apk/app-release.apk" release_apks/app-release.apk
-          elif [ -f "android/app/build/outputs/apk/release/app-release.apk" ]; then
-            cp "android/app/build/outputs/apk/release/app-release.apk" release_apks/ABS-Hisab-Manager-2.apk
-            cp "android/app/build/outputs/apk/release/app-release.apk" release_apks/app-release.apk
-          else
-            find . -name "*.apk" -type f -not -path "*/release_apks/*" -exec cp {} release_apks/ABS-Hisab-Manager-2.apk \;
-            cp release_apks/ABS-Hisab-Manager-2.apk release_apks/app-release.apk
-          fi
+          cp build/app/outputs/flutter-apk/app-release.apk release_apks/ABS-Hisab-Manager-2.apk || find . -name "*release*.apk" -exec cp {} release_apks/ABS-Hisab-Manager-2.apk \;
+          cp release_apks/ABS-Hisab-Manager-2.apk release_apks/app-release.apk
           ls -lh release_apks/
 
       - name: Upload APK Artifact
