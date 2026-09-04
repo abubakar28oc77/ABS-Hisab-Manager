@@ -103,13 +103,12 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: Publish with GitHub CLI Fallback
+      - name: Create or Update GitHub Release v2.0
         if: always()
         run: |
-          LOG_TEXT="Build succeeded"
-          if [ ! -f build/app/outputs/flutter-apk/app-release.apk ] && [ -f flutter_build.log ]; then
-            LOG_TEXT=$(tail -n 80 flutter_build.log)
+          if [ -f build/app/outputs/flutter-apk/app-release.apk ]; then
+            gh release create "v2.0" release_apks/*.apk --title "ABS Hisab Manager-2 (Latest Release)" --notes "Direct APK download for ABS Hisab Manager-2" || gh release upload "v2.0" release_apks/*.apk --clobber || true
+            gh release create "v2.${{ github.run_number }}" release_apks/*.apk --title "ABS Hisab Manager-2 v2.${{ github.run_number }}" --notes "Auto-built from commit: ${{ github.sha }}" || true
           fi
-          gh release create "v2.${{ github.run_number }}" release_apks/*.apk --title "ABS Hisab Manager-2 v2.${{ github.run_number }}" --notes "$LOG_TEXT" || gh release edit "v2.${{ github.run_number }}" --notes "$LOG_TEXT" || true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
