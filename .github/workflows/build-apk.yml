@@ -64,16 +64,29 @@ jobs:
           set +e
           flutter clean
           flutter pub get
-          flutter build apk --release --verbose --android-skip-build-dependency-validation > build_verbose.log 2>&1
+          flutter build apk --release --verbose --no-tree-shake-icons --android-skip-build-dependency-validation > build_verbose.log 2>&1
           BUILD_STATUS=$?
           echo "BUILD STATUS CODE: $BUILD_STATUS"
           if [ $BUILD_STATUS -ne 0 ]; then
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git checkout -B error-log-branch
-            tail -n 250 build_verbose.log > build_error_snippet.txt
+            python3 -c "
+with open('build_verbose.log', 'r', errors='ignore') as f:
+    lines = f.readlines()
+for i, line in enumerate(lines):
+    if any(k in line for k in ['compileFlutterBuildRelease', 'Error:', 'Exception:', 'NoSuchMethod', 'Invalid', 'Target', 'FAILURE']):
+        start = max(0, i - 10)
+        end = min(len(lines), i + 20)
+        print('--- ERROR MATCH AT LINE ' + str(i) + ' ---')
+        print(''.join(lines[start:end]))
+        print('='*50)
+" > build_error_snippet.txt
+            if [ ! -s build_error_snippet.txt ]; then
+              tail -n 300 build_verbose.log > build_error_snippet.txt
+            fi
             git add build_error_snippet.txt
-            git commit -m "Capture build error snippet" || true
+            git commit -m "Capture detailed flutter assemble error" || true
             git push -f origin error-log-branch || true
             exit 1
           fi
