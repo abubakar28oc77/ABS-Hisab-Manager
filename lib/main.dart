@@ -135,7 +135,8 @@ class _WebViewScreenState extends State<WebViewScreen> {
           final res = await _controller.runJavaScriptReturningResult(
             'closeAnyOpenModal()',
           );
-          if (res == true || res.toString().toLowerCase() == 'true') {
+          final resStr = res.toString().replaceAll('"', '').trim().toLowerCase();
+          if (res == true || resStr == 'true') {
             return;
           }
         } catch (_) {}

@@ -2322,20 +2322,36 @@ function confirmClearAllData() {
 }
 
 // ==================== MODAL HELPERS ====================
+let modalZIndexCounter = 1000;
+
 function openModal(id) {
   const el = document.getElementById(id);
-  if (el) el.classList.add('show');
+  if (el) {
+    modalZIndexCounter += 10;
+    el.style.zIndex = modalZIndexCounter;
+    el.classList.add('show');
+  }
 }
 
 function closeModal(id) {
   const el = document.getElementById(id);
-  if (el) el.classList.remove('show');
+  if (el) {
+    el.classList.remove('show');
+    el.style.zIndex = '';
+  }
 }
 
 function closeAnyOpenModal() {
-  const openBackdrop = document.querySelector('.modal-backdrop.show');
-  if (openBackdrop) {
-    openBackdrop.classList.remove('show');
+  const openBackdrops = Array.from(document.querySelectorAll('.modal-backdrop.show'));
+  if (openBackdrops.length > 0) {
+    openBackdrops.sort((a, b) => {
+      const za = parseInt(a.style.zIndex || window.getComputedStyle(a).zIndex, 10) || 1000;
+      const zb = parseInt(b.style.zIndex || window.getComputedStyle(b).zIndex, 10) || 1000;
+      return zb - za;
+    });
+    const topModal = openBackdrops[0];
+    topModal.classList.remove('show');
+    topModal.style.zIndex = '';
     return true;
   }
   return false;
@@ -2345,6 +2361,7 @@ function closeAnyOpenModal() {
 document.addEventListener('click', (e) => {
   if (e.target && e.target.classList && e.target.classList.contains('modal-backdrop')) {
     e.target.classList.remove('show');
+    e.target.style.zIndex = '';
   }
 });
 
