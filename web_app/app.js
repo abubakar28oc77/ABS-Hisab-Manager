@@ -925,26 +925,11 @@ function renderTxnCardHtml(t) {
 }
 
 // ==================== REQUIREMENT 2: CLASSES & SUBJECTS MANAGEMENT ====================
-function renderClassesList() {
-  const listEl = document.getElementById('classesList');
-  if (!listEl) return;
-
-  if (state.classes.length === 0) {
-    listEl.innerHTML = `
-      <div style="text-align:center; padding:36px 20px; color:var(--text-muted); background:white; border-radius:14px; border:1px solid var(--border);">
-        <i class="fa-solid fa-graduation-cap" style="font-size:36px; opacity:0.3; margin-bottom:10px;"></i>
-        <p style="font-size:14px; font-weight:600;">কোনো শ্রেণি যুক্ত করা হয়নি</p>
-        <button class="pill-btn btn-income mt-2" style="background:#2563eb; color:white;" onclick="openAddClassModal()">+ প্রথম শ্রেণি যোগ করুন</button>
-      </div>
-    `;
-    return;
-  }
-
 let activeClassSections = [];
 let activeClassSubjects = [];
 
 function renderClassesList() {
-  const listEl = document.getElementById('classesListContainer');
+  const listEl = document.getElementById('classesList') || document.getElementById('classesListContainer');
   if (!listEl) return;
 
   if (state.classes.length === 0) {
