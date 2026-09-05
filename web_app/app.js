@@ -575,12 +575,14 @@ class AppState {
   }
 
   getTotalExpected(student) {
-    if (!student.admissionDate) return student.monthlyFee;
+    if (!student.admissionDate) return Number(student.monthlyFee) || 0;
     const adm = new Date(student.admissionDate);
+    if (isNaN(adm.getTime())) return Number(student.monthlyFee) || 0;
     const now = new Date();
-    let months = (now.getFullYear() - adm.getFullYear()) * 12 + (now.getMonth() - adm.getMonth()) + 1;
-    if (months < 1) months = 1;
-    return months * Number(student.monthlyFee);
+    let months = (now.getFullYear() - adm.getFullYear()) * 12 + (now.getMonth() - adm.getMonth());
+    if (now.getDate() < adm.getDate()) months -= 1;
+    if (months < 0) months = 0;
+    return months * (Number(student.monthlyFee) || 0);
   }
 
   getTotalPaid(studentId) {
@@ -923,41 +925,57 @@ function renderClassesList() {
     return;
   }
 
+let activeClassSections = [];
+let activeClassSubjects = [];
+
+function renderClassesList() {
+  const listEl = document.getElementById('classesListContainer');
+  if (!listEl) return;
+
+  if (state.classes.length === 0) {
+    listEl.innerHTML = `
+      <div style="text-align:center; padding:40px 20px; color:var(--text-muted);">
+        <i class="fa-solid fa-graduation-cap" style="font-size:36px; opacity:0.3; margin-bottom:10px;"></i>
+        <p style="font-size:14px; font-weight:600;">কোনো শ্রেণি যুক্ত করা হয়নি</p>
+        <button class="pill-btn btn-income mt-2" style="background:#4F46E5; color:white;" onclick="openAddClassModal()">+ শ্রেণি যোগ করুন</button>
+      </div>
+    `;
+    return;
+  }
+
   listEl.innerHTML = state.classes.map(cls => {
     const studentCount = state.students.filter(s => s.className === cls.name).length;
-    const sections = Array.isArray(cls.sections) ? cls.sections : [];
-    const subjects = Array.isArray(cls.subjects) ? cls.subjects : [];
+    const sections = (cls.sections && cls.sections.length > 0) ? cls.sections : ['A'];
+    const subjects = (cls.subjects && cls.subjects.length > 0) ? cls.subjects : ['Bangla', 'English', 'Mathematics', 'General Science', 'ICT'];
 
     return `
       <div class="class-item-card">
         <div class="class-header-row">
-          <div class="class-title">
-            <i class="fa-solid fa-chalkboard-user" style="color:#2563eb;"></i>
-            <span>${cls.name}</span>
-            <span style="font-size:12px; font-weight:500; color:var(--text-muted);">(${studentCount} জন শিক্ষার্থী)</span>
+          <div class="class-header-left">
+            <div class="class-avatar-icon">
+              <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <div>
+              <div class="class-title-text">${cls.name}</div>
+              <div class="class-subtitle-text">${studentCount} Students</div>
+            </div>
           </div>
-          <div style="display:flex; gap:6px;">
-            <button class="icon-action-btn" title="Edit" onclick="openAddClassModal('${cls.id}')"><i class="fa-solid fa-pen"></i></button>
+          <div style="display:flex; gap:8px;">
+            <button class="icon-action-btn" title="Edit" onclick="openAddClassModal('${cls.id}')" style="color:#4F46E5; border-color:#C7D2FE;"><i class="fa-solid fa-pencil"></i></button>
             <button class="icon-action-btn text-danger" title="Delete" onclick="deleteClass('${cls.id}')"><i class="fa-solid fa-trash-can"></i></button>
           </div>
         </div>
 
-        <div style="margin-top:8px;">
-          <div style="font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:4px;">
-            <i class="fa-solid fa-table-cells-large" style="color:#2563eb; margin-right:4px;"></i> শাখা (Sections):
-          </div>
-          <div class="tags-row">
-            ${sections.length > 0 ? sections.map(sec => `<span class="section-tag">${sec}</span>`).join('') : '<span style="font-size:12px; color:var(--text-muted);">শাখা নেই</span>'}
-          </div>
+        <hr style="border:0; border-top:1px solid #F1F5F9; margin:14px 0 10px 0;">
+
+        <div class="class-tags-line">
+          <span class="class-row-label">Sections:</span>
+          ${sections.map(sec => `<span class="section-pill">${sec}</span>`).join('')}
         </div>
 
-        <div style="margin-top:10px;">
-          <div style="font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:4px;">
-            <i class="fa-solid fa-book-open" style="color:#16a34a; margin-right:4px;"></i> বিষয়সমূহ (Subjects):
-          </div>
-          <div class="tags-row">
-            ${subjects.length > 0 ? subjects.map(sub => `<span class="subject-tag">${sub}</span>`).join('') : '<span style="font-size:12px; color:var(--text-muted);">কোনো বিষয় যুক্ত নেই</span>'}
-          </div>
+        <div class="class-tags-line">
+          <span class="class-row-label">Subjects:</span>
+          ${subjects.map(sub => `<span class="subject-pill">${sub}</span>`).join('')}
         </div>
       </div>
     `;
@@ -972,28 +990,86 @@ function openAddClassModal(classId = null) {
   if (classId) {
     const cls = state.classes.find(c => c.id === classId);
     if (cls) {
-      document.getElementById('classModalTitle').innerText = 'শ্রেণি সম্পাদনা';
+      document.getElementById('classModalTitle').innerText = 'Edit Class';
+      document.getElementById('btnSaveClassSubmit').innerText = 'Update Class';
       document.getElementById('fmClassName').value = cls.name;
-      document.getElementById('fmClassSections').value = (cls.sections || []).join(', ');
-      document.getElementById('fmClassSubjects').value = (cls.subjects || []).join(', ');
+      activeClassSections = cls.sections && cls.sections.length > 0 ? [...cls.sections] : ['A', 'B', 'Morning'];
+      activeClassSubjects = cls.subjects && cls.subjects.length > 0 ? [...cls.subjects] : ['Bangla', 'English', 'Mathematics', 'General Science', 'ICT'];
     }
   } else {
-    document.getElementById('classModalTitle').innerText = 'নতুন শ্রেণি যোগ';
+    document.getElementById('classModalTitle').innerText = 'Add Class';
+    document.getElementById('btnSaveClassSubmit').innerText = 'Save Class';
+    document.getElementById('fmClassName').value = '';
+    activeClassSections = ['A', 'B'];
+    activeClassSubjects = ['Bangla', 'English', 'Mathematics', 'General Science', 'ICT'];
   }
+
+  renderClassChips();
   openModal('classModal');
+}
+
+function renderClassChips() {
+  const secContainer = document.getElementById('classSectionsChips');
+  if (secContainer) {
+    secContainer.innerHTML = activeClassSections.map((sec, idx) => `
+      <span class="chip-tag chip-section">
+        <span>${sec}</span>
+        <span class="chip-remove-btn" onclick="removeSectionChip(${idx})">&times;</span>
+      </span>
+    `).join('');
+  }
+
+  const subContainer = document.getElementById('classSubjectsChips');
+  if (subContainer) {
+    subContainer.innerHTML = activeClassSubjects.map((sub, idx) => `
+      <span class="chip-tag chip-subject">
+        <span>${sub}</span>
+        <span class="chip-remove-btn" onclick="removeSubjectChip(${idx})">&times;</span>
+      </span>
+    `).join('');
+  }
+}
+
+function addClassSectionChip() {
+  const input = document.getElementById('fmNewSectionInput');
+  if (!input) return;
+  const val = input.value.trim();
+  if (val && !activeClassSections.includes(val)) {
+    activeClassSections.push(val);
+    renderClassChips();
+    input.value = '';
+  }
+}
+
+function removeSectionChip(idx) {
+  activeClassSections.splice(idx, 1);
+  renderClassChips();
+}
+
+function addClassSubjectChip() {
+  const input = document.getElementById('fmNewSubjectInput');
+  if (!input) return;
+  const val = input.value.trim();
+  if (val && !activeClassSubjects.includes(val)) {
+    activeClassSubjects.push(val);
+    renderClassChips();
+    input.value = '';
+  }
+}
+
+function removeSubjectChip(idx) {
+  activeClassSubjects.splice(idx, 1);
+  renderClassChips();
 }
 
 function handleSaveClass(e) {
   e.preventDefault();
   const id = document.getElementById('classFormId').value;
   const name = document.getElementById('fmClassName').value.trim();
-  const rawSections = document.getElementById('fmClassSections').value.trim();
-  const rawSubjects = document.getElementById('fmClassSubjects').value.trim();
-
-  const sections = rawSections ? rawSections.split(',').map(s => s.trim()).filter(Boolean) : ['A'];
-  const subjects = rawSubjects ? rawSubjects.split(',').map(s => s.trim()).filter(Boolean) : [];
-
   if (!name) return;
+
+  const sections = activeClassSections.length > 0 ? activeClassSections : ['A'];
+  const subjects = activeClassSubjects.length > 0 ? activeClassSubjects : [];
 
   if (id) {
     const cls = state.classes.find(c => c.id === id);
@@ -1158,6 +1234,18 @@ function openStudentDetailModal(studentId) {
   openModal('studentDetailModal');
 }
 
+function formatDetailDate(dateStr) {
+  if (!dateStr) return '—';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+  } catch(e) {
+    return dateStr;
+  }
+}
+
 function renderStudentDetail(studentId) {
   const student = state.students.find(s => s.id === studentId);
   if (!student) return;
@@ -1169,156 +1257,157 @@ function renderStudentDetail(studentId) {
   const paid = state.getTotalPaid(student.id);
   const payments = state.payments.filter(p => p.studentId === student.id).sort((a, b) => new Date(b.paymentDate) - new Date(a.paymentDate));
 
-  const curMonthKey = new Date().toISOString().substring(0, 7);
-  const classesThisMonth = student.attendance ? (student.attendance[curMonthKey] || 0) : 0;
   const effectivePhone = student.fatherPhone || student.studentPhone || '';
+  const initial = (student.name || 'S').trim().charAt(0).toUpperCase();
 
   const body = document.getElementById('studentDetailBody');
   body.innerHTML = `
-    <!-- Top Info Box -->
-    <div style="background:var(--background); padding:16px; border-radius:var(--radius-md); border:1px solid var(--border);">
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-        <span style="color:var(--text-muted); font-size:13px;">${state.t('class_and_roll')}:</span>
-        <strong style="font-size:13px;">${student.className} · Roll ${student.rollNumber} (${student.section || '—'})</strong>
+    <!-- 1. Student Profile Card (Matching Image 5) -->
+    <div class="student-profile-card">
+      <div class="profile-top-row">
+        <div class="profile-avatar-circle">${initial}</div>
+        <div>
+          <div class="profile-name-text">${student.name}</div>
+          <div class="profile-meta-text">Class ${student.className.replace('Class ', '')} · Roll ${student.rollNumber} · Sec ${student.section || 'A'}</div>
+        </div>
       </div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-        <span style="color:var(--text-muted); font-size:13px;">${state.t('monthly_fee')}:</span>
-        <strong style="font-size:14px; color:var(--primary);">৳ ${Number(student.monthlyFee).toLocaleString('en-IN')}</strong>
+
+      <hr style="border:0; border-top:1px solid #F1F5F9; margin:16px 0;">
+
+      <div class="profile-detail-item">
+        <i class="fa-solid fa-dollar-sign"></i>
+        <span>Monthly Fee: <strong class="profile-detail-val">৳${Number(student.monthlyFee).toFixed(2)}</strong></span>
       </div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-        <span style="color:var(--text-muted); font-size:13px;">${state.t('fathers_name')}:</span>
-        <span style="font-size:13px; font-weight:600;">${student.fatherName || '—'} (${student.fatherPhone || '—'})</span>
-      </div>
-      ${student.studentPhone ? `
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-        <span style="color:var(--text-muted); font-size:13px;">${state.t('student_mobile')}:</span>
-        <span style="font-size:13px; font-weight:600;">${student.studentPhone}</span>
-      </div>` : ''}
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-        <span style="color:var(--text-muted); font-size:13px;">${state.t('admission_date')}:</span>
-        <span style="font-size:13px;">${student.admissionDate || '—'}</span>
-      </div>
+
       ${student.address ? `
-      <div style="display:flex; justify-content:space-between;">
-        <span style="color:var(--text-muted); font-size:13px;">${state.t('address')}:</span>
-        <span style="font-size:13px;">${student.address}</span>
+      <div class="profile-detail-item">
+        <i class="fa-solid fa-house"></i>
+        <span>Address: <strong class="profile-detail-val">${student.address}</strong></span>
+      </div>` : ''}
+
+      <div class="profile-detail-item">
+        <i class="fa-regular fa-calendar-days"></i>
+        <span>Admission Date: <strong class="profile-detail-val">${formatDetailDate(student.admissionDate)}</strong></span>
+      </div>
+
+      <div class="profile-detail-item">
+        <i class="fa-solid fa-users"></i>
+        <span>Guardian Name: <strong class="profile-detail-val">${student.fatherName || '—'}</strong></span>
+      </div>
+
+      <div class="profile-detail-item">
+        <i class="fa-solid fa-phone"></i>
+        <span>Guardian Phone Number: <strong class="profile-detail-val">${student.fatherPhone || '—'}</strong></span>
+      </div>
+
+      ${student.studentPhone ? `
+      <div class="profile-detail-item">
+        <i class="fa-solid fa-mobile-screen"></i>
+        <span>Student Phone Number: <strong class="profile-detail-val">${student.studentPhone}</strong></span>
       </div>` : ''}
     </div>
 
-    <!-- DIRECT COMMUNICATION CARD (Exact Design matching Image 2) -->
-    <div class="direct-comm-card">
-      <div class="direct-comm-header">
-        <i class="fa-regular fa-comment-dots"></i>
-        <span>${state.t('direct_communication')}</span>
+    <!-- 2. Direct Communication Card (Matching Image 5) -->
+    <div class="direct-comm-card" style="margin-top:14px; background:white; border:1px solid #E2E8F0; border-radius:20px; padding:16px;">
+      <div class="direct-comm-header" style="font-size:15px; font-weight:800; color:#1E293B; display:flex; align-items:center; gap:8px;">
+        <i class="fa-regular fa-comment-dots" style="color:#2563EB; font-size:18px;"></i>
+        <span>Direct Communication</span>
       </div>
-      <div class="direct-comm-buttons">
+      <div class="direct-comm-buttons" style="margin-top:14px; display:flex; justify-content:space-around; align-items:center;">
         <!-- 1. Call -->
-        <button class="direct-comm-item comm-call" onclick="callDirect('${effectivePhone}')" title="${state.t('call')}">
+        <button class="direct-comm-item comm-call" onclick="callDirect('${effectivePhone}')" title="Call">
           <div class="direct-comm-circle">
             <i class="fa-solid fa-phone"></i>
           </div>
-          <span>${state.t('call')}</span>
+          <span>Call</span>
         </button>
 
         <!-- 2. SMS -->
-        <button class="direct-comm-item comm-sms" onclick="smsDirect('${effectivePhone}', '${student.id}')" title="${state.t('sms')}">
+        <button class="direct-comm-item comm-sms" onclick="smsDirect('${effectivePhone}', '${student.id}')" title="SMS">
           <div class="direct-comm-circle">
             <i class="fa-solid fa-comment-dots"></i>
           </div>
-          <span>${state.t('sms')}</span>
+          <span>SMS</span>
         </button>
 
         <!-- 3. WhatsApp -->
-        <button class="direct-comm-item comm-whatsapp" onclick="whatsappDirect('${effectivePhone}', '${student.id}')" title="${state.t('whatsapp')}">
+        <button class="direct-comm-item comm-whatsapp" onclick="whatsappDirect('${effectivePhone}', '${student.id}')" title="WhatsApp">
           <div class="direct-comm-circle">
             <i class="fa-brands fa-whatsapp"></i>
           </div>
-          <span>${state.t('whatsapp')}</span>
+          <span>WhatsApp</span>
         </button>
 
         <!-- 4. Telegram -->
-        <button class="direct-comm-item comm-telegram" onclick="telegramDirect('${effectivePhone}')" title="${state.t('telegram')}">
+        <button class="direct-comm-item comm-telegram" onclick="telegramDirect('${effectivePhone}')" title="Telegram">
           <div class="direct-comm-circle">
             <i class="fa-solid fa-paper-plane"></i>
           </div>
-          <span>${state.t('telegram')}</span>
+          <span>Telegram</span>
         </button>
 
-        <!-- 5. Save -->
-        <button class="direct-comm-item comm-save" onclick="saveContactDirect('${student.id}')" title="${state.t('save_contact')}">
+        <!-- 5. Save Contact -->
+        <button class="direct-comm-item comm-save" onclick="saveContactDirect('${student.id}')" title="Save">
           <div class="direct-comm-circle">
             <i class="fa-regular fa-address-book"></i>
           </div>
-          <span>${state.t('save_contact')}</span>
+          <span>Save</span>
         </button>
       </div>
     </div>
 
-    <!-- 4 Stats Grid -->
-    <div class="stats-grid" style="margin-top:14px;">
-      <div class="stat-card">
+    <!-- 3. 4-Stats Grid (2x2) (Matching Image 5) -->
+    <div class="stats-grid" style="margin-top:14px; display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+      <div class="stat-card" style="background:white; border-radius:18px; padding:14px 16px; border:1px solid #E2E8F0;">
         <div class="stat-info">
-          <div class="stat-label">${state.t('total_expected')}</div>
-          <div class="stat-value">৳ ${expected.toLocaleString('en-IN')}</div>
+          <div class="stat-label" style="font-size:12px; color:#64748B; font-weight:600;">Total Expected</div>
+          <div class="stat-value" style="font-size:18px; font-weight:800; color:#4F46E5; margin-top:4px;">৳${expected.toFixed(2)}</div>
         </div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card" style="background:white; border-radius:18px; padding:14px 16px; border:1px solid #E2E8F0;">
         <div class="stat-info">
-          <div class="stat-label">${state.t('total_paid')}</div>
-          <div class="stat-value" style="color:var(--income)">৳ ${paid.toLocaleString('en-IN')}</div>
+          <div class="stat-label" style="font-size:12px; color:#64748B; font-weight:600;">Total Paid</div>
+          <div class="stat-value" style="font-size:18px; font-weight:800; color:#10B981; margin-top:4px;">৳${paid.toFixed(2)}</div>
         </div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card" style="background:white; border-radius:18px; padding:14px 16px; border:1px solid #E2E8F0;">
         <div class="stat-info">
-          <div class="stat-label">${state.t('current_due')}</div>
-          <div class="stat-value" style="color:var(--expense)">৳ ${due.toLocaleString('en-IN')}</div>
+          <div class="stat-label" style="font-size:12px; color:#64748B; font-weight:600;">Due</div>
+          <div class="stat-value" style="font-size:18px; font-weight:800; color:#EF4444; margin-top:4px;">৳${due.toFixed(2)}</div>
         </div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card" style="background:white; border-radius:18px; padding:14px 16px; border:1px solid #E2E8F0;">
         <div class="stat-info">
-          <div class="stat-label">${state.t('advance')}</div>
-          <div class="stat-value" style="color:var(--secondary)">৳ ${advance.toLocaleString('en-IN')}</div>
+          <div class="stat-label" style="font-size:12px; color:#64748B; font-weight:600;">Advance</div>
+          <div class="stat-value" style="font-size:18px; font-weight:800; color:#06B6D4; margin-top:4px;">৳${advance.toFixed(2)}</div>
         </div>
       </div>
     </div>
 
-    <!-- Attendance Box -->
-    <div class="card-box mt-3">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <div>
-          <div style="font-size:12px; color:var(--text-muted);">${state.t('class_attendance')} (${curMonthKey})</div>
-          <div style="font-size:20px; font-weight:800; color:var(--text-main); margin-top:2px;">${classesThisMonth} ${state.t('classes')}</div>
-        </div>
-        <div style="display:flex; gap:8px;">
-          <button class="icon-action-btn" onclick="updateStudentAttendance('${student.id}', -1)"><i class="fa-solid fa-minus"></i></button>
-          <button class="icon-action-btn" style="background:var(--primary); color:white; border-color:var(--primary);" onclick="updateStudentAttendance('${student.id}', 1)"><i class="fa-solid fa-plus"></i></button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Payment History -->
-    <div class="box-header-row mt-4">
-      <div class="box-title">${state.t('payment_history')} (${payments.length})</div>
-      <button class="pill-btn btn-income" style="background:var(--income); color:white; padding:6px 12px; font-size:12px;" onclick="openCollectPaymentForStudent('${student.id}')">
-        <i class="fa-solid fa-plus"></i> ${state.t('collect_payment')}
-      </button>
-    </div>
-
-    <div class="payment-history-list mt-2">
-      ${payments.length === 0 ? `<div style="color:var(--text-muted); font-size:13px; text-align:center; padding:14px;">${state.t('no_payments_yet')}</div>` : payments.map(p => `
-        <div style="background:white; border:1px solid var(--border); padding:12px; border-radius:var(--radius-md); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-          <div>
-            <div style="font-weight:700; font-size:15px; color:var(--income);">৳ ${Number(p.amount).toLocaleString('en-IN')}</div>
-            <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">${p.receiptNo} · ${p.paymentDate} · ${p.method} (${p.forMonth})</div>
-            ${p.note ? `<div style="font-size:11px; color:var(--text-main); margin-top:1px;">${state.t('notes')}: ${p.note}</div>` : ''}
+    <!-- 4. Payment History (Matching Image 5) -->
+    <div style="margin-top:20px; margin-bottom:80px;">
+      <div style="font-size:16px; font-weight:800; color:#1E293B; margin-bottom:10px;">Payment History</div>
+      <div class="payment-history-list">
+        ${payments.length === 0 ? `<div style="background:white; border:1px solid #E2E8F0; border-radius:14px; color:var(--text-muted); font-size:13px; text-align:center; padding:18px;">No payments recorded yet</div>` : payments.map(p => `
+          <div style="background:white; border:1px solid #E2E8F0; padding:12px 14px; border-radius:14px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="font-weight:800; font-size:15px; color:#10B981;">৳ ${Number(p.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
+              <div style="font-size:12px; color:#64748B; margin-top:2px;">${p.receiptNo} · ${p.paymentDate} · ${p.method} (${p.forMonth})</div>
+              ${p.note ? `<div style="font-size:11px; color:#334155; margin-top:2px;">Note: ${p.note}</div>` : ''}
+            </div>
+            <div style="display:flex; gap:6px;">
+              <button class="icon-action-btn" title="View / Print Receipt" onclick="showReceiptModal('${p.id}')" style="color:#4F46E5;"><i class="fa-solid fa-receipt"></i></button>
+              <button class="icon-action-btn text-danger" title="Delete" onclick="deletePaymentRecord('${p.id}')"><i class="fa-solid fa-trash-can"></i></button>
+            </div>
           </div>
-          <div style="display:flex; gap:6px;">
-            <button class="icon-action-btn" title="Print Receipt" onclick="printMoneyReceipt('${p.id}')"><i class="fa-solid fa-print"></i></button>
-            <button class="icon-action-btn text-danger" title="Delete" onclick="deletePaymentRecord('${p.id}')"><i class="fa-solid fa-trash-can"></i></button>
-          </div>
-        </div>
-      `).join('')}
+        `).join('')}
+      </div>
     </div>
+
+    <!-- 5. Floating Collect Payment Button (Matching Image 5) -->
+    <button class="btn-floating-collect" onclick="openCollectPaymentForStudent('${student.id}')">
+      <i class="fa-solid fa-money-bill-wave"></i> Collect Payment
+    </button>
   `;
 }
 
@@ -1812,41 +1901,108 @@ function shiftReportPeriod(dir) {
   renderReportContent();
 }
 
-// ==================== PRINT MONEY RECEIPT (A5) ====================
-function printMoneyReceipt(paymentId) {
+// ==================== MONEY RECEIPT MODAL & VOUCHER (Matching Image 7) ====================
+let currentReceiptPaymentId = null;
+
+function showReceiptModal(paymentId) {
   const payment = state.payments.find(p => p.id === paymentId);
   if (!payment) return;
   const student = state.students.find(s => s.id === payment.studentId) || { name: 'Student', className: '—', rollNumber: '—', section: '—' };
+  currentReceiptPaymentId = paymentId;
 
+  const due = state.getStudentDue(student);
+  const totalPaid = state.getTotalPaid(student.id);
+
+  const container = document.getElementById('receiptModalBody');
+  if (container) {
+    container.innerHTML = `
+      <div id="printableReceiptArea" style="background:white; border:2px solid #E2E8F0; border-radius:18px; padding:24px; color:#1E293B; font-family:inherit; max-width:550px; margin:0 auto; box-shadow:0 4px 20px rgba(0,0,0,0.05);">
+        <!-- Header -->
+        <div style="text-align:center; border-bottom:2px dashed #CBD5E1; padding-bottom:14px; margin-bottom:16px;">
+          <h2 style="margin:0; font-size:22px; font-weight:800; color:#4F46E5;">ABS Hisab Manager</h2>
+          <div style="font-size:12px; color:#64748B; margin-top:2px;">Private Coaching & Academic Management</div>
+          <div style="display:inline-block; background:#EEF2FF; color:#4F46E5; font-size:12px; font-weight:800; padding:4px 14px; border-radius:20px; margin-top:8px;">
+            MONEY RECEIPT (মানি রিসিট)
+          </div>
+        </div>
+
+        <!-- Info Meta Grid -->
+        <table style="width:100%; font-size:13px; line-height:1.8; margin-bottom:14px;">
+          <tr>
+            <td><strong style="color:#64748B;">Receipt No:</strong></td>
+            <td style="text-align:right; font-weight:700; color:#0F172A;">${payment.receiptNo}</td>
+          </tr>
+          <tr>
+            <td><strong style="color:#64748B;">Payment Date:</strong></td>
+            <td style="text-align:right; font-weight:600;">${payment.paymentDate}</td>
+          </tr>
+          <tr>
+            <td><strong style="color:#64748B;">Student Name:</strong></td>
+            <td style="text-align:right; font-weight:800; color:#1E293B; font-size:14px;">${student.name}</td>
+          </tr>
+          <tr>
+            <td><strong style="color:#64748B;">Class & Roll:</strong></td>
+            <td style="text-align:right; font-weight:600;">${student.className} · Roll ${student.rollNumber} (${student.section || 'A'})</td>
+          </tr>
+          <tr>
+            <td><strong style="color:#64748B;">For Month:</strong></td>
+            <td style="text-align:right; font-weight:700; color:#4F46E5;">${payment.forMonth}</td>
+          </tr>
+          <tr>
+            <td><strong style="color:#64748B;">Payment Method:</strong></td>
+            <td style="text-align:right; font-weight:600;">${payment.method}</td>
+          </tr>
+          ${payment.note ? `
+          <tr>
+            <td><strong style="color:#64748B;">Note:</strong></td>
+            <td style="text-align:right; color:#475569;">${payment.note}</td>
+          </tr>` : ''}
+        </table>
+
+        <!-- Paid Amount Box -->
+        <div style="background:#F0FDF4; border:1.5px solid #86EFAC; border-radius:14px; padding:14px 18px; display:flex; justify-content:space-between; align-items:center; margin:16px 0;">
+          <div>
+            <div style="font-size:12px; font-weight:700; color:#166534;">Amount Paid (পরিশোধিত অর্থ)</div>
+            <div style="font-size:11px; color:#15803D; margin-top:2px;">Full / Partial Tuition Fee</div>
+          </div>
+          <div style="font-size:22px; font-weight:900; color:#15803D;">
+            ৳ ${Number(payment.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+          </div>
+        </div>
+
+        <!-- Balance Status -->
+        <div style="display:flex; justify-content:space-between; font-size:12px; color:#64748B; padding:6px 4px; border-bottom:1px solid #F1F5F9; margin-bottom:28px;">
+          <span>Total Paid so far: <strong>৳${totalPaid.toLocaleString('en-IN')}</strong></span>
+          <span>Remaining Due: <strong style="color:${due > 0 ? '#EF4444' : '#10B981'};">৳${due.toLocaleString('en-IN')}</strong></span>
+        </div>
+
+        <!-- Signatures -->
+        <div style="display:flex; justify-content:space-between; font-size:12px; color:#64748B; margin-top:36px; padding:0 10px;">
+          <div style="text-align:center; border-top:1px solid #94A3B8; padding-top:6px; min-width:110px;">
+            Student / Guardian
+          </div>
+          <div style="text-align:center; border-top:1px solid #94A3B8; padding-top:6px; min-width:110px;">
+            Authorized Signature
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  openModal('moneyReceiptModal');
+}
+
+function printMoneyReceipt(paymentId) {
+  showReceiptModal(paymentId);
+}
+
+function triggerReceiptPrint() {
+  const content = document.getElementById('printableReceiptArea');
+  if (!content) return;
   const printArea = document.getElementById('printArea');
-  printArea.innerHTML = `
-    <div style="font-family:Arial,sans-serif; max-width:600px; margin:0 auto; padding:30px; border:2px solid #4f46e5; border-radius:12px;">
-      <div style="text-align:center; margin-bottom:20px;">
-        <h2 style="color:#4f46e5; margin:0;">ABS Hisab Manager</h2>
-        <h4 style="margin:4px 0 0 0; color:#475569;">MONEY RECEIPT (মানি রিসিট)</h4>
-      </div>
-      <hr style="border:0; border-top:1px solid #cbd5e1; margin:16px 0;">
-      <table style="width:100%; font-size:14px; line-height:2;">
-        <tr><td><strong>Receipt No:</strong></td><td style="text-align:right;">${payment.receiptNo}</td></tr>
-        <tr><td><strong>Payment Date:</strong></td><td style="text-align:right;">${payment.paymentDate}</td></tr>
-        <tr><td><strong>Student Name:</strong></td><td style="text-align:right;">${student.name}</td></tr>
-        <tr><td><strong>Class & Roll:</strong></td><td style="text-align:right;">${student.className} · Roll ${student.rollNumber} (${student.section || '—'})</td></tr>
-        <tr><td><strong>For Month:</strong></td><td style="text-align:right;">${payment.forMonth}</td></tr>
-        <tr><td><strong>Payment Method:</strong></td><td style="text-align:right;">${payment.method}</td></tr>
-        ${payment.note ? `<tr><td><strong>Note:</strong></td><td style="text-align:right;">${payment.note}</td></tr>` : ''}
-      </table>
-      <hr style="border:0; border-top:2px solid #4f46e5; margin:16px 0;">
-      <div style="display:flex; justify-content:space-between; font-size:18px; font-weight:bold; color:#10b981; padding:8px 0;">
-        <span>Amount Paid (পরিশোধিত অর্থ):</span>
-        <span>Tk ${Number(payment.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-      </div>
-      <div style="margin-top:50px; display:flex; justify-content:space-between; font-size:12px; color:#64748b;">
-        <span>Thank you for your payment!</span>
-        <span style="border-top:1px solid #334155; padding-top:4px;">Tutor / Authority Signature</span>
-      </div>
-    </div>
-  `;
-
+  if (printArea) {
+    printArea.innerHTML = content.outerHTML;
+  }
   window.print();
 }
 
@@ -2175,6 +2331,29 @@ function closeModal(id) {
   const el = document.getElementById(id);
   if (el) el.classList.remove('show');
 }
+
+function closeAnyOpenModal() {
+  const openBackdrop = document.querySelector('.modal-backdrop.show');
+  if (openBackdrop) {
+    openBackdrop.classList.remove('show');
+    return true;
+  }
+  return false;
+}
+
+// Global backdrop click dismissal
+document.addEventListener('click', (e) => {
+  if (e.target && e.target.classList && e.target.classList.contains('modal-backdrop')) {
+    e.target.classList.remove('show');
+  }
+});
+
+// ESC key to close modal
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeAnyOpenModal();
+  }
+});
 
 // ==================== STUDENT HAJIRA (ATTENDANCE) MODULE (Image 1) ====================
 let webHajiraDate = new Date().toISOString().split('T')[0];

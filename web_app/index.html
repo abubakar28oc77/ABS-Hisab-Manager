@@ -359,21 +359,21 @@
     </div>
   </div>
 
-  <!-- ADD / EDIT STUDENT MODAL (Matching Image 1) -->
+  <!-- ADD / EDIT STUDENT MODAL (Matching Image 1 & 2) -->
   <div class="modal-backdrop" id="studentModal">
-    <div class="modal-dialog" style="padding:0; overflow:hidden; border-radius:20px;">
-      <!-- Blue App Bar like Image 1 -->
-      <div style="background:#1E88E5; color:white; padding:16px 18px; display:flex; align-items:center; justify-content:space-between;">
+    <div class="modal-dialog" style="padding:0; overflow:hidden; border-radius:24px; max-height:92vh; display:flex; flex-direction:column; background:white;">
+      <!-- Sticky Blue App Bar Header with Back and Close Buttons -->
+      <div style="background:#1E88E5; color:white; padding:16px 18px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:10;">
         <div style="display:flex; align-items:center; gap:14px;">
-          <button type="button" onclick="closeModal('studentModal')" style="background:none; border:none; color:white; font-size:18px; cursor:pointer;">
+          <button type="button" onclick="closeModal('studentModal')" style="background:none; border:none; color:white; font-size:18px; cursor:pointer; padding:2px;">
             <i class="fa-solid fa-arrow-left"></i>
           </button>
           <h3 id="studentModalTitle" style="font-size:18px; font-weight:700; margin:0; color:white;">Add Student</h3>
         </div>
-        <button type="button" class="modal-close-btn" onclick="closeModal('studentModal')" style="color:white; opacity:0.8;">&times;</button>
+        <button type="button" class="modal-close-btn" onclick="closeModal('studentModal')" style="color:white; opacity:0.9; cursor:pointer;">&times;</button>
       </div>
 
-      <form class="modal-body" id="studentForm" onsubmit="handleSaveStudent(event)" style="padding:18px; background:#F8FAFC;">
+      <form class="modal-body" id="studentForm" onsubmit="handleSaveStudent(event)" style="padding:18px; background:#F8FAFC; overflow-y:auto; flex:1;">
         <input type="hidden" id="studentFormId">
 
         <!-- 1. Student Name * -->
@@ -403,7 +403,7 @@
         <!-- 5. Monthly Fee * -->
         <div class="image-style-field">
           <i class="fa-solid fa-dollar-sign"></i>
-          <input type="number" id="fmStudentFee" required min="0" step="50" placeholder="Monthly Fee *">
+          <input type="number" id="fmStudentFee" required min="0" step="any" placeholder="Monthly Fee *">
         </div>
 
         <!-- 6. Admission Date * -->
@@ -436,70 +436,109 @@
           <input type="text" id="fmStudentAddress" placeholder="Address">
         </div>
 
-        <button type="submit" class="submit-btn" id="btnSaveStudentSubmit" style="background:#1E88E5; color:white; font-weight:700; margin-top:8px; border-radius:12px; padding:14px;">
-          Save Student
-        </button>
+        <div style="display:flex; gap:10px; margin-top:10px;">
+          <button type="button" onclick="closeModal('studentModal')" style="flex:1; background:#E2E8F0; color:#475569; font-weight:700; border:none; border-radius:12px; padding:14px; cursor:pointer;">
+            Cancel
+          </button>
+          <button type="submit" class="submit-btn" id="btnSaveStudentSubmit" style="flex:2; background:#1E88E5; color:white; font-weight:700; border-radius:12px; padding:14px; border:none; cursor:pointer;">
+            Save Student
+          </button>
+        </div>
       </form>
     </div>
   </div>
 
-  <!-- ADD / EDIT CLASS MODAL -->
+  <!-- ADD / EDIT CLASS MODAL (Matching Image 4) -->
   <div class="modal-backdrop" id="classModal">
-    <div class="modal-dialog">
-      <div class="modal-header">
-        <h3 id="classModalTitle">নতুন শ্রেণি যোগ</h3>
+    <div class="modal-dialog" style="padding:22px; border-radius:28px 28px 0 0; max-height:92vh; overflow-y:auto; background:white;">
+      <div style="width:44px; height:5px; background:#CBD5E1; border-radius:10px; margin:0 auto 16px;"></div>
+      <div class="modal-header" style="margin-bottom:18px;">
+        <h3 id="classModalTitle" style="font-size:20px; font-weight:800; color:#1E293B;">Edit Class</h3>
         <button class="modal-close-btn" onclick="closeModal('classModal')">&times;</button>
       </div>
-      <form class="modal-body" id="classForm" onsubmit="handleSaveClass(event)">
+      <form id="classForm" onsubmit="handleSaveClass(event)">
         <input type="hidden" id="classFormId">
-        <div class="form-group">
-          <label id="lblClsName">শ্রেণির নাম *</label>
-          <input type="text" id="fmClassName" required placeholder="e.g. Class 6, Class 7, Batch A">
+
+        <!-- 1. Class Name -->
+        <div style="margin-bottom:16px;">
+          <label style="font-weight:700; font-size:14px; color:#334155; margin-bottom:8px; display:block;">Class Name *</label>
+          <div class="image-style-field" style="margin-bottom:0; background:#F8FAFC;">
+            <i class="fa-solid fa-graduation-cap" style="color:#475569;"></i>
+            <input type="text" id="fmClassName" required placeholder="Class 6" style="font-weight:600; font-size:15px;">
+          </div>
         </div>
-        <div class="form-group mt-2">
-          <label id="lblClsSections">শাখা (Sections - কমা দিয়ে লিখুন)</label>
-          <input type="text" id="fmClassSections" placeholder="e.g. A, B, C, Padma, Meghna">
+
+        <!-- 2. Sections -->
+        <div style="margin-bottom:18px;">
+          <label style="font-weight:700; font-size:14px; color:#334155; margin-bottom:8px; display:block;">Sections</label>
+          <div id="classSectionsChips" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px;"></div>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <input type="text" id="fmNewSectionInput" placeholder="Add section (e.g. A, B, Morning...)" style="flex:1; background:#F8FAFC; border:1px solid #CBD5E1; border-radius:14px; padding:12px 14px; font-size:14px; outline:none;" onkeydown="if(event.key==='Enter'){event.preventDefault(); addClassSectionChip();}">
+            <button type="button" onclick="addClassSectionChip()" style="width:42px; height:42px; border-radius:50%; background:#4F46E5; color:white; border:none; display:flex; align-items:center; justify-content:center; font-size:16px; cursor:pointer; flex-shrink:0;">
+              <i class="fa-solid fa-plus"></i>
+            </button>
+          </div>
         </div>
-        <div class="form-group mt-2">
-          <label id="lblClsSubjects">বিষয়সমূহ (Subjects - কমা দিয়ে লিখুন)</label>
-          <input type="text" id="fmClassSubjects" placeholder="e.g. গণিত, ইংরেজি, বিজ্ঞান, বাংলা">
+
+        <!-- 3. Subjects -->
+        <div style="margin-bottom:20px;">
+          <label style="font-weight:700; font-size:14px; color:#334155; margin-bottom:8px; display:block;">Subjects</label>
+          <div id="classSubjectsChips" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px;"></div>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <input type="text" id="fmNewSubjectInput" placeholder="Add subject (e.g. Physics, Math...)" style="flex:1; background:#F8FAFC; border:1px solid #CBD5E1; border-radius:14px; padding:12px 14px; font-size:14px; outline:none;" onkeydown="if(event.key==='Enter'){event.preventDefault(); addClassSubjectChip();}">
+            <button type="button" onclick="addClassSubjectChip()" style="width:42px; height:42px; border-radius:50%; background:#4F46E5; color:white; border:none; display:flex; align-items:center; justify-content:center; font-size:16px; cursor:pointer; flex-shrink:0;">
+              <i class="fa-solid fa-plus"></i>
+            </button>
+          </div>
         </div>
-        <button type="submit" class="submit-btn mt-3" id="btnSaveClassSubmit" style="background:#2563eb; color:white;">সংরক্ষণ করুন</button>
+
+        <div style="display:flex; gap:10px; margin-top:10px;">
+          <button type="button" onclick="closeModal('classModal')" style="flex:1; background:#E2E8F0; color:#475569; font-weight:700; border:none; border-radius:14px; padding:14px; cursor:pointer;">Cancel</button>
+          <button type="submit" class="submit-btn" id="btnSaveClassSubmit" style="flex:2; background:#4F46E5; color:white; font-weight:700; border-radius:14px; padding:14px; border:none; cursor:pointer;">
+            Update Class
+          </button>
+        </div>
       </form>
     </div>
   </div>
 
-  <!-- STUDENT DETAIL & PROFILE MODAL -->
+  <!-- STUDENT DETAIL & PROFILE MODAL (Matching Image 5) -->
   <div class="modal-backdrop" id="studentDetailModal">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-header">
-        <h3 id="studentDetailName">শিক্ষার্থীর প্রোফাইল</h3>
-        <div class="modal-header-actions">
+    <div class="modal-dialog modal-lg" style="padding:0; overflow:hidden; border-radius:24px 24px 0 0; max-height:94vh; display:flex; flex-direction:column; background:#F8FAFC;">
+      <!-- Sticky Top Bar -->
+      <div style="background:white; border-bottom:1px solid #E2E8F0; padding:12px 18px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:20;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <button type="button" onclick="closeModal('studentDetailModal')" style="background:none; border:none; color:#1E293B; font-size:18px; cursor:pointer; padding:4px;">
+            <i class="fa-solid fa-arrow-left"></i>
+          </button>
+          <h3 id="studentDetailName" style="font-size:18px; font-weight:800; margin:0; color:#1E293B;">Md. Samiul</h3>
+        </div>
+        <div class="modal-header-actions" style="display:flex; align-items:center; gap:8px;">
           <button class="icon-action-btn" title="Statement PDF" onclick="printStudentFullStatement()"><i class="fa-solid fa-file-pdf"></i></button>
-          <button class="icon-action-btn" title="Edit" onclick="editCurrentStudent()"><i class="fa-solid fa-pen"></i></button>
-          <button class="icon-action-btn text-danger" title="Delete" onclick="deleteCurrentStudent()"><i class="fa-solid fa-trash"></i></button>
-          <button class="modal-close-btn" onclick="closeModal('studentDetailModal')">&times;</button>
+          <button class="icon-action-btn" title="Edit" onclick="editCurrentStudent()"><i class="fa-solid fa-pencil"></i></button>
+          <button class="icon-action-btn text-danger" title="Delete" onclick="deleteCurrentStudent()"><i class="fa-solid fa-trash-can"></i></button>
+          <button class="modal-close-btn" onclick="closeModal('studentDetailModal')" style="color:#64748B;">&times;</button>
         </div>
       </div>
-      <div class="modal-body" id="studentDetailBody">
+      <div class="modal-body" id="studentDetailBody" style="padding:16px; overflow-y:auto; flex:1; position:relative;">
         <!-- Injected dynamically by app.js -->
       </div>
     </div>
   </div>
 
-  <!-- COLLECT PAYMENT MODAL -->
+  <!-- COLLECT PAYMENT MODAL (Matching Image 1) -->
   <div class="modal-backdrop" id="collectPaymentModal">
-    <div class="modal-dialog">
+    <div class="modal-dialog" style="padding:22px; border-radius:28px 28px 0 0; max-height:92vh; overflow-y:auto; background:white;">
       <div class="modal-header">
-        <h3 id="paymentModalTitle">পেমেন্ট সংগ্রহ</h3>
+        <h3 id="paymentModalTitle" style="font-size:20px; font-weight:800; color:#1E293B;">পেমেন্ট সংগ্রহ</h3>
         <button class="modal-close-btn" onclick="closeModal('collectPaymentModal')">&times;</button>
       </div>
-      <form class="modal-body" id="paymentForm" onsubmit="handleSavePayment(event)">
+      <form class="modal-body" id="paymentForm" onsubmit="handleSavePayment(event)" style="padding:0;">
         <input type="hidden" id="pmStudentId">
         <div class="target-student-badge" id="pmStudentBadge"></div>
         <div class="form-group mt-2">
           <label id="lblPmAmount">টাকার পরিমাণ (৳) *</label>
-          <input type="number" id="pmAmount" required min="1" step="10" placeholder="টাকার অংক">
+          <input type="number" id="pmAmount" required min="1" step="any" placeholder="টাকার অংক">
         </div>
         <div class="form-row">
           <div class="form-group">
@@ -525,12 +564,37 @@
           <label id="lblPmNote">নোট (ঐচ্ছিক)</label>
           <input type="text" id="pmNote" placeholder="পেমেন্ট সংক্রান্ত কোনো নোট...">
         </div>
-        <div class="checkbox-row">
+        <div class="checkbox-row" style="margin-top:12px;">
           <input type="checkbox" id="pmGiveReceipt" checked>
           <label for="pmGiveReceipt" id="lblPmReceiptCheck">এখনই মানি রিসিট (Receipt) তৈরি করবেন?</label>
         </div>
-        <button type="submit" class="submit-btn btn-income mt-3" id="btnSavePaymentSubmit">পেমেন্ট সেভ করুন ও রশিদ তৈরি করুন</button>
+        <div style="display:flex; gap:10px; margin-top:16px;">
+          <button type="button" onclick="closeModal('collectPaymentModal')" style="flex:1; background:#E2E8F0; color:#475569; font-weight:700; border:none; border-radius:12px; padding:14px; cursor:pointer;">বাতিল</button>
+          <button type="submit" class="submit-btn btn-income" id="btnSavePaymentSubmit" style="flex:2; margin-top:0;">পেমেন্ট সেভ করুন ও রশিদ তৈরি করুন</button>
+        </div>
       </form>
+    </div>
+  </div>
+
+  <!-- MONEY RECEIPT MODAL (Matching Image 7) -->
+  <div class="modal-backdrop" id="moneyReceiptModal">
+    <div class="modal-dialog modal-lg" style="padding:0; overflow:hidden; border-radius:24px; max-height:92vh; display:flex; flex-direction:column; background:#F8FAFC;">
+      <div style="background:#4F46E5; color:white; padding:14px 18px; display:flex; align-items:center; justify-content:space-between;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <i class="fa-solid fa-receipt" style="font-size:18px;"></i>
+          <h3 style="font-size:18px; font-weight:700; margin:0; color:white;">Money Receipt (মানি রিসিট)</h3>
+        </div>
+        <button type="button" class="modal-close-btn" onclick="closeModal('moneyReceiptModal')" style="color:white; opacity:0.9;">&times;</button>
+      </div>
+      <div class="modal-body" id="receiptModalBody" style="padding:16px; overflow-y:auto; flex:1;">
+        <!-- Injected dynamically by app.js -->
+      </div>
+      <div style="background:white; border-top:1px solid #E2E8F0; padding:12px 18px; display:flex; gap:10px;">
+        <button type="button" onclick="closeModal('moneyReceiptModal')" style="flex:1; background:#E2E8F0; color:#475569; padding:12px; font-weight:700; border-radius:12px; border:none; cursor:pointer;">Close</button>
+        <button type="button" onclick="triggerReceiptPrint()" style="flex:2; background:#10B981; color:white; padding:12px; font-weight:700; border-radius:12px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
+          <i class="fa-solid fa-print"></i> Print / Save PDF
+        </button>
+      </div>
     </div>
   </div>
 

@@ -90,6 +90,15 @@ class _WebViewScreenState extends State<WebViewScreen> {
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
+        try {
+          final res = await _controller.runJavaScriptReturningResult(
+            'closeAnyOpenModal()',
+          );
+          if (res == true || res.toString().toLowerCase() == 'true') {
+            return;
+          }
+        } catch (_) {}
+
         if (await _controller.canGoBack()) {
           await _controller.goBack();
         } else {

@@ -1186,55 +1186,217 @@ body {
   color: #94a3b8;
 }
 
-/* ==================== CLASS MANAGEMENT VIEW ==================== */
+/* ==================== CLASS MANAGEMENT VIEW (Image 3 & 4) ==================== */
 .class-item-card {
   background: white;
   border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 16px;
-  margin-bottom: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  border-radius: 20px;
+  padding: 16px 18px;
+  margin-bottom: 14px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
 }
 
 .class-header-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
 }
 
-.class-title {
+.class-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.class-avatar-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #EEF2FF;
+  color: #4F46E5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.class-title-text {
   font-size: 17px;
+  font-weight: 800;
+  color: #1E293B;
+}
+
+.class-subtitle-text {
+  font-size: 13px;
+  color: #64748B;
+  font-weight: 500;
+  margin-top: 1px;
+}
+
+.class-row-label {
+  font-size: 13px;
   font-weight: 700;
-  color: var(--text-main);
+  color: #475569;
+  min-width: 72px;
+}
+
+.class-tags-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.section-pill {
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  color: #1E293B;
+  padding: 4px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.subject-pill {
+  background: #EEF2FF;
+  color: #4F46E5;
+  border: 1px solid #C7D2FE;
+  padding: 4px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Chips in Edit Class Modal (Image 4) */
+.chip-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.chip-section {
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  color: #1E293B;
+}
+
+.chip-subject {
+  background: #EEF2FF;
+  border: 1px solid #C7D2FE;
+  color: #4F46E5;
+}
+
+.chip-remove-btn {
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  font-weight: bold;
+  opacity: 0.6;
+  margin-left: 2px;
+}
+
+.chip-remove-btn:hover {
+  opacity: 1;
+  color: #EF4444;
+}
+
+/* Student Profile Styles (Image 5) */
+.student-profile-card {
+  background: white;
+  border: 1px solid #E2E8F0;
+  border-radius: 20px;
+  padding: 18px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+}
+
+.profile-top-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.profile-avatar-circle {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #EEF2FF;
+  color: #4F46E5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.profile-name-text {
+  font-size: 18px;
+  font-weight: 800;
+  color: #1E293B;
+}
+
+.profile-meta-text {
+  font-size: 13px;
+  color: #64748B;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.profile-detail-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  color: #334155;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.profile-detail-item i {
+  width: 18px;
+  color: #64748B;
+  margin-top: 2px;
+  text-align: center;
+}
+
+.profile-detail-label {
+  color: #64748B;
+  font-size: 13px;
+}
+
+.profile-detail-val {
+  font-weight: 700;
+  color: #0F172A;
+}
+
+/* Floating Collect Button */
+.btn-floating-collect {
+  position: fixed;
+  bottom: 24px;
+  right: 20px;
+  background: #4F46E5;
+  color: white;
+  border: none;
+  border-radius: 16px;
+  padding: 12px 20px;
+  font-size: 15px;
+  font-weight: 700;
   display: flex;
   align-items: center;
   gap: 8px;
+  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.4);
+  cursor: pointer;
+  z-index: 50;
+  transition: transform 0.2s ease;
 }
 
-.tags-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 6px;
-}
-
-.section-tag {
-  background: #eff6ff;
-  color: #2563eb;
-  padding: 4px 10px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.subject-tag {
-  background: #f0fdf4;
-  color: #16a34a;
-  padding: 4px 10px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 600;
+.btn-floating-collect:active {
+  transform: scale(0.96);
 }
 
 /* ==================== PRINT STYLES ==================== */
