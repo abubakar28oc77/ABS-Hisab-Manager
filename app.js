@@ -431,16 +431,21 @@ const defaultPayments = [];
 const defaultTransactions = [];
 
 // ==================== APP STATE STORE ====================
+const DB_VERSION_17_KEY = 'abs_hisab_v2_synced_17_students_final';
+
 class AppState {
   constructor() {
     this.storagePrefix = 'abs_hisab_';
     this.classes = this.load('classes', defaultClasses);
 
     const storedStudents = this.load('students', null);
-    if (!storedStudents || (storedStudents.length <= 3 && storedStudents.some(s => s.name && s.name.includes('Rafsan')))) {
-      this.students = defaultStudents;
+    const syncDone = localStorage.getItem(DB_VERSION_17_KEY);
+
+    if (!syncDone || !storedStudents || storedStudents.length === 0 || (storedStudents.length <= 3 && storedStudents.some(s => s.name && (s.name.includes('Rafsan') || s.name.includes('রাফসান'))))) {
+      this.students = JSON.parse(JSON.stringify(defaultStudents));
       this.payments = [];
       this.transactions = [];
+      localStorage.setItem(DB_VERSION_17_KEY, 'true');
       this.save();
     } else {
       this.students = storedStudents;
@@ -985,12 +990,24 @@ function renderStudentsList() {
   });
 
   if (filtered.length === 0) {
-    listEl.innerHTML = `
-      <div style="text-align:center; padding:36px 20px; color:var(--text-muted);">
-        <i class="fa-solid fa-user-slash" style="font-size:36px; opacity:0.3; margin-bottom:10px;"></i>
-        <p style="font-size:14px; font-weight:600;">কোনো শিক্ষার্থী পাওয়া যায়নি</p>
-      </div>
-    `;
+    if (state.students.length === 0) {
+      listEl.innerHTML = `
+        <div style="text-align:center; padding:36px 20px; color:var(--text-muted);">
+          <i class="fa-solid fa-user-slash" style="font-size:36px; opacity:0.3; margin-bottom:10px;"></i>
+          <p style="font-size:14px; font-weight:600;">কোনো শিক্ষার্থী সংরক্ষিত নেই</p>
+          <button class="btn btn-primary mt-3" style="font-size:13px; padding:8px 18px; border-radius:20px; background:#4f46e5; color:#fff;" onclick="restoreDefaultStudents(true)">
+            <i class="fa-solid fa-rotate mr-1"></i> ১৭ জন শিক্ষার্থী লোড করুন
+          </button>
+        </div>
+      `;
+    } else {
+      listEl.innerHTML = `
+        <div style="text-align:center; padding:36px 20px; color:var(--text-muted);">
+          <i class="fa-solid fa-user-slash" style="font-size:36px; opacity:0.3; margin-bottom:10px;"></i>
+          <p style="font-size:14px; font-weight:600;">কোনো শিক্ষার্থী পাওয়া যায়নি</p>
+        </div>
+      `;
+    }
     return;
   }
 
@@ -1925,6 +1942,24 @@ function removePinSecurity() {
   state.save();
   closeModal('pinSettingModal');
   alert('পিন লক নিষ্ক্রিয় করা হয়েছে');
+}
+
+// ==================== RESTORE 17 STUDENTS ====================
+function restoreDefaultStudents(silent = false) {
+  if (silent || confirm('আপনি কি ১৭ জন শিক্ষার্থীর মূল তালিকা রিস্টোর/সিঙ্ক করতে চান?')) {
+    state.students = JSON.parse(JSON.stringify(defaultStudents));
+    state.payments = [];
+    state.transactions = [];
+    localStorage.setItem(DB_VERSION_17_KEY, 'true');
+    state.save();
+    renderStudentsList();
+    renderDashboard();
+    renderClassesList();
+    if (typeof renderStudentClassFilterChips === 'function') renderStudentClassFilterChips();
+    if (typeof renderHajiraList === 'function') renderHajiraList();
+    if (typeof renderBroadcastList === 'function') renderBroadcastList();
+    if (!silent) alert('✅ ১৭ জন শিক্ষার্থীর ডাটা সফলভাবে রিস্টোর ও সিঙ্ক হয়েছে!');
+  }
 }
 
 // ==================== DATA BACKUP (JSON EXPORT/IMPORT) ====================

@@ -1,20 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'core/theme/app_theme.dart';
-import 'data/local/database_helper.dart';
-import 'providers/auth_provider.dart';
-import 'providers/category_provider.dart';
-import 'providers/class_provider.dart';
-import 'providers/locale_provider.dart';
-import 'providers/payment_provider.dart';
-import 'providers/student_provider.dart';
-import 'providers/transaction_provider.dart';
-import 'presentation/navigation/main_nav.dart';
-import 'presentation/screens/auth/lock_screen.dart';
+import 'package:flutter/services.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-Future<void> main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  await DatabaseHelper.instance.init();
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+    ),
+  );
   runApp(const AbsHisabManagerApp());
 }
 
@@ -23,36 +19,100 @@ class AbsHisabManagerApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => StudentProvider()),
-        ChangeNotifierProvider(create: (_) => ClassProvider()),
-        ChangeNotifierProvider(create: (_) => TransactionProvider()),
-        ChangeNotifierProvider(create: (_) => CategoryProvider()),
-        ChangeNotifierProvider(create: (_) => PaymentProvider()),
-        ChangeNotifierProvider(create: (_) => LocaleProvider()),
-      ],
-      child: MaterialApp(
-        title: 'ABS Hisab Manager',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.light,
-        home: const _RootGate(),
+    return MaterialApp(
+      title: 'ABS Hisab Manager-2',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF4F46E5)),
+        useMaterial3: true,
+      ),
+      home: const WebViewScreen(),
+    );
+  }
+}
+
+class WebViewScreen extends StatefulWidget {
+  const WebViewScreen({super.key});
+
+  @override
+  State<WebViewScreen> createState() => _WebViewScreenState();
+}
+
+class _WebViewScreenState extends State<WebViewScreen> {
+  late final WebViewController _controller;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setBackgroundColor(const Color(0xFFF8FAFC))
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onPageStarted: (String url) {
+            setState(() {
+              _isLoading = true;
+            });
+          },
+          onPageFinished: (String url) {
+            setState(() {
+              _isLoading = false;
+            });
+          },
+          onNavigationRequest: (NavigationRequest request) async {
+            final uri = Uri.tryParse(request.url);
+            if (uri == null) return NavigationDecision.prevent;
+
+            final scheme = uri.scheme.toLowerCase();
+            if (scheme == 'tel' ||
+                scheme == 'sms' ||
+                scheme == 'mailto' ||
+                request.url.contains('whatsapp.com') ||
+                request.url.contains('wa.me')) {
+              try {
+                if (await canLaunchUrl(uri)) {
+                  await launchUrl(uri, mode: LaunchMode.externalApplication);
+                }
+              } catch (_) {}
+              return NavigationDecision.prevent;
+            }
+            return NavigationDecision.navigate;
+          },
+        ),
+      )
+      ..loadFlutterAsset('web_app/index.html');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        if (await _controller.canGoBack()) {
+          await _controller.goBack();
+        } else {
+          SystemNavigator.pop();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF8FAFC),
+        body: SafeArea(
+          child: Stack(
+            children: [
+              WebViewWidget(controller: _controller),
+              if (_isLoading)
+                const Center(
+                  child: CircularProgressIndicator(
+                    color: Color(0xFF4F46E5),
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }
 }
 
-/// Decides whether to show the lock screen or the main app.
-class _RootGate extends StatelessWidget {
-  const _RootGate();
-
-  @override
-  Widget build(BuildContext context) {
-    final auth = context.watch<AuthProvider>();
-    if (auth.hasPin && !auth.unlocked) {
-      return const LockScreen();
-    }
-    return MainNav(key: MainNav.navKey);
-  }
-}
