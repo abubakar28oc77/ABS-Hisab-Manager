@@ -1,9 +1,9 @@
-
 /**
  * ABS Hisab Manager - Complete Interactive Web Application (v2.0)
  * Logic & Local Database Controller
  */
 
+// ==================== I18N DICTIONARY ====================
 // ==================== I18N DICTIONARY ====================
 const translations = {
   bn: {
@@ -23,6 +23,8 @@ const translations = {
     total_expense_month: 'মোট ব্যয়',
     pending_fees: 'বাকি ফি',
     quick_actions: 'কুইক অ্যাকশন',
+    quick_hajira: 'স্টুডেন্ট হাজিরা',
+    quick_broadcast: 'গ্রুপ কল & SMS',
     quick_collect_fee: 'ফি গ্রহণ',
     quick_add_student: 'শিক্ষার্থী যোগ',
     quick_add_expense: 'ব্যয় যোগ',
@@ -30,31 +32,36 @@ const translations = {
     recent_transactions: 'সাম্প্রতিক লেনদেন',
     see_all: 'সব দেখুন',
     expense_breakdown: 'ব্যয়ের বিবরণী',
-    search_students: 'নাম, রোল, পিতার মোবাইল দিয়ে খুঁজুন...',
+    no_expenses_month: 'চলতি মাসে কোনো ব্যয় নেই',
+    no_transactions_month: 'চলতি মাসে কোনো লেনদেন নেই',
+    search_students: 'নাম, রোল, মোবাইল দিয়ে খুঁজুন...',
     all: 'সব',
     filter_all: 'সকল শ্রেণি',
     filter_due: 'বকেয়া আছে',
     filter_paid: 'পরিশোধিত',
     filter_advance: 'অগ্রিম',
-    add_student: 'Add Student',
-    edit_student: 'Edit Student',
+    add_student: 'শিক্ষার্থী যোগ',
+    edit_student: 'শিক্ষার্থী সম্পাদনা',
     student_profile: 'শিক্ষার্থীর প্রোফাইল',
+    class_and_roll: 'শ্রেণি ও রোল',
     monthly_fee: 'মাসিক ফি',
     address: 'ঠিকানা',
     admission_date: 'ভর্তির তারিখ',
-    fathers_name: 'Guardian Name',
-    fathers_mobile: 'Guardian Phone Number',
+    fathers_name: 'অভিভাবকের নাম',
+    fathers_mobile: 'অভিভাবকের মোবাইল',
+    student_mobile: 'শিক্ষার্থীর মোবাইল',
     notes: 'নোট',
-    direct_communication: 'Direct Communication',
-    call: 'Call',
-    sms: 'SMS',
-    whatsapp: 'WhatsApp',
-    telegram: 'Telegram',
-    save_contact: 'Save',
+    direct_communication: 'সরাসরি যোগাযোগ',
+    call: 'কল',
+    sms: 'এসএমএস',
+    whatsapp: 'হোয়াটসঅ্যাপ',
+    telegram: 'টেলিগ্রাম',
+    save_contact: 'সেভ',
     total_expected: 'মোট প্রত্যাশিত',
     total_paid: 'মোট পরিশোধিত',
     due: 'বাকি',
     advance: 'অগ্রিম',
+    paid_status: 'পরিশোধিত',
     payment_history: 'পেমেন্ট ইতিহাস',
     no_payments_yet: 'কোনো পেমেন্ট রেকর্ড নেই',
     class_attendance: 'ক্লাস উপস্থিতি',
@@ -66,18 +73,41 @@ const translations = {
     payment_date: 'পেমেন্টের তারিখ',
     month_hint: 'প্রযোজ্য মাস',
     receipt_now_desc: 'এখনই মানি রিসিট (Receipt) তৈরি করবেন?',
-    save_payment: 'পেমেন্ট সেভ করুন ও রশিদ তৈরি করুন',
-    delete_confirm: 'আপনি কি নিশ্চিত এটি ডিলিট করতে চান?',
+    save_payment: 'পেমেন্ট সংরক্ষণ করুন',
+    delete_confirm: 'আপনি কি নিশ্চিত এটি মুছে ফেলতে চান?',
     no_phone_msg: 'অভিভাবকের মোবাইল নম্বর দেওয়া হয়নি!',
     no_due_msg: 'শিক্ষার্থীর কোনো বকেয়া ফি নেই!',
     receipt_given: 'রশিদ দেওয়া হয়েছে',
     no_receipt: 'রশিদ নেই',
     statement_pdf: 'স্টেটমেন্ট PDF',
     language: 'ভাষা (Language)',
+    lang_desc: 'অ্যাপের ভাষা পরিবর্তন করুন',
+    app_language: 'অ্যাপের ভাষা',
     security: 'নিরাপত্তা (Security)',
+    pin_lock: 'অ্যাপ লক (PIN)',
+    pin_lock_desc: '৪-ডিজিটের পিন কোড সেট করুন',
     finance: 'আর্থিক হিসাব (Finance)',
+    manage_categories: 'ক্যাটাগরি ম্যানেজমেন্ট',
+    manage_categories_desc: 'আয় ও ব্যয়ের ক্যাটাগরি তৈরি/সম্পাদনা',
+    financial_reports: 'আর্থিক রিপোর্ট',
+    financial_reports_desc: 'দৈনিক, সাপ্তাহিক, মাসিক ও বার্ষিক রিপোর্ট PDF',
     data_backup: 'ডাটা ও ব্যাকআপ',
+    restore_17: '১৭ জন শিক্ষার্থীর ডাটা রিস্টোর / সিঙ্ক',
+    restore_17_desc: 'Class 6 ও 7 এর ১৭ জন শিক্ষার্থীর মূল তালিকা আনুন',
+    export_backup: 'ব্যাকআপ এক্সপোর্ট (JSON)',
+    export_desc: 'সকল ডাটা ফাইল আকারে ডাউনলোড করুন',
+    import_backup: 'ব্যাকআপ রিস্টোর (JSON)',
+    import_desc: 'JSON ফাইল থেকে ডাটা রিস্টোর করুন',
+    clear_all: 'সকল ডাটা মুছুন',
+    clear_desc: 'স্থায়ীভাবে সব শিক্ষার্থী ও লেনদেন ডিলিট',
     about: 'সম্পর্কে',
+    about_title: 'ABS Hisab Manager v2.0.0',
+    about_desc: 'লোকাল-ফার্স্ট প্রাইভেট টিউটর ও ফিন্যান্স ম্যানেজার',
+    hajira_title: 'স্টুডেন্ট হাজিরা',
+    broadcast_title: 'গ্রুপ কল & ব্রডকাস্ট SMS',
+    no_students_found: 'কোনো শিক্ষার্থী পাওয়া যায়নি',
+    no_students_saved: 'কোনো শিক্ষার্থী সংরক্ষিত নেই',
+    load_17_students: '১৭ জন শিক্ষার্থী লোড করুন',
   },
   en: {
     app_name: 'ABS Hisab Manager-2',
@@ -96,6 +126,8 @@ const translations = {
     total_expense_month: 'Total Expense',
     pending_fees: 'Pending Fees',
     quick_actions: 'Quick Actions',
+    quick_hajira: 'Student Attendance',
+    quick_broadcast: 'Group Call & SMS',
     quick_collect_fee: 'Collect Fee',
     quick_add_student: 'Add Student',
     quick_add_expense: 'Add Expense',
@@ -103,7 +135,9 @@ const translations = {
     recent_transactions: 'Recent Transactions',
     see_all: 'See all',
     expense_breakdown: 'Expense Breakdown',
-    search_students: 'Search by name, roll, mobile...',
+    no_expenses_month: 'No expenses recorded this month',
+    no_transactions_month: 'No transactions recorded this month',
+    search_students: 'Search by name, roll, phone...',
     all: 'All',
     filter_all: 'All Classes',
     filter_due: 'With Due',
@@ -112,11 +146,13 @@ const translations = {
     add_student: 'Add Student',
     edit_student: 'Edit Student',
     student_profile: 'Student Profile',
+    class_and_roll: 'Class & Roll',
     monthly_fee: 'Monthly Fee',
     address: 'Address',
     admission_date: 'Admission Date',
     fathers_name: 'Guardian Name',
-    fathers_mobile: 'Guardian Phone Number',
+    fathers_mobile: 'Guardian Phone',
+    student_mobile: 'Student Phone',
     notes: 'Notes',
     direct_communication: 'Direct Communication',
     call: 'Call',
@@ -128,6 +164,7 @@ const translations = {
     total_paid: 'Total Paid',
     due: 'Due',
     advance: 'Advance',
+    paid_status: 'Paid',
     payment_history: 'Payment History',
     no_payments_yet: 'No payment records yet',
     class_attendance: 'Class Attendance',
@@ -147,10 +184,33 @@ const translations = {
     no_receipt: 'No receipt',
     statement_pdf: 'Statement PDF',
     language: 'Language',
+    lang_desc: 'Switch application language',
+    app_language: 'App Language',
     security: 'Security',
+    pin_lock: 'App Lock (PIN)',
+    pin_lock_desc: 'Set 4-digit security PIN',
     finance: 'Finance',
+    manage_categories: 'Category Management',
+    manage_categories_desc: 'Create/Edit Income & Expense Categories',
+    financial_reports: 'Financial Reports',
+    financial_reports_desc: 'Daily, Weekly, Monthly & Yearly PDF Reports',
     data_backup: 'Data & Backup',
+    restore_17: 'Restore 17 Students Data',
+    restore_17_desc: 'Load original 17 students of Class 6 & 7',
+    export_backup: 'Export Backup (JSON)',
+    export_desc: 'Download all data as a backup file',
+    import_backup: 'Restore Backup (JSON)',
+    import_desc: 'Restore data from a JSON file',
+    clear_all: 'Delete All Data',
+    clear_desc: 'Permanently remove all students & transactions',
     about: 'About',
+    about_title: 'ABS Hisab Manager v2.0.0',
+    about_desc: 'Local-First Private Tutor & Finance Manager',
+    hajira_title: 'Student Attendance',
+    broadcast_title: 'Group Call & Broadcast SMS',
+    no_students_found: 'No students found',
+    no_students_saved: 'No students saved yet',
+    load_17_students: 'Load 17 Students',
   }
 };
 
@@ -437,7 +497,7 @@ class AppState {
   constructor() {
     this.storagePrefix = 'abs_hisab_';
     this.classes = this.load('classes', defaultClasses);
-
+    
     const storedStudents = this.load('students', null);
     const syncDone = localStorage.getItem(DB_VERSION_17_KEY);
 
@@ -452,10 +512,10 @@ class AppState {
       this.payments = this.load('payments', defaultPayments);
       this.transactions = this.load('transactions', defaultTransactions);
     }
-
+    
     this.categories = this.load('categories', defaultCategories);
     this.settings = this.load('settings', { lang: 'bn', pin: '', theme: 'light' });
-
+    
     this.currentView = 'dashboard';
     this.studentStatusFilter = 'all';
     this.studentClassFilter = 'All';
@@ -577,7 +637,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderStudentsList();
   renderTransactionsList();
   renderCategoriesList();
-
+  
   // Set default dates on forms
   const today = new Date().toISOString().split('T')[0];
   const curMonth = today.substring(0, 7);
@@ -602,40 +662,90 @@ function setLanguage(lang) {
 
 function applyLanguage() {
   const isBn = state.settings.lang === 'bn';
-  document.getElementById('currentLangLabel').innerText = isBn ? 'EN' : 'বাং';
-  document.getElementById('langBtnEn').classList.toggle('active', !isBn);
-  document.getElementById('langBtnBn').classList.toggle('active', isBn);
+  const langLabel = document.getElementById('currentLangLabel');
+  if (langLabel) langLabel.innerText = isBn ? 'EN' : 'বাং';
+  
+  const btnEn = document.getElementById('langBtnEn');
+  const btnBn = document.getElementById('langBtnBn');
+  if (btnEn) btnEn.classList.toggle('active', !isBn);
+  if (btnBn) btnBn.classList.toggle('active', isBn);
 
   // Time based greeting
   const hour = new Date().getHours();
   const greetingKey = hour < 12 ? 'good_morning' : hour < 17 ? 'good_afternoon' : 'good_evening';
-  document.getElementById('greetingText').innerText = state.t(greetingKey);
-  document.getElementById('appTitle').innerText = state.t('app_name');
+  const greetEl = document.getElementById('greetingText');
+  if (greetEl) greetEl.innerText = state.t(greetingKey);
+  
+  const appTitleEl = document.getElementById('appTitle');
+  if (appTitleEl) appTitleEl.innerText = state.t('app_name');
+
+  const setTxt = (id, key) => {
+    const el = document.getElementById(id);
+    if (el) el.innerText = state.t(key);
+  };
 
   // Dashboard translations
-  document.getElementById('netBalanceLabel').innerText = state.t('net_balance');
-  document.getElementById('quickActionsTitle').innerText = state.t('quick_actions');
-  document.getElementById('qaCollectLabel').innerText = state.t('quick_collect_fee');
-  document.getElementById('qaStudentLabel').innerText = state.t('quick_add_student');
-  document.getElementById('qaExpenseLabel').innerText = state.t('quick_add_expense');
-  document.getElementById('qaReportLabel').innerText = state.t('quick_reports');
-  document.getElementById('lblIncomeMonth').innerText = state.t('total_income_month');
-  document.getElementById('lblExpenseMonth').innerText = state.t('total_expense_month');
-  document.getElementById('lblPendingFees').innerText = state.t('pending_fees');
-  document.getElementById('lblTotalStudents').innerText = state.t('students');
-  document.getElementById('lblExpenseBreakdown').innerText = state.t('expense_breakdown');
-  document.getElementById('lblRecentTransactions').innerText = state.t('recent_transactions');
-  document.getElementById('btnSeeAllTxn').innerText = state.t('see_all');
+  setTxt('netBalanceLabel', 'net_balance');
+  setTxt('quickActionsTitle', 'quick_actions');
+  setTxt('qaHajiraLabel', 'quick_hajira');
+  setTxt('qaGroupCallLabel', 'quick_broadcast');
+  setTxt('qaCollectLabel', 'quick_collect_fee');
+  setTxt('qaStudentLabel', 'quick_add_student');
+  setTxt('qaExpenseLabel', 'quick_add_expense');
+  setTxt('qaReportLabel', 'quick_reports');
+  
+  setTxt('lblIncomeMonth', 'total_income_month');
+  setTxt('lblExpenseMonth', 'total_expense_month');
+  setTxt('lblPendingFees', 'pending_fees');
+  setTxt('lblTotalStudents', 'students');
+  setTxt('lblExpenseBreakdown', 'expense_breakdown');
+  setTxt('lblRecentTransactions', 'recent_transactions');
+  setTxt('btnSeeAllTxn', 'see_all');
 
   // Navigation labels
-  document.getElementById('navLblDashboard').innerText = state.t('dashboard');
-  document.getElementById('navLblClasses').innerText = state.t('classes_nav');
-  document.getElementById('navLblStudents').innerText = state.t('students');
-  document.getElementById('navLblTransactions').innerText = state.t('transactions');
-  document.getElementById('navLblSettings').innerText = state.t('settings');
+  setTxt('navLblDashboard', 'dashboard');
+  setTxt('navLblClasses', 'classes_nav');
+  setTxt('navLblStudents', 'students');
+  setTxt('navLblTransactions', 'transactions');
+  setTxt('navLblSettings', 'settings');
 
   // Student list search placeholder
-  document.getElementById('studentSearchInput').placeholder = state.t('search_students');
+  const searchInput = document.getElementById('studentSearchInput');
+  if (searchInput) searchInput.placeholder = state.t('search_students');
+
+  // Filter chips in Student tab
+  const chipAll = document.querySelector('#studentStatusChips .chip[data-status="all"]');
+  const chipDue = document.querySelector('#studentStatusChips .chip[data-status="due"]');
+  const chipPaid = document.querySelector('#studentStatusChips .chip[data-status="paid"]');
+  const chipAdv = document.querySelector('#studentStatusChips .chip[data-status="advance"]');
+  if (chipAll) chipAll.innerText = state.t('all');
+  if (chipDue) chipDue.innerText = state.t('filter_due');
+  if (chipPaid) chipPaid.innerText = state.t('filter_paid');
+  if (chipAdv) chipAdv.innerText = state.t('filter_advance');
+
+  // Settings Section labels
+  setTxt('secTitleLang', 'language');
+  setTxt('lblCurrentLang', 'app_language');
+  setTxt('secTitleSecurity', 'security');
+  setTxt('lblPinTitle', 'pin_lock');
+  setTxt('lblPinDesc', 'pin_lock_desc');
+  setTxt('secTitleFinance', 'finance');
+  setTxt('lblManageCat', 'manage_categories');
+  setTxt('lblManageCatDesc', 'manage_categories_desc');
+  setTxt('lblFullReports', 'financial_reports');
+  setTxt('lblFullReportsDesc', 'financial_reports_desc');
+  setTxt('secTitleBackup', 'data_backup');
+  setTxt('lblRestore17', 'restore_17');
+  setTxt('lblRestore17Desc', 'restore_17_desc');
+  setTxt('lblExportBackup', 'export_backup');
+  setTxt('lblExportDesc', 'export_desc');
+  setTxt('lblImportBackup', 'import_backup');
+  setTxt('lblImportDesc', 'import_desc');
+  setTxt('lblClearAll', 'clear_all');
+  setTxt('lblClearDesc', 'clear_desc');
+  setTxt('secTitleAbout', 'about');
+  setTxt('lblAboutTitle', 'about_title');
+  setTxt('lblAboutDesc', 'about_desc');
 }
 
 // Language toggle header button
@@ -719,9 +829,9 @@ function renderDashboard() {
     return d.getMonth() === curMonth && d.getFullYear() === curYear;
   });
   const sorted = [...currentMonthTxns].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
-
+  
   if (sorted.length === 0) {
-    recentList.innerHTML = `<div style="text-align:center; padding:18px; color:var(--text-muted); font-size:13px;">চলতি মাসে কোনো লেনদেন নেই</div>`;
+    recentList.innerHTML = `<div style="text-align:center; padding:18px; color:var(--text-muted); font-size:13px;">${state.t('no_transactions_month')}</div>`;
   } else {
     recentList.innerHTML = sorted.map(t => renderTxnCardHtml(t)).join('');
   }
@@ -744,7 +854,7 @@ function drawExpensePieChart() {
     ctx.strokeStyle = '#e2e8f0';
     ctx.lineWidth = 14;
     ctx.stroke();
-    legend.innerHTML = `<div style="font-size:12px; color:var(--text-muted);">চলতি মাসে কোনো ব্যয় নেই</div>`;
+    legend.innerHTML = `<div style="font-size:12px; color:var(--text-muted);">${state.t('no_expenses_month')}</div>`;
     return;
   }
 
@@ -1018,11 +1128,11 @@ function renderStudentsList() {
 
     let badgeHtml = '';
     if (due > 0) {
-      badgeHtml = `<span class="badge-pill badge-due">বাকি: ৳ ${due.toLocaleString('en-IN')}</span>`;
+      badgeHtml = `<span class="badge-pill badge-due">${state.t('due')}: ৳ ${due.toLocaleString('en-IN')}</span>`;
     } else if (advance > 0) {
-      badgeHtml = `<span class="badge-pill badge-advance">অগ্রিম: ৳ ${advance.toLocaleString('en-IN')}</span>`;
+      badgeHtml = `<span class="badge-pill badge-advance">${state.t('advance')}: ৳ ${advance.toLocaleString('en-IN')}</span>`;
     } else {
-      badgeHtml = `<span class="badge-pill badge-paid">পরিশোধিত</span>`;
+      badgeHtml = `<span class="badge-pill badge-paid">${state.t('paid_status')}</span>`;
     }
 
     return `
@@ -1068,29 +1178,29 @@ function renderStudentDetail(studentId) {
     <!-- Top Info Box -->
     <div style="background:var(--background); padding:16px; border-radius:var(--radius-md); border:1px solid var(--border);">
       <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-        <span style="color:var(--text-muted); font-size:13px;">শ্রেণি ও রোল:</span>
+        <span style="color:var(--text-muted); font-size:13px;">${state.t('class_and_roll')}:</span>
         <strong style="font-size:13px;">${student.className} · Roll ${student.rollNumber} (${student.section || '—'})</strong>
       </div>
       <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-        <span style="color:var(--text-muted); font-size:13px;">মাসিক ফি:</span>
+        <span style="color:var(--text-muted); font-size:13px;">${state.t('monthly_fee')}:</span>
         <strong style="font-size:14px; color:var(--primary);">৳ ${Number(student.monthlyFee).toLocaleString('en-IN')}</strong>
       </div>
       <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-        <span style="color:var(--text-muted); font-size:13px;">Guardian:</span>
+        <span style="color:var(--text-muted); font-size:13px;">${state.t('fathers_name')}:</span>
         <span style="font-size:13px; font-weight:600;">${student.fatherName || '—'} (${student.fatherPhone || '—'})</span>
       </div>
       ${student.studentPhone ? `
       <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-        <span style="color:var(--text-muted); font-size:13px;">Student Phone:</span>
+        <span style="color:var(--text-muted); font-size:13px;">${state.t('student_mobile')}:</span>
         <span style="font-size:13px; font-weight:600;">${student.studentPhone}</span>
       </div>` : ''}
       <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-        <span style="color:var(--text-muted); font-size:13px;">ভর্তির তারিখ:</span>
+        <span style="color:var(--text-muted); font-size:13px;">${state.t('admission_date')}:</span>
         <span style="font-size:13px;">${student.admissionDate || '—'}</span>
       </div>
       ${student.address ? `
       <div style="display:flex; justify-content:space-between;">
-        <span style="color:var(--text-muted); font-size:13px;">ঠিকানা:</span>
+        <span style="color:var(--text-muted); font-size:13px;">${state.t('address')}:</span>
         <span style="font-size:13px;">${student.address}</span>
       </div>` : ''}
     </div>
@@ -1099,47 +1209,47 @@ function renderStudentDetail(studentId) {
     <div class="direct-comm-card">
       <div class="direct-comm-header">
         <i class="fa-regular fa-comment-dots"></i>
-        <span>Direct Communication</span>
+        <span>${state.t('direct_communication')}</span>
       </div>
       <div class="direct-comm-buttons">
         <!-- 1. Call -->
-        <button class="direct-comm-item comm-call" onclick="callDirect('${effectivePhone}')" title="Call">
+        <button class="direct-comm-item comm-call" onclick="callDirect('${effectivePhone}')" title="${state.t('call')}">
           <div class="direct-comm-circle">
             <i class="fa-solid fa-phone"></i>
           </div>
-          <span>Call</span>
+          <span>${state.t('call')}</span>
         </button>
 
         <!-- 2. SMS -->
-        <button class="direct-comm-item comm-sms" onclick="smsDirect('${effectivePhone}', '${student.id}')" title="SMS">
+        <button class="direct-comm-item comm-sms" onclick="smsDirect('${effectivePhone}', '${student.id}')" title="${state.t('sms')}">
           <div class="direct-comm-circle">
             <i class="fa-solid fa-comment-dots"></i>
           </div>
-          <span>SMS</span>
+          <span>${state.t('sms')}</span>
         </button>
 
         <!-- 3. WhatsApp -->
-        <button class="direct-comm-item comm-whatsapp" onclick="whatsappDirect('${effectivePhone}', '${student.id}')" title="WhatsApp">
+        <button class="direct-comm-item comm-whatsapp" onclick="whatsappDirect('${effectivePhone}', '${student.id}')" title="${state.t('whatsapp')}">
           <div class="direct-comm-circle">
             <i class="fa-brands fa-whatsapp"></i>
           </div>
-          <span>WhatsApp</span>
+          <span>${state.t('whatsapp')}</span>
         </button>
 
         <!-- 4. Telegram -->
-        <button class="direct-comm-item comm-telegram" onclick="telegramDirect('${effectivePhone}')" title="Telegram">
+        <button class="direct-comm-item comm-telegram" onclick="telegramDirect('${effectivePhone}')" title="${state.t('telegram')}">
           <div class="direct-comm-circle">
             <i class="fa-solid fa-paper-plane"></i>
           </div>
-          <span>Telegram</span>
+          <span>${state.t('telegram')}</span>
         </button>
 
         <!-- 5. Save -->
-        <button class="direct-comm-item comm-save" onclick="saveContactDirect('${student.id}')" title="Save Contact">
+        <button class="direct-comm-item comm-save" onclick="saveContactDirect('${student.id}')" title="${state.t('save_contact')}">
           <div class="direct-comm-circle">
             <i class="fa-regular fa-address-book"></i>
           </div>
-          <span>Save</span>
+          <span>${state.t('save_contact')}</span>
         </button>
       </div>
     </div>
@@ -1148,25 +1258,25 @@ function renderStudentDetail(studentId) {
     <div class="stats-grid" style="margin-top:14px;">
       <div class="stat-card">
         <div class="stat-info">
-          <div class="stat-label">মোট প্রত্যাশিত</div>
+          <div class="stat-label">${state.t('total_expected')}</div>
           <div class="stat-value">৳ ${expected.toLocaleString('en-IN')}</div>
         </div>
       </div>
       <div class="stat-card">
         <div class="stat-info">
-          <div class="stat-label">মোট পরিশোধিত</div>
+          <div class="stat-label">${state.t('total_paid')}</div>
           <div class="stat-value" style="color:var(--income)">৳ ${paid.toLocaleString('en-IN')}</div>
         </div>
       </div>
       <div class="stat-card">
         <div class="stat-info">
-          <div class="stat-label">বর্তমান বাকি</div>
+          <div class="stat-label">${state.t('current_due')}</div>
           <div class="stat-value" style="color:var(--expense)">৳ ${due.toLocaleString('en-IN')}</div>
         </div>
       </div>
       <div class="stat-card">
         <div class="stat-info">
-          <div class="stat-label">অগ্রিম ব্যালেন্স</div>
+          <div class="stat-label">${state.t('advance')}</div>
           <div class="stat-value" style="color:var(--secondary)">৳ ${advance.toLocaleString('en-IN')}</div>
         </div>
       </div>
@@ -1176,8 +1286,8 @@ function renderStudentDetail(studentId) {
     <div class="card-box mt-3">
       <div style="display:flex; justify-content:space-between; align-items:center;">
         <div>
-          <div style="font-size:12px; color:var(--text-muted);">চলতি মাসের ক্লাস উপস্থিতি (${curMonthKey})</div>
-          <div style="font-size:20px; font-weight:800; color:var(--text-main); margin-top:2px;">${classesThisMonth} টি ক্লাস</div>
+          <div style="font-size:12px; color:var(--text-muted);">${state.t('class_attendance')} (${curMonthKey})</div>
+          <div style="font-size:20px; font-weight:800; color:var(--text-main); margin-top:2px;">${classesThisMonth} ${state.t('classes')}</div>
         </div>
         <div style="display:flex; gap:8px;">
           <button class="icon-action-btn" onclick="updateStudentAttendance('${student.id}', -1)"><i class="fa-solid fa-minus"></i></button>
@@ -1188,19 +1298,19 @@ function renderStudentDetail(studentId) {
 
     <!-- Payment History -->
     <div class="box-header-row mt-4">
-      <div class="box-title">পেমেন্ট ইতিহাস (${payments.length})</div>
+      <div class="box-title">${state.t('payment_history')} (${payments.length})</div>
       <button class="pill-btn btn-income" style="background:var(--income); color:white; padding:6px 12px; font-size:12px;" onclick="openCollectPaymentForStudent('${student.id}')">
-        <i class="fa-solid fa-plus"></i> ফি সংগ্রহ
+        <i class="fa-solid fa-plus"></i> ${state.t('collect_payment')}
       </button>
     </div>
 
     <div class="payment-history-list mt-2">
-      ${payments.length === 0 ? '<div style="color:var(--text-muted); font-size:13px; text-align:center; padding:14px;">কোনো পেমেন্ট রেকর্ড নেই</div>' : payments.map(p => `
+      ${payments.length === 0 ? `<div style="color:var(--text-muted); font-size:13px; text-align:center; padding:14px;">${state.t('no_payments_yet')}</div>` : payments.map(p => `
         <div style="background:white; border:1px solid var(--border); padding:12px; border-radius:var(--radius-md); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
           <div>
             <div style="font-weight:700; font-size:15px; color:var(--income);">৳ ${Number(p.amount).toLocaleString('en-IN')}</div>
             <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">${p.receiptNo} · ${p.paymentDate} · ${p.method} (${p.forMonth})</div>
-            ${p.note ? `<div style="font-size:11px; color:var(--text-main); margin-top:1px;">নোট: ${p.note}</div>` : ''}
+            ${p.note ? `<div style="font-size:11px; color:var(--text-main); margin-top:1px;">${state.t('notes')}: ${p.note}</div>` : ''}
           </div>
           <div style="display:flex; gap:6px;">
             <button class="icon-action-btn" title="Print Receipt" onclick="printMoneyReceipt('${p.id}')"><i class="fa-solid fa-print"></i></button>
@@ -1303,7 +1413,7 @@ function openAddStudentModal(studentId = null) {
       document.getElementById('fmStudentPhone').value = s.studentPhone || '';
       document.getElementById('fmStudentAddress').value = s.address || '';
       document.getElementById('fmAdmissionDate').value = s.admissionDate || '';
-
+      
       document.getElementById('fmStudentClass').value = s.className;
       onStudentClassChanged(s.section);
     }
@@ -2000,7 +2110,7 @@ function handleImportFile(e) {
   reader.onload = (evt) => {
     try {
       const data = JSON.parse(evt.target.result);
-
+      
       if (Array.isArray(data)) {
         state.students = data;
       } else {
@@ -2074,7 +2184,7 @@ function initDailyAttendanceStorage() {
   try {
     const saved = localStorage.getItem('abs_daily_attendance');
     if (saved) webDailyAttendance = JSON.parse(saved);
-  } catch (e) {
+  } catch(e) {
     webDailyAttendance = {};
   }
 }
@@ -2095,11 +2205,11 @@ function populateHajiraClassDropdowns() {
   const cSelect = document.getElementById('webHajiraClassFilter');
   const bSelect = document.getElementById('webBroadClassFilter');
   if (!cSelect || !bSelect) return;
-
+  
   const classesSet = new Set(['Seven', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10']);
   (state.classes || []).forEach(c => { if (c.name) classesSet.add(c.name); });
   (state.students || []).forEach(s => { if (s.className) classesSet.add(s.className); });
-
+  
   const curC = cSelect.value || 'All';
   const curB = bSelect.value || 'All';
 
@@ -2107,7 +2217,7 @@ function populateHajiraClassDropdowns() {
   classesSet.forEach(c => {
     html += `<option value="${c}">${c}</option>`;
   });
-
+  
   cSelect.innerHTML = html;
   bSelect.innerHTML = html;
   cSelect.value = curC;
@@ -2175,7 +2285,7 @@ function renderWebHajiraList() {
 
     const card = document.createElement('div');
     card.style.cssText = 'background:#fff; border-radius:14px; padding:12px; border:1px solid #e2e8f0; box-shadow:0 1px 3px rgba(0,0,0,0.02);';
-
+    
     let badgeBg = '#ecfdf5', badgeColor = '#065f46';
     if (st === 'Absent') { badgeBg = '#fef2f2'; badgeColor = '#991b1b'; }
     else if (st === 'Late') { badgeBg = '#fffbeb'; badgeColor = '#92400e'; }
@@ -2368,7 +2478,7 @@ function sendWebBulkWa() {
     if (p.startsWith('01')) p = '88' + p;
     window.open(`https://api.whatsapp.com/send?phone=${p}&text=${encodeURIComponent(msg)}`, '_blank');
   } else if (navigator.share) {
-    navigator.share({ title: 'ABS Broadcast', text: msg }).catch(() => { });
+    navigator.share({ title: 'ABS Broadcast', text: msg }).catch(() => {});
   } else {
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
   }
@@ -2389,7 +2499,7 @@ function openWebRapidCall() {
   selected.forEach((s, idx) => {
     callHtml += `
       <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:#f8fafc; border-radius:8px; border:1px solid #e2e8f0;">
-        <div><strong>${idx + 1}. ${s.name}</strong> (Roll: ${s.roll})<div style="font-size:11.5px; color:#64748b;">${s.phone}</div></div>
+        <div><strong>${idx+1}. ${s.name}</strong> (Roll: ${s.roll})<div style="font-size:11.5px; color:#64748b;">${s.phone}</div></div>
         <a href="tel:${s.phone}" style="background:#10b981; color:#fff; padding:6px 12px; border-radius:20px; text-decoration:none; font-size:12px; font-weight:600;"><i class="fa-solid fa-phone"></i> Call</a>
       </div>
     `;
