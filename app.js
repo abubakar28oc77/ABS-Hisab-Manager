@@ -499,13 +499,11 @@ class AppState {
     this.classes = this.load('classes', defaultClasses);
     
     const storedStudents = this.load('students', null);
-    const syncDone = localStorage.getItem(DB_VERSION_17_KEY);
 
-    if (!syncDone || !storedStudents || storedStudents.length === 0 || (storedStudents.length <= 3 && storedStudents.some(s => s.name && (s.name.includes('Rafsan') || s.name.includes('রাফসান'))))) {
+    if (!storedStudents || !Array.isArray(storedStudents) || storedStudents.length === 0) {
       this.students = JSON.parse(JSON.stringify(defaultStudents));
-      this.payments = [];
-      this.transactions = [];
-      localStorage.setItem(DB_VERSION_17_KEY, 'true');
+      this.payments = this.load('payments', defaultPayments);
+      this.transactions = this.load('transactions', defaultTransactions);
       this.save();
     } else {
       this.students = storedStudents;
