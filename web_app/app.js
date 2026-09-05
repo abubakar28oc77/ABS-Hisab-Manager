@@ -751,10 +751,13 @@ function applyLanguage() {
 }
 
 // Language toggle header button
-document.getElementById('langToggleBtn').addEventListener('click', () => {
-  const nextLang = state.settings.lang === 'bn' ? 'en' : 'bn';
-  setLanguage(nextLang);
-});
+const langToggleBtn = document.getElementById('langToggleBtn');
+if (langToggleBtn) {
+  langToggleBtn.addEventListener('click', () => {
+    const nextLang = state.settings.lang === 'bn' ? 'en' : 'bn';
+    setLanguage(nextLang);
+  });
+}
 
 // ==================== NAVIGATION TABS ====================
 function switchNavTab(tabName) {
