@@ -1870,7 +1870,31 @@ function formatDisplayDate(dateStr) {
   return dateStr;
 }
 
+function populateHajiraClassDropdowns() {
+  const cSelect = document.getElementById('webHajiraClassFilter');
+  const bSelect = document.getElementById('webBroadClassFilter');
+  if (!cSelect || !bSelect) return;
+  
+  const classesSet = new Set(['Seven', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10']);
+  (state.classes || []).forEach(c => { if (c.name) classesSet.add(c.name); });
+  (state.students || []).forEach(s => { if (s.className) classesSet.add(s.className); });
+  
+  const curC = cSelect.value || 'All';
+  const curB = bSelect.value || 'All';
+
+  let html = '<option value="All">All Classes</option>';
+  classesSet.forEach(c => {
+    html += `<option value="${c}">${c}</option>`;
+  });
+  
+  cSelect.innerHTML = html;
+  bSelect.innerHTML = html;
+  cSelect.value = curC;
+  bSelect.value = curB;
+}
+
 function openHajiraModal() {
+  populateHajiraClassDropdowns();
   const datePicker = document.getElementById('webHajiraDatePicker');
   if (datePicker) {
     datePicker.value = webHajiraDate;
@@ -2008,6 +2032,7 @@ function saveWebHajira() {
 let webBroadSelectedAll = false;
 
 function openGroupCallModal() {
+  populateHajiraClassDropdowns();
   renderWebBroadList();
   openModal('groupCallModal');
 }
