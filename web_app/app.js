@@ -170,125 +170,283 @@ const defaultClasses = [
 const defaultStudents = [
   {
     id: 'std-1',
-    name: 'রাফসান আহমেদ (Rafsan)',
-    className: 'Class 9',
-    rollNumber: '05',
-    section: 'Science',
-    monthlyFee: 2500,
-    fatherName: 'মাহবুব আলম',
-    fatherPhone: '01711223344',
-    studentPhone: '01911223344',
-    address: 'মিরপুর-১০, ঢাকা',
-    admissionDate: '2025-01-01',
-    notes: 'পদার্থ ও উচ্চতর গণিত',
-    attendance: { '2026-09': 14, '2026-08': 16 }
+    name: 'MD. HASAN MANDAL',
+    className: 'Class 6',
+    rollNumber: '6',
+    section: 'A',
+    monthlyFee: 500,
+    fatherName: 'MD. BABUL MONDAL',
+    fatherPhone: '01741264228',
+    studentPhone: '',
+    address: 'Betbari, Tangail Sadar, Tangail',
+    admissionDate: '2026-07-20',
+    notes: '',
+    attendance: {}
   },
   {
     id: 'std-2',
-    name: 'সাদিয়া ইসলাম (Sadia)',
-    className: 'Class 10',
-    rollNumber: '02',
-    section: 'Science',
-    monthlyFee: 3000,
-    fatherName: 'রফিকুল ইসলাম',
-    fatherPhone: '01822334455',
-    studentPhone: '01722334455',
-    address: 'উত্তরা সেক্টর ৭, ঢাকা',
-    admissionDate: '2025-02-01',
-    notes: 'রসায়ন ও জীববিজ্ঞান',
-    attendance: { '2026-09': 12, '2026-08': 15 }
+    name: 'NIROB',
+    className: 'Class 6',
+    rollNumber: '13',
+    section: 'A',
+    monthlyFee: 500,
+    fatherName: 'MD. NAZRUL ISLAM',
+    fatherPhone: '01719399022',
+    studentPhone: '',
+    address: 'Betbari, Tangail Sadar, Tangail',
+    admissionDate: '2026-07-20',
+    notes: '',
+    attendance: {}
   },
   {
     id: 'std-3',
-    name: 'তানভীর হাসান (Tanvir)',
-    className: 'Class 8',
+    name: 'NAFIZUL UL HAQUE',
+    className: 'Class 6',
+    rollNumber: '14',
+    section: 'A',
+    monthlyFee: 500,
+    fatherName: 'SAJEDUL ISLAM',
+    fatherPhone: '01710259032',
+    studentPhone: '',
+    address: 'Betbari, Tangail Sadar, Tangail',
+    admissionDate: '2026-07-20',
+    notes: '',
+    attendance: {}
+  },
+  {
+    id: 'std-4',
+    name: 'MAHIM BHUIYA',
+    className: 'Class 6',
+    rollNumber: '28',
+    section: 'A',
+    monthlyFee: 500,
+    fatherName: 'MD. MOSHARAF BHUYAN',
+    fatherPhone: '01753152326',
+    studentPhone: '',
+    address: 'Tuni Magra, Kalihati, Tangail',
+    admissionDate: '2026-07-20',
+    notes: '',
+    attendance: {}
+  },
+  {
+    id: 'std-5',
+    name: 'IMRAN',
+    className: 'Class 6',
+    rollNumber: '79',
+    section: 'A',
+    monthlyFee: 500,
+    fatherName: 'JOHER',
+    fatherPhone: '01710689846',
+    studentPhone: '',
+    address: 'Dholkan Palpara, Kalihati, Tangail',
+    admissionDate: '2026-07-20',
+    notes: '',
+    attendance: {}
+  },
+  {
+    id: 'std-6',
+    name: 'SHIMANTA DAS',
+    className: 'Class 6',
+    rollNumber: '96',
+    section: 'A',
+    monthlyFee: 500,
+    fatherName: 'KHUSHI CHANDRA DAS',
+    fatherPhone: '01753539680',
+    studentPhone: '',
+    address: 'Betbari, Tangail Sadar, Tangail',
+    admissionDate: '2026-07-20',
+    notes: '',
+    attendance: {}
+  },
+  {
+    id: 'std-7',
+    name: 'SUPTO GHOSH',
+    className: 'Class 7',
+    rollNumber: '1',
+    section: 'A',
+    monthlyFee: 500,
+    fatherName: 'SHUKUMAR CHANDRA GHOSH',
+    fatherPhone: '01723450534',
+    studentPhone: '',
+    address: 'Dholkan Palpara, Kalihati, Tangail',
+    admissionDate: '2026-07-20',
+    notes: '',
+    attendance: {}
+  },
+  {
+    id: 'std-8',
+    name: 'ASIF FUYAD',
+    className: 'Class 7',
+    rollNumber: '4',
+    section: 'A',
+    monthlyFee: 500,
+    fatherName: 'MD. ISMAIL HOSSAIN BHUIYAN',
+    fatherPhone: '01756346890',
+    studentPhone: '',
+    address: 'Dasokia, Kalihati, Tangail',
+    admissionDate: '2026-07-20',
+    notes: '',
+    attendance: {}
+  },
+  {
+    id: 'std-9',
+    name: 'MD. IMRAN',
+    className: 'Class 7',
+    rollNumber: '6',
+    section: 'A',
+    monthlyFee: 500,
+    fatherName: 'MD. ABDUR RASHID',
+    fatherPhone: '01720584931',
+    studentPhone: '',
+    address: 'Betbari, Tangail Sadar, Tangail',
+    admissionDate: '2026-07-20',
+    notes: '',
+    attendance: {}
+  },
+  {
+    id: 'std-10',
+    name: 'MD. ABDULLAH',
+    className: 'Class 7',
     rollNumber: '11',
     section: 'A',
-    monthlyFee: 2000,
-    fatherName: 'আনোয়ার হোসেন',
-    fatherPhone: '01933445566',
+    monthlyFee: 500,
+    fatherName: 'MD. MOKADDES ALI',
+    fatherPhone: '01917213701',
     studentPhone: '',
-    address: 'ধানমন্ডি ৩২, ঢাকা',
-    admissionDate: '2025-03-01',
-    notes: 'সাধারণ গণিত ও ইংরেজি',
-    attendance: { '2026-09': 10, '2026-08': 14 }
+    address: 'South Khasmagra, Kalihati, Tangail',
+    admissionDate: '2026-07-20',
+    notes: '',
+    attendance: {}
+  },
+  {
+    id: 'std-11',
+    name: 'ALIF HOSSAIN',
+    className: 'Class 7',
+    rollNumber: '24',
+    section: 'A',
+    monthlyFee: 500,
+    fatherName: 'MD. DULAL HOSSAIN',
+    fatherPhone: '01746062194',
+    studentPhone: '',
+    address: 'Kuizbari, Tangail Sadar, Tangail',
+    admissionDate: '2026-07-20',
+    notes: '',
+    attendance: {}
+  },
+  {
+    id: 'std-12',
+    name: 'MD. SAMIUL',
+    className: 'Class 7',
+    rollNumber: '30',
+    section: 'A',
+    monthlyFee: 500,
+    fatherName: 'MD. ABUBAKAR SIDDIK',
+    fatherPhone: '01725313663',
+    studentPhone: '',
+    address: 'Tuni Magra, Kalihati, Tangail',
+    admissionDate: '2026-07-20',
+    notes: '',
+    attendance: {}
+  },
+  {
+    id: 'std-13',
+    name: 'SAMIUL ISLAM',
+    className: 'Class 7',
+    rollNumber: '39',
+    section: 'A',
+    monthlyFee: 500,
+    fatherName: 'MD. SHAHIDUL ISLAM',
+    fatherPhone: '01602727295',
+    studentPhone: '',
+    address: 'Dholkan Palpara, Kalihati, Tangail',
+    admissionDate: '2026-07-20',
+    notes: '',
+    attendance: {}
+  },
+  {
+    id: 'std-14',
+    name: 'ADITTO KARMAKAR',
+    className: 'Class 7',
+    rollNumber: '41',
+    section: 'A',
+    monthlyFee: 500,
+    fatherName: 'BUDDHADEB KARMAKAR',
+    fatherPhone: '01730603155',
+    studentPhone: '',
+    address: 'Tuni Magra, Kalihati, Tangail',
+    admissionDate: '2026-07-20',
+    notes: '',
+    attendance: {}
+  },
+  {
+    id: 'std-15',
+    name: 'MD. ALHAZ',
+    className: 'Class 7',
+    rollNumber: '46',
+    section: 'A',
+    monthlyFee: 500,
+    fatherName: 'MD. ABU TALEB',
+    fatherPhone: '01720812611',
+    studentPhone: '',
+    address: 'Betbari, Tangail Sadar, Tangail',
+    admissionDate: '2026-07-20',
+    notes: '',
+    attendance: {}
+  },
+  {
+    id: 'std-16',
+    name: 'MD. RIYAD HOSEN',
+    className: 'Class 7',
+    rollNumber: '59',
+    section: 'A',
+    monthlyFee: 500,
+    fatherName: 'MD. BABUL HOSSAIN',
+    fatherPhone: '01741007262',
+    studentPhone: '',
+    address: 'Dholkan Palpara, Kalihati, Tangail',
+    admissionDate: '2026-07-20',
+    notes: '',
+    attendance: {}
+  },
+  {
+    id: 'std-17',
+    name: 'RAIYAN',
+    className: 'Class 7',
+    rollNumber: '66',
+    section: 'A',
+    monthlyFee: 500,
+    fatherName: 'MD. RANA',
+    fatherPhone: '01316885870',
+    studentPhone: '',
+    address: 'South Magra, Tangail Sadar, Tangail',
+    admissionDate: '2026-07-20',
+    notes: '',
+    attendance: {}
   }
 ];
 
-const defaultPayments = [
-  {
-    id: 'pay-1',
-    studentId: 'std-1',
-    amount: 2500,
-    paymentDate: '2026-09-01',
-    forMonth: '2026-09',
-    method: 'bKash',
-    note: 'September tuition fee paid via bKash',
-    receiptGiven: true,
-    receiptNo: 'REC-202609-001'
-  },
-  {
-    id: 'pay-2',
-    studentId: 'std-2',
-    amount: 3000,
-    paymentDate: '2026-09-02',
-    forMonth: '2026-09',
-    method: 'Nagad',
-    note: 'September fee received',
-    receiptGiven: true,
-    receiptNo: 'REC-202609-002'
-  }
-];
+const defaultPayments = [];
 
-const defaultTransactions = [
-  {
-    id: 'txn-1',
-    type: 'income',
-    amount: 2500,
-    category: 'Tuition',
-    date: '2026-09-01',
-    note: 'Rafsan Ahmed - Sep 2026 Tuition',
-    studentId: 'std-1',
-    paymentMethod: 'bKash'
-  },
-  {
-    id: 'txn-2',
-    type: 'income',
-    amount: 3000,
-    category: 'Tuition',
-    date: '2026-09-02',
-    note: 'Sadia Islam - Sep 2026 Tuition',
-    studentId: 'std-2',
-    paymentMethod: 'Nagad'
-  },
-  {
-    id: 'txn-3',
-    type: 'expense',
-    amount: 1200,
-    category: 'Books',
-    date: '2026-09-02',
-    note: 'NCTB Science books & test papers',
-    paymentMethod: 'Cash'
-  },
-  {
-    id: 'txn-4',
-    type: 'expense',
-    amount: 500,
-    category: 'Bills',
-    date: '2026-09-03',
-    note: 'Internet broadband bill',
-    paymentMethod: 'bKash'
-  }
-];
+const defaultTransactions = [];
 
 // ==================== APP STATE STORE ====================
 class AppState {
   constructor() {
     this.storagePrefix = 'abs_hisab_';
     this.classes = this.load('classes', defaultClasses);
-    this.students = this.load('students', defaultStudents);
-    this.payments = this.load('payments', defaultPayments);
-    this.transactions = this.load('transactions', defaultTransactions);
+    
+    const storedStudents = this.load('students', null);
+    if (!storedStudents || (storedStudents.length <= 3 && storedStudents.some(s => s.name && s.name.includes('Rafsan')))) {
+      this.students = defaultStudents;
+      this.payments = [];
+      this.transactions = [];
+      this.save();
+    } else {
+      this.students = storedStudents;
+      this.payments = this.load('payments', defaultPayments);
+      this.transactions = this.load('transactions', defaultTransactions);
+    }
+    
     this.categories = this.load('categories', defaultCategories);
     this.settings = this.load('settings', { lang: 'bn', pin: '', theme: 'light' });
     
