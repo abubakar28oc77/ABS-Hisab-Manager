@@ -6,7 +6,7 @@
 // ==================== I18N DICTIONARY ====================
 const translations = {
   bn: {
-    app_name: 'ABS হিসাব ম্যানেজার',
+    app_name: 'ABS হিসাব ম্যানেজার-২',
     dashboard: 'ড্যাশবোর্ড',
     classes_nav: 'শ্রেণি',
     students: 'শিক্ষার্থী',
@@ -79,7 +79,7 @@ const translations = {
     about: 'সম্পর্কে',
   },
   en: {
-    app_name: 'ABS Hisab Manager',
+    app_name: 'ABS Hisab Manager-2',
     dashboard: 'Dashboard',
     classes_nav: 'Classes',
     students: 'Students',
@@ -1772,25 +1772,31 @@ function removePinSecurity() {
 function exportDataBackup() {
   const data = {
     version: 2,
+    appName: 'ABS Hisab Manager-2',
     exportedAt: new Date().toISOString(),
     classes: state.classes,
     students: state.students,
     payments: state.payments,
     transactions: state.transactions,
-    categories: state.categories
+    categories: state.categories,
+    dailyAttendance: webDailyAttendance
   };
 
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `abs_hisab_backup_${Date.now()}.json`;
+  a.download = `ABS_Hisab_Manager_2_Backup_${Date.now()}.json`;
   a.click();
   URL.revokeObjectURL(url);
 }
 
 function triggerImportBackup() {
-  document.getElementById('importFileInput').click();
+  const input = document.getElementById('importFileInput');
+  if (input) {
+    input.value = '';
+    input.click();
+  }
 }
 
 function handleImportFile(e) {
@@ -1800,20 +1806,41 @@ function handleImportFile(e) {
   reader.onload = (evt) => {
     try {
       const data = JSON.parse(evt.target.result);
-      if (data.classes) state.classes = data.classes;
-      if (data.students) state.students = data.students;
-      if (data.payments) state.payments = data.payments;
-      if (data.transactions) state.transactions = data.transactions;
-      if (data.categories) state.categories = data.categories;
+      
+      if (Array.isArray(data)) {
+        state.students = data;
+      } else {
+        if (data.students) state.students = data.students;
+        else if (data.studentList) state.students = data.studentList;
+        else if (data.abs_students) state.students = data.abs_students;
+
+        if (data.classes) state.classes = data.classes;
+        else if (data.classList) state.classes = data.classList;
+
+        if (data.payments) state.payments = data.payments;
+        else if (data.fees) state.payments = data.fees;
+
+        if (data.transactions) state.transactions = data.transactions;
+        else if (data.history) state.transactions = data.history;
+
+        if (data.categories) state.categories = data.categories;
+
+        if (data.dailyAttendance) webDailyAttendance = data.dailyAttendance;
+        else if (data.attendance) webDailyAttendance = data.attendance;
+      }
+
       state.save();
-      alert('ডাটা ব্যাকআপ সফলভাবে রিস্টোর হয়েছে!');
+      localStorage.setItem('abs_daily_attendance', JSON.stringify(webDailyAttendance));
+
+      alert(`ডাটা রিস্টোর সম্পন্ন! মোট ${state.students.length} জন শিক্ষার্থী ও লেনদেনের তথ্য লোড হয়েছে।`);
       renderDashboard();
       renderClassesList();
       renderStudentClassFilterChips();
       renderStudentsList();
       renderTransactionsList();
     } catch (err) {
-      alert('ভুল ফাইল ফরম্যাট!');
+      console.error('Import Error:', err);
+      alert('ভুল ফাইল ফরম্যাট! অনুগ্রহ করে সঠিক JSON ব্যাকআপ ফাইল নির্বাচন করুন।');
     }
   };
   reader.readAsText(file);
