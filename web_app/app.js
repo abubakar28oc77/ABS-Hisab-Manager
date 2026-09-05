@@ -496,6 +496,7 @@ const DB_VERSION_17_KEY = 'abs_hisab_v2_synced_17_students_final';
 class AppState {
   constructor() {
     this.storagePrefix = 'abs_hisab_';
+    this.memoryStore = {};
     this.classes = this.load('classes', defaultClasses);
     
     const storedStudents = this.load('students', null);
@@ -526,23 +527,36 @@ class AppState {
 
   load(key, fallback) {
     try {
-      const data = localStorage.getItem(this.storagePrefix + key);
-      return data ? JSON.parse(data) : fallback;
-    } catch {
-      return fallback;
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const data = localStorage.getItem(this.storagePrefix + key);
+        if (data) return JSON.parse(data);
+      }
+    } catch (e) {
+      console.warn('Storage load fallback', e);
     }
+    return (this.memoryStore && this.memoryStore[key] !== undefined) ? this.memoryStore[key] : fallback;
   }
 
   save() {
+    if (!this.memoryStore) this.memoryStore = {};
+    this.memoryStore['classes'] = this.classes;
+    this.memoryStore['students'] = this.students;
+    this.memoryStore['payments'] = this.payments;
+    this.memoryStore['transactions'] = this.transactions;
+    this.memoryStore['categories'] = this.categories;
+    this.memoryStore['settings'] = this.settings;
+
     try {
-      localStorage.setItem(this.storagePrefix + 'classes', JSON.stringify(this.classes));
-      localStorage.setItem(this.storagePrefix + 'students', JSON.stringify(this.students));
-      localStorage.setItem(this.storagePrefix + 'payments', JSON.stringify(this.payments));
-      localStorage.setItem(this.storagePrefix + 'transactions', JSON.stringify(this.transactions));
-      localStorage.setItem(this.storagePrefix + 'categories', JSON.stringify(this.categories));
-      localStorage.setItem(this.storagePrefix + 'settings', JSON.stringify(this.settings));
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.setItem(this.storagePrefix + 'classes', JSON.stringify(this.classes));
+        localStorage.setItem(this.storagePrefix + 'students', JSON.stringify(this.students));
+        localStorage.setItem(this.storagePrefix + 'payments', JSON.stringify(this.payments));
+        localStorage.setItem(this.storagePrefix + 'transactions', JSON.stringify(this.transactions));
+        localStorage.setItem(this.storagePrefix + 'categories', JSON.stringify(this.categories));
+        localStorage.setItem(this.storagePrefix + 'settings', JSON.stringify(this.settings));
+      }
     } catch (e) {
-      console.error('Storage save error', e);
+      console.warn('Storage save fallback', e);
     }
   }
 
