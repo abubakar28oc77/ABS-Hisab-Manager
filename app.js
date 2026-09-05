@@ -1997,13 +1997,19 @@ function printMoneyReceipt(paymentId) {
 }
 
 function triggerReceiptPrint() {
-  const content = document.getElementById('printableReceiptArea');
-  if (!content) return;
-  const printArea = document.getElementById('printArea');
-  if (printArea) {
-    printArea.innerHTML = content.outerHTML;
+  try {
+    const content = document.getElementById('printableReceiptArea');
+    if (!content) return;
+    const printArea = document.getElementById('printArea');
+    if (printArea) {
+      printArea.innerHTML = content.outerHTML;
+    }
+    if (typeof window.print === 'function') {
+      window.print();
+    }
+  } catch (e) {
+    console.warn('Print not supported or failed', e);
   }
-  window.print();
 }
 
 // ==================== PRINT FULL STUDENT STATEMENT (A4) ====================
@@ -2329,7 +2335,10 @@ function openModal(id) {
   if (el) {
     modalZIndexCounter += 10;
     el.style.zIndex = modalZIndexCounter;
-    el.classList.add('show');
+    el.style.display = 'flex';
+    setTimeout(() => {
+      el.classList.add('show');
+    }, 20);
   }
 }
 
@@ -2338,6 +2347,11 @@ function closeModal(id) {
   if (el) {
     el.classList.remove('show');
     el.style.zIndex = '';
+    setTimeout(() => {
+      if (!el.classList.contains('show')) {
+        el.style.display = 'none';
+      }
+    }, 200);
   }
 }
 
@@ -2350,8 +2364,7 @@ function closeAnyOpenModal() {
       return zb - za;
     });
     const topModal = openBackdrops[0];
-    topModal.classList.remove('show');
-    topModal.style.zIndex = '';
+    closeModal(topModal.id);
     return true;
   }
   return false;
@@ -2360,8 +2373,7 @@ function closeAnyOpenModal() {
 // Global backdrop click dismissal
 document.addEventListener('click', (e) => {
   if (e.target && e.target.classList && e.target.classList.contains('modal-backdrop')) {
-    e.target.classList.remove('show');
-    e.target.style.zIndex = '';
+    closeModal(e.target.id);
   }
 });
 
